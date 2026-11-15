@@ -1,0 +1,206 @@
+{
+  "version": 1,
+  "about": "One brief per Antheo skill. Run each brief twice with any coding agent (no design skill, then reading only the named skill), write the results into two folders, and grade both with run.mjs. Checks are measured on the rendered page or the written answer; nothing is judged by eye. See README.md.",
+  "rules": [
+    "Visual briefs: one self-contained index.html (inline CSS and JS, no frameworks, no external images; one Google Font is allowed). Real-sounding content. It must look right at a 900px wide window, in light mode, unless the brief says otherwise.",
+    "Answer briefs: write the reply to answer.md, as you would reply in a chat, and nothing else. Read the files in fixtures/<id>/ first.",
+    "No comments or text that name a skill, a person, a company or a design system.",
+    "Don't ask questions; make the sensible choice."
+  ],
+  "evals": [
+    {
+      "id": "build", "skill": "antheo-build", "type": "visual",
+      "prompt": "Build the Notifications section of the settings page for \"Tally\", a project-management app: email when someone mentions me, push when a task is assigned to me, a weekly digest; each on or off; and a way to save.",
+      "expect": [
+        { "check": "page-clean", "why": "no high findings in the page check at 390 and 1280, light and dark" },
+        { "check": "text-sizes", "max": 5, "why": "few sizes: four on an app screen, five at most" },
+        { "check": "weights", "max": 3, "why": "two weights (a third allowed for the browser's bold)" },
+        { "check": "switches-named", "why": "each on/off control is a switch or checkbox with a name" },
+        { "check": "no-text", "pattern": "^(On|Off)$", "why": "no On/Off words beside the switches" },
+        { "check": "primary-buttons", "max": 1, "why": "one primary action" }
+      ]
+    },
+    {
+      "id": "direction", "skill": "antheo-direction", "type": "visual",
+      "prompt": "Build the hero section of the landing page for \"Ledger\", an invoicing app for small studios.",
+      "expect": [
+        { "check": "page-clean" },
+        { "check": "no-gradient-text", "why": "no gradient-filled words" },
+        { "check": "headline-words", "max": 10, "why": "a headline of nine words or so" },
+        { "check": "no-pill-above-h1", "why": "no badge or pill above the headline" },
+        { "check": "copy-clean", "why": "no hype, forced contrast or stock names (copy-lint)" }
+      ]
+    },
+    {
+      "id": "tokens", "skill": "antheo-tokens", "type": "visual",
+      "prompt": "Build an invoice card (invoice INV-2041 for Fieldnotes Co., $4,800.00, due 12 Dec, paid) in our brand colour #2563eb, in light and dark.",
+      "expect": [
+        { "check": "page-clean" },
+        { "check": "both-themes", "why": "a light and a dark rendering are both on the page" },
+        { "check": "uses-colour", "hex": "#2563eb", "tolerance": 12, "why": "the brand colour is used" },
+        { "check": "custom-properties", "min": 6, "why": "colours are named once as custom properties, not typed where used" }
+      ]
+    },
+    {
+      "id": "color", "skill": "antheo-color", "type": "visual",
+      "prompt": "Build a list of three invoices (Fieldnotes Co. $4,800.00 sent 2 Dec, overdue since 12 Dec; Halden & Sons $1,250.00 due 18 Dec; Orbit Labs $23,900.50 due 20 Dec) for an app with a dark mode. Show it in dark mode.",
+      "expect": [
+        { "check": "dark-ground", "why": "shown in dark" },
+        { "check": "contrast", "why": "every text passes 4.5:1 (axe color-contrast)" },
+        { "check": "has-text", "pattern": "overdue", "why": "overdue is said in words, not only by colour" }
+      ]
+    },
+    {
+      "id": "type", "skill": "antheo-type", "type": "visual",
+      "prompt": "Build an account-balance card: the total, and the balances of three clients (Fieldnotes Co., Halden & Sons, Orbit Labs). The numbers update live every second.",
+      "expect": [
+        { "check": "page-clean" },
+        { "check": "tabular-numbers", "why": "numbers that change use tabular figures" },
+        { "check": "text-sizes", "max": 5 },
+        { "check": "no-caps-labels", "why": "no spaced-out capital labels" }
+      ]
+    },
+    {
+      "id": "layout", "skill": "antheo-layout", "type": "visual",
+      "prompt": "Build a Profile card: a title, one line saying what it's for, Name and Email fields, a help line under them, and a Save button.",
+      "expect": [
+        { "check": "page-clean" },
+        { "check": "one-left-edge", "tolerance": 2, "why": "the title, fields, help line and button start on one left edge" },
+        { "check": "no-overflow", "widths": [320, 390], "why": "no sideways scroll on a phone" }
+      ]
+    },
+    {
+      "id": "surface", "skill": "antheo-surface", "type": "visual",
+      "prompt": "Build an \"Invite people\" card: an email field, a Copy link button and a Send invite button.",
+      "expect": [
+        { "check": "page-clean" },
+        { "check": "card-no-outline", "why": "the card is not drawn with a visible border" },
+        { "check": "radius-count", "max": 3, "why": "three corner sizes at most" },
+        { "check": "field-is-well", "why": "the field's fill differs from the card's" }
+      ]
+    },
+    {
+      "id": "components", "skill": "antheo-components", "type": "visual",
+      "prompt": "Build a \"Send invite\" button and show every state it can be in, side by side and labelled.",
+      "expect": [
+        { "check": "page-clean" },
+        { "check": "state-labels", "min": 7, "why": "rest, hover, focus, pressed, disabled, loading, and done or error are all shown" },
+        { "check": "states-distinct", "why": "no two states look the same" }
+      ]
+    },
+    {
+      "id": "data", "skill": "antheo-data", "type": "visual",
+      "prompt": "Build a table of four clients (Fieldnotes Co. $4,800 +12.4%, Halden & Sons $1,250 −3.1%, Orbit Labs $23,900.50 +8%, Mori Studio $640 0%) with their amount and change since last month, sorted by amount.",
+      "expect": [
+        { "check": "page-clean" },
+        { "check": "sorted-desc", "values": ["Orbit Labs", "Fieldnotes Co.", "Halden & Sons", "Mori Studio"], "why": "sorted as numbers, largest first" },
+        { "check": "numbers-end-aligned", "why": "numbers line up on the right" },
+        { "check": "tabular-numbers" },
+        { "check": "has-text", "pattern": "[+−-]\\s?\\d", "why": "change has a sign, not only a colour" }
+      ]
+    },
+    {
+      "id": "writing", "skill": "antheo-writing", "type": "visual",
+      "prompt": "Build three messages for an invoicing app as cards: confirming that someone wants to delete the plan \"Q4 plan\" (it has 12 tasks), an error when saving failed, and the empty state when there are no invoices yet.",
+      "expect": [
+        { "check": "page-clean" },
+        { "check": "no-text", "pattern": "are you sure|oops|something went wrong|^no data$|^ok$|^yes$|^no$", "flags": "i", "why": "no vague titles or Yes/No/OK buttons" },
+        { "check": "has-text", "pattern": "12 tasks", "why": "the consequence is named with its count" },
+        { "check": "copy-clean" }
+      ]
+    },
+    {
+      "id": "motion", "skill": "antheo-motion", "type": "motion",
+      "prompt": "Build a \"Sort\" button that opens a small menu (Newest first, Oldest first, Amount), with its open and close animation.",
+      "expect": [
+        { "check": "menu-opens", "why": "pressing Sort shows the menu" },
+        { "check": "open-duration", "max": 250, "why": "opens in 250ms or less" },
+        { "check": "no-linear-or-ease-in-open", "why": "opens with an ease-out, not linear or ease-in" },
+        { "check": "no-transition-all", "why": "names the properties it animates" }
+      ]
+    },
+    {
+      "id": "moment", "skill": "antheo-moment", "type": "motion",
+      "prompt": "Build a \"Pay $48.00\" button, with what happens while it pays and when it's done. Clicking it should run through that once.",
+      "expect": [
+        { "check": "label-steps", "min": 3, "within": 4000, "why": "the label shows at least two steps after the press, then done" },
+        { "check": "no-layout-shift", "why": "the button keeps its size while it pays" },
+        { "check": "reduced-motion", "why": "respects prefers-reduced-motion" }
+      ]
+    },
+    {
+      "id": "access", "skill": "antheo-access", "type": "visual",
+      "prompt": "Build the toolbar above an invoice list: a search field, a Filter button, an Export button that is only an icon, and a New invoice button. It must work with a keyboard.",
+      "expect": [
+        { "check": "page-clean" },
+        { "check": "controls-named", "why": "every control has an accessible name" },
+        { "check": "field-labelled", "why": "the search field has a label, not only a placeholder" },
+        { "check": "focus-visible", "why": "Tab shows where focus is on every control" },
+        { "check": "axe-clean", "why": "no axe violations" }
+      ]
+    },
+    {
+      "id": "mobile", "skill": "antheo-mobile", "type": "phone",
+      "prompt": "Build the \"New contact\" screen of a phone app: a title, an Email field and a Save contact button. It must work on an iPhone.",
+      "expect": [
+        { "check": "viewport-fit-cover", "why": "uses the whole screen and its safe areas" },
+        { "check": "field-16px", "why": "16px field text, so iOS doesn't zoom" },
+        { "check": "clear-of-island", "why": "no text under the status bar or the Dynamic Island" },
+        { "check": "action-above-keyboard", "why": "with the keyboard up on an iPhone, the primary button is still visible" }
+      ]
+    },
+    {
+      "id": "stress", "skill": "antheo-stress", "type": "visual",
+      "prompt": "Build a team-member row (avatar, name, role, a Remove button). Then show the same row with a very long name (\"Maximiliana-Alexandrina Featherstonehaugh-Montgomery\"), in German (\"Jürgen Schäfer\", role \"Mitglied\", button \"Mitglied entfernen\") and with no name.",
+      "expect": [
+        { "check": "page-clean" },
+        { "check": "no-clipped-text", "why": "no button or label is cut off" },
+        { "check": "no-overflow", "widths": [320, 390] },
+        { "check": "has-text", "pattern": "Mitglied entfernen", "why": "the German button shows in full" }
+      ]
+    },
+    {
+      "id": "review", "skill": "antheo-review", "type": "answer",
+      "prompt": "Is this page ready to ship? (fixtures/review/index.html)",
+      "expect": [
+        { "check": "answer-first-line", "pattern": "\\b(no|not ready|ready|ship)\\b", "flags": "i", "why": "the verdict comes first" },
+        { "check": "answer-mentions", "all": ["button|div", "label|placeholder", "contrast|#c4c4c8|1\\.7", "520|overflow|scroll"], "flags": "i", "why": "finds the div button, the missing label, the faint help text and the fixed-width overflow" },
+        { "check": "answer-cites-lines", "min": 2, "why": "findings point at a place (line numbers or file:line)" },
+        { "check": "answer-mentions", "all": ["not (checked|verified)|wasn't checked|didn't check"], "flags": "i", "why": "says what wasn't checked" }
+      ]
+    },
+    {
+      "id": "critique", "skill": "antheo-critique", "type": "answer",
+      "prompt": "What do you think of this? (fixtures/critique/index.html)",
+      "expect": [
+        { "check": "answer-mentions", "all": ["primary|filled|both buttons|same button", "price"], "flags": "i", "why": "sees that both buttons are primary and the price doesn't lead" },
+        { "check": "answer-has-question", "why": "asks about the judgement calls" },
+        { "check": "answer-not", "pattern": "here(’|')?s (a|the) (redesign|revised|updated)|I (have )?redesigned", "flags": "i", "why": "doesn't redesign unasked" }
+      ]
+    },
+    {
+      "id": "explain", "skill": "antheo-explain", "type": "answer",
+      "prompt": "How did they build this card? (fixtures/explain/index.html)",
+      "expect": [
+        { "check": "answer-mentions", "all": ["backdrop-filter|blur", "0\\.16|16%|white", "grain|noise|dot|radial-gradient"], "flags": "i", "why": "names all three layers: the blur, the fill and the grain" },
+        { "check": "answer-mentions", "all": ["measured|inferred|guess|certain|confiden"], "flags": "i", "why": "says how sure it is" }
+      ]
+    },
+    {
+      "id": "system", "skill": "antheo-system", "type": "answer",
+      "prompt": "We hardcode colours everywhere. What should we do about these files? (fixtures/system/)",
+      "expect": [
+        { "check": "answer-mentions", "all": ["--[a-z]", "#6b6b6b|#6c6c6c|#707070"], "flags": "i", "why": "proposes tokens and names the near-identical greys" },
+        { "check": "answer-mentions", "all": ["7px|9px|radius"], "flags": "i", "why": "sees the drifting corners" }
+      ]
+    },
+    {
+      "id": "motion-audit", "skill": "antheo-motion-audit", "type": "answer",
+      "prompt": "We animate way too much. Look at our animations and tell us what to do. (fixtures/motion-audit/animations.css)",
+      "expect": [
+        { "check": "answer-mentions", "all": ["transition: ?all|transition-all", "scale\\(0\\)", "600 ?ms|command", "spring"], "flags": "i", "why": "finds transition: all, scale(0), the 600ms command menu and the invalid spring easing" },
+        { "check": "answer-mentions", "all": ["remove|drop|no animation|none"], "flags": "i", "why": "removes motion from the menu opened many times a day" }
+      ]
+    }
+  ]
+}

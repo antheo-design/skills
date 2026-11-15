@@ -1,0 +1,92 @@
+/* Antheo layout kit: the fallback copy of what scripts/tokens.mjs writes as layout.css. Import after the tokens.
+   Fluid by construction: tracks use minmax(), min() and clamp(); nothing has a fixed pixel width; rows wrap on
+   their own. Use these instead of writing new containers, so every section shares one left edge.
+   In a single-file page, copy only the classes you use, not the whole kit. */
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+body { margin: 0; }
+img, video, canvas { max-width: 100%; height: auto; }
+svg { max-width: 100%; }
+:where(h1, h2, h3, h4) { text-wrap: balance; margin: 0; }
+:where(p, li, dd) { text-wrap: pretty; overflow-wrap: break-word; } /* break-word, not anywhere: a real word is never split to make a column fit */
+:where(button) { white-space: nowrap; }
+.long-text { overflow-wrap: anywhere; min-width: 0; }      /* only for strings people typed: emails, links, IDs, names */
+/* A number and its unit: one line, one baseline, the unit smaller and quieter, right after the number. */
+.figure { display: inline-flex; align-items: baseline; gap: 0.375rem; white-space: nowrap; }
+.figure > .unit { font-size: var(--t-body); font-weight: 400; color: var(--text-2); }
+:where(input, select, textarea, button) { font: inherit; }
+:where(input, select, textarea) { min-width: 0; max-width: 100%; }
+
+/* 1. THE PAGE GRID. Every top-level section is a .scene. Its children sit on the content column, so every
+      heading on the page starts on the same line. Backgrounds go on the .scene and reach the screen edges. */
+.scene {
+  display: grid;
+  grid-template-columns:
+    [full-start] minmax(var(--gutter), 1fr)
+    [wide-start] minmax(0, calc((var(--page-wide) - var(--page-max)) / 2))
+    [content-start] min(100% - 2 * var(--gutter), var(--page-max))
+    [content-end] minmax(0, calc((var(--page-wide) - var(--page-max)) / 2))
+    [wide-end] minmax(var(--gutter), 1fr) [full-end];
+  padding-block: var(--section);
+}
+.scene > * { grid-column: content; min-width: 0; }
+.scene > .wide { grid-column: wide; }                       /* a wide table, a big visual */
+.scene > .full { grid-column: full; }                       /* edge to edge */
+.scene.dense { padding-block: var(--section-dense); }
+.scene.flush { padding-block: 0; }                          /* a header or footer bar: same column, so its brand starts on the content edge */
+
+/* 2. SPLIT. Two parts side by side; they stack by themselves when either would drop under its minimum. */
+.split { display: flex; flex-wrap: wrap; gap: var(--gap-group) clamp(2rem, 5vw, 5rem); align-items: start; }
+.split > * { flex: 1 1 var(--split-min, 20rem); min-width: 0; }
+.split > .major { flex-grow: 1.6; }                         /* the wider part of a 5/7 split */
+.split.center { align-items: center; }
+
+/* 3. BRAND PAGES ONLY (antheo-direction, when the person asked for an expressive page). Never on app screens or
+      plain sections: a hero with a real visual, a coloured ground, a roomier section. */
+.hero-grid { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(2rem, 5vw, 5rem); align-items: center; }
+.hero-grid > :first-child { max-width: 36rem; }
+.hero-visual { min-height: clamp(16rem, 38vw, 40rem); position: relative; }
+@media (max-width: 56rem) { .hero-grid { grid-template-columns: minmax(0, 1fr); } }
+.scene.airy { padding-block: calc(var(--section) * 1.5); }
+.scene.on-field { background: var(--color-field); color: var(--color-on-field); }
+
+/* 4. AUTO GRID. As many equal columns as fit; one column on a phone, no breakpoints. Set --col-min per use. */
+.auto-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(var(--col-min, 16rem), 100%), 1fr)); gap: var(--gap-field); }
+
+/* 5. STACK and CLUSTER. Vertical flow with one gap; a wrapping row of small things. */
+.stack { display: flex; flex-direction: column; gap: var(--stack-gap, var(--gap-field)); }
+.stack > * { margin-block: 0; }
+.stack.tight { --stack-gap: var(--gap-label); }
+.stack.loose { --stack-gap: var(--gap-group); }
+.cluster { display: flex; flex-wrap: wrap; gap: var(--gap-inline) var(--gap-item); align-items: center; }
+.cluster.between { justify-content: space-between; }
+
+/* 6. PAIRS. Controls that sit side by side share row lines: label on row 1, control on row 2, help on row 3.
+      Each child takes the same three rows, so the labels line up exactly whatever their length. */
+.pair-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(18rem, 100%), 1fr)); grid-auto-rows: auto; gap: var(--gap-label) var(--gap-group); align-items: start; }
+.pair-row > * { display: grid; grid-template-rows: subgrid; grid-row: span 3; min-width: 0; }
+@supports not (grid-template-rows: subgrid) { .pair-row > * { grid-template-rows: auto auto auto; row-gap: var(--gap-label); } }
+
+/* 7. MEASURE and SCROLLERS. Text never runs wider than it can be read; wide data scrolls inside its own box. */
+.measure { max-width: var(--measure); }
+.scroll-x { overflow-x: auto; overscroll-behavior-x: contain; max-width: 100%; }
+.scroll-x > table { min-width: max-content; }
+
+/* 8. APP SHELL. A sidebar that becomes a top bar by itself when the window is narrow. */
+.shell { display: grid; grid-template-columns: minmax(0, 1fr); min-height: 100dvh; }
+@media (min-width: 60rem) {
+  .shell { grid-template-columns: var(--shell-side, 15rem) minmax(0, 1fr); }
+  .shell > :first-child { position: sticky; top: 0; height: 100dvh; overflow-y: auto; }
+}
+.shell-main { padding: var(--s-6) var(--gutter); max-width: calc(var(--page-wide) + 2 * var(--gutter)); width: 100%; margin-inline: auto; min-width: 0; }
+
+/* 9. No smooth scrolling for people who ask for less motion. */
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+/* 10. HIGH CONTRAST (Windows forced colors): backgrounds are removed, so controls keep an edge and a chosen state stays visible. */
+@media (forced-colors: active) {
+  :where(button, [role="button"], [role="switch"], [role="tab"], input, select, textarea, .btn) { border: 1px solid ButtonText; }
+  :where([aria-pressed="true"], [aria-checked="true"], [aria-selected="true"], [aria-current]:not([aria-current="false"])) { outline: 2px solid Highlight; outline-offset: -2px; forced-color-adjust: none; background: Highlight; color: HighlightText; }
+  :where(svg) { forced-color-adjust: auto; }
+}

@@ -1,0 +1,86 @@
+/* Antheo motion kit: the fallback copy of what antheo-tokens/scripts/tokens.mjs writes as motion.css. Import after the
+   tokens. Motion that is there by default, so nothing on the page is dead: every control answers a hover and a press,
+   things that open arrive from somewhere, and reduced motion is already handled (travel goes, a short fade stays).
+   Selectors use :where(), so any rule you write wins over these. */
+
+:root { interpolate-size: allow-keywords; }
+
+/* 1. FEEDBACK. Every button-like control answers back, whatever its style. */
+:where(button, [role="button"], [role="switch"], [role="tab"], summary, input[type="submit"], input[type="button"], .btn) {
+  transition: background-color var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out), opacity var(--dur-fast) var(--ease-out),
+    scale var(--dur-instant) var(--ease-out);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+:where(button, [role="button"], [role="tab"], summary, input[type="submit"], input[type="button"], .btn):active { scale: var(--scale-press); }
+:where(button, [role="button"], [role="switch"], [role="tab"], summary, input[type="submit"], input[type="button"], .btn):disabled,
+:where(button, [role="button"], .btn)[aria-disabled="true"] { cursor: not-allowed; scale: none; }
+@media (hover: hover) and (pointer: fine) {
+  /* a wash laid over the control's own color: works on filled, outlined and bare buttons alike */
+  :where(button, [role="button"], [role="switch"], [role="tab"], summary, input[type="submit"], input[type="button"], .btn):hover:not(:disabled, [aria-disabled="true"]) {
+    background-image: linear-gradient(var(--wash), var(--wash));
+  }
+  :where(a:not(.btn)) { text-underline-offset: 0.18em; text-decoration-thickness: 1px; transition: color var(--dur-fast) var(--ease-out), text-decoration-color var(--dur-fast) var(--ease-out); }
+  :where(a:not(.btn)):hover { text-decoration-line: underline; text-decoration-thickness: 2px; }
+  .hoverable { transition: background-color var(--dur-fast) var(--ease-out); }
+  .hoverable:hover { background-color: var(--well); }
+}
+:where(a:not(.btn)):active { opacity: 0.7; }
+
+/* 2. FOCUS. One ring for everything, never removed. */
+:where(a, button, input, select, textarea, summary, [tabindex], [role="button"], [role="switch"], [role="tab"]):focus-visible {
+  outline: 2px solid var(--focus); outline-offset: 2px;
+}
+:where(input, select, textarea) { transition: border-color var(--dur-fast) var(--ease-out); }
+
+/* 3. ARRIVE. The page's one orchestrated entrance: put .arrive on up to six things in the hero and number them
+      with style="--i: 0", 1, 2… They rise in order, once. Nothing else animates on load. */
+@media (prefers-reduced-motion: no-preference) {
+  .arrive { animation: arrive var(--dur-page) var(--ease-out) both; animation-delay: calc(var(--i, 0) * 70ms); }
+  @keyframes arrive { from { opacity: 0; translate: 0 var(--dist-md); } }
+}
+
+/* 4. OPEN and CLOSE. Dialogs and popovers fade and grow a little from where they were called; they leave faster. */
+:where(dialog, [popover]) {
+  opacity: 0; scale: var(--scale-pop); transform-origin: var(--origin, center);
+  transition: opacity var(--dur-fast) var(--ease-out), scale var(--dur-fast) var(--ease-out),
+    overlay var(--dur-fast) allow-discrete, display var(--dur-fast) allow-discrete;
+}
+:where(dialog[open]) { opacity: 1; scale: 1; transition-duration: var(--dur-open); }
+:where([popover]:popover-open) { opacity: 1; scale: 1; transition-duration: var(--dur-fast); }
+@starting-style { :where(dialog[open], [popover]:popover-open) { opacity: 0; scale: var(--scale-pop); } }
+:where(dialog)::backdrop { background: var(--backdrop); opacity: 0; transition: opacity var(--dur-base) var(--ease-out), overlay var(--dur-base) allow-discrete, display var(--dur-base) allow-discrete; }
+:where(dialog[open])::backdrop { opacity: 1; }
+@starting-style { :where(dialog[open])::backdrop { opacity: 0; } }
+/* a menu under a button: set --origin to the corner it hangs from, e.g. style="--origin: top left" */
+
+/* 5. DISCLOSE. <details> opens and closes smoothly to its real height. */
+:where(details)::details-content { block-size: 0; overflow: clip; opacity: 0;
+  transition: block-size var(--dur-base) var(--ease-out), opacity var(--dur-base) var(--ease-out), content-visibility var(--dur-base) allow-discrete; }
+:where(details[open])::details-content { block-size: auto; opacity: 1; }
+
+/* 6. CHANGE. A value that updates says so: add .tick to the element each time its text changes (see retick below). */
+@media (prefers-reduced-motion: no-preference) {
+  .tick { animation: tick var(--dur-base) var(--ease-out); }
+  @keyframes tick { from { opacity: 0.35; translate: 0 0.18em; } }
+}
+/* a line that draws itself once: <path pathLength="1"> inside .draw; add .is-on to play */
+.draw :where(path, line, polyline, circle) { stroke-dasharray: 1; stroke-dashoffset: 1; transition: stroke-dashoffset var(--dur-page) var(--ease-out); }
+.draw.is-on :where(path, line, polyline, circle) { stroke-dashoffset: 0; }
+/* a thing that slides between positions (a tab underline, a chosen pill): move it with translate, never left/width */
+.glide { transition: translate var(--dur-spring) var(--ease-spring), inline-size var(--dur-spring) var(--ease-spring); }
+
+/* 7. SWITCHING THEME. Add .no-motion to <html> for one frame while the theme changes, or every color animates. */
+.no-motion, .no-motion * { transition: none !important; }
+
+/* 8. LESS MOTION. Fades and color stay; travel, growth and loops stop. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 1ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; }
+  :where(button, [role="button"], [role="tab"], summary, .btn):active { scale: none; }
+  :where(dialog, [popover]) { scale: none; }
+  .glide { transition: none; }
+}
+
+/* retick: call after changing a number or a label, so the change is seen.
+   const retick = (el) => { el.classList.remove('tick'); void el.offsetWidth; el.classList.add('tick'); }; */

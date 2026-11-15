@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Settings</title>
+<style>
+  body { margin: 0; padding: 40px; background: #f4f4f5; font: 14px/1.5 system-ui, sans-serif; color: #18181b; }
+  .card { max-width: 520px; margin: 0 auto; padding: 24px; background: #fff; border: 1px solid #e4e4e7; border-radius: 12px; }
+  h2 { margin: 0 0 4px; font-size: 20px; }
+  .help { color: #c4c4c8; font-size: 13px; margin: 0 0 16px; }
+  .row { display: flex; align-items: center; gap: 12px; white-space: nowrap; width: 520px; }
+  input { flex: 1; padding: 10px 12px; border: 1px solid #e4e4e7; border-radius: 8px; font: inherit; }
+  .icon-btn { width: 40px; height: 40px; border: 1px solid #e4e4e7; border-radius: 8px; background: #fff; }
+  .save { padding: 10px 16px; border: 0; border-radius: 8px; background: #4f46e5; color: #fff; font: inherit; font-weight: 600; }
+</style>
+</head>
+<body>
+  <div class="card">
+    <h2>Workspace settings</h2>
+    <p class="help">Changes apply to everyone in Kiln Studio.</p>
+    <div class="row">
+      <input placeholder="Workspace name" value="Kiln Studio">
+      <button class="icon-btn"><svg width="16" height="16" viewBox="0 0 16 16"><path d="M3 8h10M8 3v10" stroke="#18181b" stroke-width="1.5"/></svg></button>
+      <div class="save" onclick="alert('Saved')">Save</div>
+    </div>
+  </div>
+</body>
+</html>

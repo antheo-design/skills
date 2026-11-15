@@ -1,0 +1,12 @@
+.button {
+  padding: 8px 14px;
+  color: #6b6b6b;
+  background: #ffffff;
+  border: 1px solid #e3e3e3;
+  border-radius: 7px;
+}
+.button-primary {
+  color: #ffffff;
+  background: #1a1a1a;
+  border-radius: 7px;
+}

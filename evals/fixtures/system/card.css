@@ -1,0 +1,21 @@
+.card {
+  padding: 20px;
+  background: #fff;
+  border: 1px solid #e5e5e5;
+  border-radius: 12px;
+}
+.card-meta {
+  color: #6c6c6c;
+  font-size: 12px;
+}
+.badge {
+  padding: 2px 8px;
+  color: #707070;
+  background: #f2f2f2;
+  border-radius: 9px;
+}
+.input {
+  height: 36px;
+  border: 1px solid #e1e1e1;
+  border-radius: 9px;
+}

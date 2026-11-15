@@ -1,0 +1,28 @@
+/* A component's styles come from the Antheo Quiet style block: antheo-build/references/quiet.css.
+   Paste that block (or import it) and use its variables and classes directly:
+
+     .card  .field  .btn  .btn-primary  .tag  .tag-accent  .t-title  .t-num
+     --surface --raised --well --hover --selected --line --text --text-2 --text-3 --primary --accent --danger
+     --sh-control --sh-card --sh-lift --sh-dialog     --r-card --r-control --r-tag
+     --h-control --h-small --h-cta --h-row --pad-card --t-meta --t-body --t-title --t-num
+
+   A component that ships on its own (a registry piece, a package) scopes the block under its own prefix, so two
+   components on one page can't collide and a host project can retheme one of them: */
+
+.x-root {
+  /* alias only what the component uses; the values stay the block's */
+  --x-surface: var(--surface);
+  --x-raised: var(--raised);
+  --x-well: var(--well);
+  --x-text: var(--text);
+  --x-text-2: var(--text-2);
+  --x-accent: var(--accent);
+  --x-radius: var(--r-card);
+  --x-inner-radius: var(--r-control);
+  --x-control: var(--h-control);
+  --x-pad: var(--pad-card);
+  --x-edge-card: var(--sh-card);
+  --x-edge-raised: var(--sh-control);
+}
+
+/* Never write a colour, size, radius or shadow literal in a component: add an alias here instead. */
