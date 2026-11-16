@@ -5,6 +5,10 @@ description: Lays out screens and pages so they read clearly and hold up at ever
 
 # Antheo Layout
 
+> **How to read this skill.** Its numbers are house defaults (antheo-build, "Four kinds of rule"): they give way to the
+> person, a reference, a brand or the project's own system. What protects people (contrast, focus, targets, reduced
+> motion, nothing broken) is a requirement and never bends.
+
 Layout decides what matters most, what belongs together, and what happens when the space changes. This skill owns
 page structure, the space between things, widths, and how a screen changes with its width and language. Spacing
 inside a single component belongs to **antheo-components**; tables and charts to **antheo-data**; phones to

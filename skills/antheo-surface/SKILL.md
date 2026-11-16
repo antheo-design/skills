@@ -5,6 +5,10 @@ description: Gives every surface its depth from what it sits on, whether it rise
 
 # Antheo Surface
 
+> **How to read this skill.** Its numbers are house defaults (antheo-build, "Four kinds of rule"): they give way to the
+> person, a reference, a brand or the project's own system. What protects people (contrast, focus, targets, reduced
+> motion, nothing broken) is a requirement and never bends.
+
 Depth is what makes an interface feel touchable instead of printed. It comes from three parts on every surface (a
 **fill**, an **edge** and a **drop**), each taken from the ground it sits on, so a button reads the same on a card, a
 row, a menu or a sheet, in light and dark. This skill owns those parts, the corners, the lines, translucent chrome,

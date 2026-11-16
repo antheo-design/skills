@@ -185,10 +185,14 @@ function measure(kind) {
 
   // controls: names, sizes, labels
   const inText = (el) => el.tagName === 'A' && getComputedStyle(el).display === 'inline' && el.parentElement && /^(P|LI|SPAN|TD|DD|SMALL|LABEL)$/.test(el.parentElement.tagName);
-  const controls = [...document.querySelectorAll('a[href], button, input:not([type=hidden]), select, textarea, [role=button], [role=tab], [role=switch], [role=checkbox], [role=menuitem], [tabindex]:not([tabindex="-1"])')].filter(visible);
+  // a control that isn't rendered (inside a closed <details>, display: none) is not on the page: judged when it shows
+  const rendered = (el) => !(el.closest('details:not([open])') && !el.closest('summary')) && (typeof el.checkVisibility !== 'function' || el.checkVisibility({ visibilityProperty: true }));
+  const controls = [...document.querySelectorAll('a[href], button, input:not([type=hidden]), select, textarea, [role=button], [role=tab], [role=switch], [role=checkbox], [role=menuitem], [tabindex]:not([tabindex="-1"])')].filter((el) => visible(el) && rendered(el));
+  // aria-labelledby may list several ids; each one's text is part of the name
+  const labelledBy = (el) => (el.getAttribute('aria-labelledby') || '').split(/\s+/).filter(Boolean).map((id) => document.getElementById(id)?.textContent || '').join(' ');
   for (const el of controls) {
     const r = el.getBoundingClientRect();
-    const name = (el.getAttribute('aria-label') || el.getAttribute('aria-labelledby') && document.getElementById(el.getAttribute('aria-labelledby'))?.textContent || el.innerText || el.getAttribute('title') || el.value || el.getAttribute('alt') || el.querySelector('img[alt], svg title')?.textContent || el.querySelector('img')?.alt || '').trim();
+    const name = (el.getAttribute('aria-label') || labelledBy(el) || el.innerText || el.textContent || el.getAttribute('title') || el.value || el.getAttribute('alt') || el.querySelector('img[alt], svg title')?.textContent || el.querySelector('img')?.alt || '').trim();
     const isField = /^(INPUT|SELECT|TEXTAREA)$/.test(el.tagName);
     if (isField) {
       const labelled = el.labels?.length || el.getAttribute('aria-label') || el.getAttribute('aria-labelledby') || el.closest('label');

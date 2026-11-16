@@ -23,6 +23,9 @@
  * that moves before the press is felt, an end that overshoots where it shouldn't or stops dead where it should settle.
  * Film the same thing with --reduce: the story must still be told.
  *
+ * Beside the sheet goes a .json record: the page, the element, the action, the timing and whether any frame differs
+ * from the first (a film where nothing changed is not evidence; the gate armed with --ref doesn't count it).
+ *
  * Limits: the frames are real screenshots taken while the slowed motion runs, so their times are measured, not
  * planned (each is printed). WebGL and video play at their own speed. Exit 0 with the sheet written; 2 for bad
  * arguments or no browser; 4 when the page or the clip can't be found. Closes the browser in a finally block.
@@ -30,7 +33,7 @@
 import { createRequire } from 'node:module';
 import { pathToFileURL } from 'node:url';
 import { dirname, resolve } from 'node:path';
-import { existsSync, mkdirSync } from 'node:fs';
+import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 
 const argv = process.argv.slice(2);
 const VALUE_FLAGS = ['--clip', '--click', '--hover', '--press', '--drag', '--by', '--focus', '--key', '--frames', '--duration', '--rate', '--width', '--height', '--out', '--pad'];
@@ -183,9 +186,18 @@ try {
         </div></body>`);
       mkdirSync(dirname(OUT), { recursive: true });
       await sheet.screenshot({ path: OUT, fullPage: true });
+      // a film of nothing proves nothing: say how many frames differ from the first, and record it beside the sheet
+      const differs = frames.filter((f) => f.src !== frames[0].src).length;
+      writeFileSync(OUT.replace(/\.png$/i, '') + '.json', JSON.stringify({
+        tool: 'filmstrip', page: url, clip: flag('clip'), action: what, duration: DURATION, rate: RATE, viewport: `${WIDTH}×${HEIGHT}`,
+        theme: has('dark') ? 'dark' : 'light', reducedMotion: has('reduce'), frames: frames.length, changed: differs > 0, framesThatDiffer: differs,
+        at: new Date().toISOString(),
+      }, null, 2));
       console.log(`Filmstrip: ${OUT}`);
       console.log(`  ${what} · ${frames.length - 1} frames over ${DURATION}ms (slowed to ${RATE}×) + the settled frame`);
       console.log(`  frame times (ms): ${frames.filter((f) => f.at !== null).map((f) => Math.round(f.at)).join(', ')}`);
+      if (!differs && !has('reduce')) console.log('  WARNING: no frame differs from the first. The action may not have reached the element, or the motion is outside the clip; this film is not evidence of motion.');
+      else console.log(`  ${differs} of ${frames.length - 1} frames differ from the first`);
       console.log('  Open it and look at every frame: each should look composed on its own (antheo-motion, "Watch it").');
       }
     }

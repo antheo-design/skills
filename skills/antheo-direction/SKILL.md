@@ -1,6 +1,6 @@
 ---
 name: antheo-direction
-description: Gives a landing, campaign or brand page its own identity, only when the person asks for an expressive page ("landing page", "make it distinctive", "bold", "playful") or praises a reference. It also holds the list of tells that make UI look generated or over-designed. Not for app screens, components, settings, forms or ordinary sections, which stay clean (antheo-build). Use when something looks AI-made or over-decorated, or before designing a brand page.
+description: Gives a landing, campaign or brand page its own identity, only when the person asks for an expressive page ("landing page", "make it distinctive", "bold", "playful") or praises a reference. It also holds the list of tells that make UI look generated or over-designed. Not for ordinary app screens, settings, forms or sections, which stay clean (antheo-build); a component built from an expressive reference, or one the person asks to be bold or playful, may take a direction (its play is antheo-creative's). Use when something looks AI-made or over-decorated, or before designing a brand page.
 ---
 
 # Antheo Direction
@@ -31,7 +31,18 @@ inside its own edge only (antheo-surface `references/objects.md`).
 
 ## Remove the tells, both kinds
 
-The full list, each with what to do instead, is `references/slop.md`.
+**First, the principle:** every visible choice serves the task, the content, the audience or the chosen reference.
+Keep interactions recognisable, make the product's identity specific, and remove unsupported claims, irrelevant
+decoration and unfinished behaviour.
+
+**Hard rules (trust), always:** no invented proof, numbers, testimonials or customers; no control wired to nothing;
+no content hidden until a decoration finishes; no contrast, keyboard or recovery given up for style; no navigation,
+data or chrome invented to fill space.
+
+**Everything else is a question, not a ban:** was this chosen for the audience, the brand, the reference or the
+material, and does it stay usable? If yes, keep it; if it is there by default, it is a tell. Banning a colour only
+makes the same generic page in another colour. The list below is what to ask about, with what to do instead; the full
+list is `references/slop.md`.
 
 **Lazy defaults:**
 - Purple-to-blue gradients, glow on every surface, five or six bright colours.

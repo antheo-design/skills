@@ -5,6 +5,10 @@ description: Sets how text looks and reads, from the faces to a scale with few s
 
 # Antheo Type
 
+> **How to read this skill.** Its numbers are house defaults (antheo-build, "Four kinds of rule"): they give way to the
+> person, a reference, a brand or the project's own system. What protects people (contrast, focus, targets, reduced
+> motion, nothing broken) is a requirement and never bends.
+
 Most of an interface is text, so its type decides how calm or noisy it feels. This skill picks the faces and sets
 every size, weight, line height and wrap. The words themselves belong to **antheo-writing**; text contrast to
 **antheo-color**; the display face that carries a landing page's identity is chosen with **antheo-direction**.

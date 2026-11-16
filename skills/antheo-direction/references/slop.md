@@ -1,6 +1,6 @@
 # The generated look, and what to do instead
 
-These are the patterns that make a UI read as "an AI made this": the lazy defaults, and the decoration of UI that is trying too hard. **Fix every one you find**, except where the project's own system or a requested direction chose it on purpose: the costume list (C1 to C7) and N3 describe the Quiet preset, and a brand whose face is a serif, or whose cards are outlined, keeps them. The fix is never something more original: it is the familiar pattern built precisely (antheo-build), with real content.
+These are the patterns that make a UI read as "an AI made this": the lazy defaults, and the decoration of UI that is trying too hard. Each row is a question, not a ban: **was it chosen for the audience, the brand, the reference or the material, and does it stay usable?** Chosen, it stays; there by default, fix it. The trust rows (invented proof or data, a control wired to nothing, content hidden behind a decoration) are hard rules and are always fixed. Where the project's own system or a requested direction chose something on purpose: the costume list (C1 to C7) and N3 describe the Quiet preset, and a brand whose face is a serif, or whose cards are outlined, keeps them. The fix is never something more original: it is the familiar pattern built precisely (antheo-build), with real content.
 
 ## Color and surface
 

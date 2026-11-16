@@ -24,6 +24,14 @@ Then its numbers stop applying: outlined cards, pill buttons, more weights, larg
 colours are choices to judge on their own terms, not defects. Keep the restraint either way, and every device earns
 its place. Check such work with the gate's `--preset none`, which keeps every universal check and drops the Quiet ones.
 
+**Four kinds of rule, in every Antheo skill.** **Requirements** never bend: the task works, access holds (WCAG 2.2
+AA), nothing is invented or faked, no control is wired to nothing, nothing breaks at any width. **Guidance** comes
+from evidence or engineering (a press answered within 100ms, layout shift under 0.1, line length near 66 characters):
+follow it unless the work gives a reason, and say the reason. **House defaults** are the Quiet preset's look (13px
+body, two weights, three corners, borderless cards, one accent, the motion durations): they give way to the person, a
+reference, a brand or the project's own system. **Experiments** are things to try against a baseline, never stated
+as rules. When a skill gives a number without saying which kind it is, it is a house default.
+
 **Parts and objects.** The preset is for **parts**: fields, menus, filters, lists, tables, tabs. An **object** is a
 component that stands for a physical thing people know and use as one: a bank card, a dial, a knob, a radio tuner, a
 thermostat, a ticket, a record player. Naming one asks for it, so it is drawn as the thing, with its own material,
@@ -243,7 +251,8 @@ promised · drift · quieting a check instead of fixing it · a fix loop · anot
 
 ## Done
 
-- [ ] The style block pasted; no colour, size, weight, radius or shadow outside it
+- [ ] The style block pasted; no colour, size, weight, radius or shadow outside it (a drawn object's material and a
+      reference's palette are the exception, kept on the object's root)
 - [ ] In the Quiet preset: at most 4 text sizes (5 in a marketing section), 2 weights, 3 corner sizes
 - [ ] In the Quiet preset: no outlined cards; hairlines only between repeating rows; at most 2 tags; at most 4 accent things
 - [ ] Nothing the request didn't name: no header on a section, no invented navigation, data or copy

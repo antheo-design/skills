@@ -59,8 +59,9 @@ obeys it, in this order from the bottom up:
 | Surface | print, grain, brushing, knurling | gradients and masks, at low opacity |
 | Highlight | the specular sheen, the brightest thing, on the side facing the light | a soft white gradient with `mix-blend-mode: soft-light` or `screen` |
 
-In dark mode the light stays where it is: the body gets darker, the highlight weaker, and the cast shadow becomes a
-faint rim of light on the ground side instead. Check the object on both grounds; an object designed for white often
+In dark mode, choose and say which: a reference's artwork keeps its own palette in both themes (a blue radio stays
+that blue), or the material adapts to the ground. Adapting, the light stays where it is: the body gets darker, the
+highlight weaker, and the cast shadow becomes a faint rim of light on the ground side instead. Check the object on both grounds; an object designed for white often
 looks pasted onto dark.
 
 ## Its own colours, kept in one place

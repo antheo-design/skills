@@ -71,7 +71,9 @@ logos and exported files are left alone, and listed as exempt by element, not by
 
 When the person asks "do we actually use our tokens?" or wants a token audit, change nothing: report each raw value as
 **exact**, **close** (with its ΔE or px), **ambiguous** (name every candidate token), **gap** (no token fits; never
-invent one in the report) or **do not use** (the value matches but the token's job differs), with its places. If at
+invent one in the report) or **do not use** (the value matches but the token's job differs), with its places. A close
+or nearest match is a candidate until it is confirmed in context (the same role, the same state, the same ground);
+never migrate a value to a token by numeric closeness alone. If at
 least 12 rows are gaps and they make up more than 30% of the rows, say "not actionable (gap threshold): the system is
 missing tokens", and list the three largest gaps instead of mapping row by row.
 

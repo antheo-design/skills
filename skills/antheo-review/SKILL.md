@@ -71,7 +71,9 @@ Four for a small change (390 and 1280px, light and dark), six for a component, f
 Open them at 100%; never judge from the score alone. **First, five seconds on the 1280px one:** is it calm, and
 does the main task fit the first screen? Then count six things in light and dark: text sizes (at most 4 in an app, 5
 in a marketing section), weights (2), corner sizes (3), accent things (4), tags (2), hairlines (only between
-repeating rows). In the Quiet preset, a count over its limit is a finding. Then, for each screenshot, one line: where the eye lands first, whether the header and
+repeating rows). In the Quiet preset, a count over its limit is a finding. With a chosen direction, a reference or the project's own
+system, judge against that instead: a deliberate display face, an outlined card or a fourth size is not a finding when
+it was chosen; inconsistency inside the chosen system is. Then, for each screenshot, one line: where the eye lands first, whether the header and
 every block share one edge, whether siblings match, anything that almost lines up, anything nobody would miss if it
 were removed. Then the eight questions in `references/rubric.md`. A component or app screen is put beside the best
 one in the project: louder, larger, browner or busier anywhere is a finding. A drawn object (a card, a dial) is put

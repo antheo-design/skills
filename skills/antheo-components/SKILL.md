@@ -5,6 +5,10 @@ description: Builds and fixes single interface components (buttons, fields, menu
 
 # Antheo Components
 
+> **How to read this skill.** Its numbers are house defaults (antheo-build, "Four kinds of rule"): they give way to the
+> person, a reference, a brand or the project's own system. What protects people (contrast, focus, targets, reduced
+> motion, nothing broken) is a requirement and never bends.
+
 A component looks designed when every value on it has a reason and every state has been seen. It looks generated
 when it was assembled from defaults, and themed when it wears its subject as a costume. This skill holds the anatomy, the
 measurements and the states, with the exact value each one takes.

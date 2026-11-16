@@ -552,8 +552,9 @@ if (BROWSER && hasPlaywright) {
     fs.copyFileSync(good, path.join(dir, 'index.html'));
     // a 1×1 PNG is enough to stand for a reference
     fs.writeFileSync(path.join(dir, 'ref.png'), Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==', 'base64'));
-    const b = spawnSync(process.execPath, [besideTool, 'index.html', '--clip', 'main', '--ref', 'ref.png', '--out', 'sheet.png'], { cwd: dir, encoding: 'utf8', timeout: 240000 });
+    const b = spawnSync(process.execPath, [besideTool, 'index.html', '--clip', 'main', '--ref', 'ref.png', '--region', '0,0,1,1', '--out', 'sheet.png'], { cwd: dir, encoding: 'utf8', timeout: 240000 });
     if (b.status !== 0 || !fs.existsSync(path.join(dir, 'sheet.png'))) out.push(`beside wrote no sheet (exit ${b.status}): ${(b.stderr || '').trim().split('\n').pop()}`);
+    else if (JSON.parse(read(path.join(dir, 'sheet.json'))).region?.join(',') !== '0,0,1,1') out.push('beside did not record the region it compared');
     const g = (...a) => spawnSync(process.execPath, [gate, ...a], { cwd: dir, encoding: 'utf8', timeout: 480000 });
     g('arm', 'index.html', '--ref', 'ref.png', '--no-probe');
     const first = g('check');
@@ -562,7 +563,12 @@ if (BROWSER && hasPlaywright) {
     const ev = path.join(dir, '.antheo', 'evidence');
     fs.mkdirSync(ev, { recursive: true });
     const now = Date.now() / 1000;
-    for (const [f, t] of [['beside-ref-a.png', now + 5], ['beside-ref-b.png', now + 95], ['film-a.png', now + 5]]) { fs.copyFileSync(path.join(dir, 'ref.png'), path.join(ev, f)); fs.utimesSync(path.join(ev, f), t, t); }
+    for (const [f, t] of [['beside-ref-a.png', now + 5], ['beside-ref-b.png', now + 95], ['film-still.png', now + 5]]) { fs.copyFileSync(path.join(dir, 'ref.png'), path.join(ev, f)); fs.utimesSync(path.join(ev, f), t, t); }
+    fs.writeFileSync(path.join(ev, 'film-still.json'), JSON.stringify({ tool: 'filmstrip', changed: false }));
+    const stillOnly = g('check');
+    if (!/EVIDENCE motion/.test(stillOnly.stdout)) out.push('the gate counted a film where nothing moved');
+    fs.copyFileSync(path.join(dir, 'ref.png'), path.join(ev, 'film-a.png')); fs.utimesSync(path.join(ev, 'film-a.png'), now + 5, now + 5);
+    fs.writeFileSync(path.join(ev, 'film-a.json'), JSON.stringify({ tool: 'filmstrip', changed: true }));
     const second = g('check');
     if (second.status !== 0) out.push(`with the evidence in place the gate still did not pass: ${second.stdout.split('\n').slice(0, 6).join(' | ')}`);
     return out;
@@ -581,6 +587,20 @@ if (BROWSER && hasPlaywright) {
     return /dead-control/.test(r.stdout) && r.status !== 0 ? [] : [`the gate did not hold on the dead button (exit ${r.status}): ${r.stdout.split('\n').slice(0, 5).join(' | ')}`];
   });
 
+  test('a control inside a closed details is not called unnamed; an icon-only button with no name still is', () => {
+    const file = labPage('names', '<details><summary>More options</summary><button type="button" class="btn">Save changes</button></details>'
+      + '<button type="button" class="btn" id="bare" style="margin-top:16px"><svg width="16" height="16" aria-hidden="true"><circle cx="8" cy="8" r="6"/></svg></button>'
+      + '<p id="a">Delete</p><p id="b">invoice 482</p><button type="button" class="btn" aria-labelledby="a b"><svg width="16" height="16" aria-hidden="true"><path d="M2 2h12"/></svg></button>');
+    const f = rulesOf(file, ['--widths', '1280']);
+    if (!f) return ['the page check did not run'];
+    const unnamed = JSON.stringify(f.filter((x) => x.rule === 'controls with no accessible name').flatMap((x) => x.items));
+    const out = [];
+    if (/Save changes/.test(unnamed)) out.push('the button inside the closed details was called unnamed');
+    if (!/#bare/.test(unnamed)) out.push('the icon-only button with no name was not caught');
+    if (/Delete/.test(unnamed)) out.push('a button named by two aria-labelledby ids was called unnamed');
+    return out;
+  });
+
   test('the filmstrip films a motion into a sheet, and a missing element is a tool error', () => {
     const film = path.join(SKILLS, 'antheo-motion', 'scripts', 'filmstrip.mjs');
     const file = labPage('film', '<button type="button" class="btn" id="go">Move</button><div id="box" style="width:120px;height:60px;margin-top:16px;border-radius:6px;background:var(--primary);transition:translate 400ms var(--ease-out)"></div>',
@@ -592,6 +612,11 @@ if (BROWSER && hasPlaywright) {
     if (r.status !== 0 || !fs.existsSync(out) || fs.statSync(out).size < 2000) problems.push(`no sheet (exit ${r.status}): ${(r.stderr || '').trim().split('\n').pop()}`);
     const times = (r.stdout.match(/frame times \(ms\): ([\d, ]+)/)?.[1] ?? '').split(',').map(Number);
     if (times.length !== 6 || times.at(-1) < 300) problems.push(`frames should span the motion, got: ${times.join(', ')}`);
+    const rec = JSON.parse(read(out.replace(/\.png$/, '.json')));
+    if (rec.changed !== true) problems.push('the record of a film where the box moved does not say it changed');
+    const stillOut = path.join(tmp, 'film-still.png');
+    const still = spawnSync(process.execPath, [film, file, '--clip', 'h1', '--click', 'h1', '--frames', '4', '--duration', '300', '--out', stillOut], { encoding: 'utf8', timeout: 240000 });
+    if (!/WARNING: no frame differs/.test(still.stdout) || JSON.parse(read(stillOut.replace(/\.png$/, '.json'))).changed !== false) problems.push('a film where nothing moved was not flagged');
     const miss = spawnSync(process.execPath, [film, file, '--clip', '#nothing-here', '--out', out], { encoding: 'utf8', timeout: 240000 });
     if (miss.status !== 4) problems.push(`a missing --clip exited ${miss.status}, expected 4`);
     return problems;

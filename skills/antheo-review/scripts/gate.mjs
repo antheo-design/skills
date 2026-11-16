@@ -7,8 +7,8 @@
  *                              (--preset none: the project has its own design system or a requested direction, so the
  *                              Antheo Quiet look is not judged; every universal check still runs)
  *                              (--ref: the work is built from these references, so it needs evidence of comparing:
- *                              for each, two beside.mjs sheets made at least a minute apart, and at least one
- *                              filmstrip.mjs sheet, in .antheo/evidence/)
+ *                              for each, two beside.mjs sheets made at least a minute apart and one filmstrip.mjs
+ *                              sheet in which something moved, in .antheo/evidence/)
  *                              (--no-probe: skip the access probe; by default it runs on every page)
  *   node gate.mjs check        run the checks now (for agents without hooks: Codex, Cursor, and CI). Exit codes:
  *                                0 PASS (or not armed)        1 OPEN: findings to fix, another round
@@ -127,8 +127,13 @@ function evidence(state) {
       open.push(`EVIDENCE beside ${name}: ${times.length} comparison sheet(s); it needs two, a minute or more apart\n    fix: node <antheo-review>/scripts/beside.mjs <page> --clip <selector> --ref ${short(ref)}; open it, fix what differs, run it again`);
     }
   }
-  if (!files.some((x) => x.f.startsWith('film-') && x.f.endsWith('.png'))) {
-    open.push('EVIDENCE motion: no filmstrip since the gate was armed\n    fix: node <antheo-motion>/scripts/filmstrip.mjs <page> --clip <selector> --click <selector>; read every frame');
+  // a film counts only when its record says something moved; one per reference, since each component moves its own way
+  const films = files.filter((x) => x.f.startsWith('film-') && x.f.endsWith('.png')).filter((x) => {
+    const rec = readJson(join(EVIDENCE, x.f.replace(/\.png$/, '.json')), null);
+    return !rec || rec.changed !== false; // an older film with no record still counts
+  });
+  if (films.length < state.refs.length) {
+    open.push(`EVIDENCE motion: ${films.length} filmstrip(s) where something moved, for ${state.refs.length} reference(s); film each component's main interaction\n    fix: node <antheo-motion>/scripts/filmstrip.mjs <page> --clip <selector> --click <selector>; read every frame`);
   }
   return open;
 }

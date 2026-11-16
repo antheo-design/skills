@@ -27,8 +27,10 @@ node <antheo-review>/scripts/gate.mjs disarm    # when the work is abandoned
   blocker or serious finding from antheo-access's `a11y-probe.mjs` (keyboard, focus, forced colours, text spacing,
   reflow, and buttons wired to nothing; `--no-probe` skips it), or a high finding from `copy-lint.mjs` keeps it open.
 - **Built from references: show the comparing.** Armed with `--ref <image>...`, it also needs, in `.antheo/evidence/`,
-  two `beside.mjs` sheets per reference made at least a minute apart (compared, changed, compared again) and at least
-  one `filmstrip.mjs` sheet. Both tools write there by default. The gate can't judge taste; it can make sure the
+  two `beside.mjs` sheets per reference made at least a minute apart (compared, changed, compared again) and one
+  `filmstrip.mjs` sheet per reference in which something moved (a film of nothing doesn't count). Both tools write
+  there by default, each with a .json record of what it captured; give `beside.mjs` a `--region` when the reference
+  holds more than the one thing you built. The gate can't judge taste; it can make sure the
   looking happened.
 - **Four outcomes, never confused:**
 

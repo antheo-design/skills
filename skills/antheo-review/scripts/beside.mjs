@@ -9,10 +9,13 @@
  *
  * Options: --clip <selector> (the element to compare) · --ref <image> (png, jpg, webp) · --width 1280 · --dark ·
  *   --scale 2 (device pixels) · --act "click:<sel>" | "hover:<sel>" | "key:<Key>" | "wait:<ms>" (repeatable, in order)
- *   · --wait 800 (ms before the shot) · --out <file>.
+ *   · --wait 800 (ms before the shot) · --out <file> · --region x,y,w,h (only this part of the reference, in its own
+ *   pixels: one card of a screenshot of three) · --ground corners|none|<css colour> (the background to leave out of the
+ *   colour check: by default the colour at the reference's corners; none keeps every colour).
  * Without --out it writes .antheo/evidence/beside-<reference name>-<time>.png, which is where the gate looks when it
  * is armed with --ref: two of these, made at least a minute apart, show the build was compared, changed and compared
- * again.
+ * again. Beside each sheet goes a .json record of what was compared: the page, the element, the reference and its
+ * region, the viewport, the theme and the time.
  *
  * It prints both sizes, so ratios can be checked by hand (an icon to its button, a figure to its card), and the main
  * colours of each, naming any colour of the reference the build has no near match for (ΔE in OKLab over 10). Exit 0 with the
@@ -21,10 +24,10 @@
 import { createRequire } from 'node:module';
 import { pathToFileURL } from 'node:url';
 import { basename, dirname, extname, resolve } from 'node:path';
-import { existsSync, mkdirSync, readFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 
 const argv = process.argv.slice(2);
-const VALUE_FLAGS = ['--clip', '--ref', '--width', '--scale', '--act', '--wait', '--out'];
+const VALUE_FLAGS = ['--clip', '--ref', '--width', '--scale', '--act', '--wait', '--out', '--region', '--ground'];
 const target = argv.find((a, i) => !a.startsWith('--') && !VALUE_FLAGS.includes(argv[i - 1]));
 const flag = (n) => { const i = argv.indexOf(`--${n}`); return i < 0 ? undefined : argv[i + 1]; };
 const all = (n) => argv.flatMap((a, i) => (a === `--${n}` && argv[i + 1] ? [argv[i + 1]] : []));
@@ -79,7 +82,20 @@ try {
       await page.waitForTimeout(Number(flag('wait') ?? 800));
       const box = await el.boundingBox();
       const shot = await el.screenshot();
-      const refUrl = `data:${mime};base64,${readFileSync(refPath).toString('base64')}`;
+      let refUrl = `data:${mime};base64,${readFileSync(refPath).toString('base64')}`;
+      // only the part of the reference that was asked for: crop it in a scratch page before comparing
+      const region = flag('region')?.split(',').map(Number);
+      if (region) {
+        if (region.length !== 4 || region.some((n) => !Number.isFinite(n) || n < 0) || !region[2] || !region[3]) { console.error('--region takes x,y,w,h in the reference\'s pixels'); process.exit(2); }
+        const scratch = await browser.newPage();
+        refUrl = await scratch.evaluate(async ({ src, r }) => {
+          const img = new Image(); img.src = src; await img.decode();
+          const c = document.createElement('canvas'); c.width = r[2]; c.height = r[3];
+          c.getContext('2d').drawImage(img, r[0], r[1], r[2], r[3], 0, 0, r[2], r[3]);
+          return c.toDataURL('image/png');
+        }, { src: refUrl, r: region });
+        await scratch.close();
+      }
       const buildUrl = `data:image/png;base64,${shot.toString('base64')}`;
       const sheet = await browser.newPage({ viewport: { width: 1600, height: 900 }, deviceScaleFactor: 1 });
       // both at the same height on top; underneath, the middle third of each at 3×, where the details are
@@ -96,9 +112,14 @@ try {
       if (!ok) { console.error('The reference image could not be read'); code = 4; }
       else {
         const sizes = await sheet.evaluate(() => [...document.images].map((i) => `${i.naturalWidth}×${i.naturalHeight}`));
-        const palette = await sheet.evaluate(paletteCheck);
+        const palette = await sheet.evaluate(paletteCheck, flag('ground') ?? 'corners');
         mkdirSync(dirname(OUT), { recursive: true });
         await sheet.screenshot({ path: OUT, fullPage: true });
+        writeFileSync(OUT.replace(/\.png$/i, '') + '.json', JSON.stringify({
+          tool: 'beside', page: url, clip: flag('clip'), reference: refPath, region: region ?? null, ground: flag('ground') ?? 'corners',
+          viewport: `${flag('width') ?? 1280}×900`, theme: argv.includes('--dark') ? 'dark' : 'light', actions: all('act'),
+          at: new Date().toISOString(), missingColours: palette.missing,
+        }, null, 2));
         console.log(`Beside: ${OUT}`);
         console.log(`  reference ${sizes[0]} px · build ${sizes[1]} px (at ${flag('scale') ?? 2}×)`);
         console.log(`  reference colours: ${palette.ref.map((c) => `${c.hex} ${c.share}%`).join(', ')}`);
@@ -117,15 +138,21 @@ process.exit(code);
 /* Runs in the sheet: the main colours of each image (quantised, the eight that cover the most area, each over 3%), and
    for every main colour of the reference, how far the nearest build colour is, as ΔE in OKLab (×100). A large gap on a
    colour that covers a lot of the reference is a sign the build lost it: a ground, a body colour, an accent. The
-   colour at the image's corners is taken for the ground it was shot on and left out of both. */
-function paletteCheck() {
+   ground it was shot on is left out of both: by default the colour at the image's corners (which can remove a real
+   colour that touches a corner: give --region or --ground then), none to keep every colour, or a CSS colour. */
+function paletteCheck(groundOpt) {
+  const named = (() => {
+    if (!groundOpt || groundOpt === 'corners' || groundOpt === 'none') return null;
+    const c = document.createElement('canvas').getContext('2d'); c.fillStyle = groundOpt; c.fillRect(0, 0, 1, 1);
+    const [r, g, b] = c.getImageData(0, 0, 1, 1).data; return { r, g, b };
+  })();
   const main = (img) => {
     const c = document.createElement('canvas'); c.width = 64; c.height = Math.max(1, Math.round(64 * img.naturalHeight / img.naturalWidth));
     const x = c.getContext('2d'); x.drawImage(img, 0, 0, c.width, c.height);
     const d = x.getImageData(0, 0, c.width, c.height).data; const bins = new Map(); let n = 0;
     // the ground the thing was shot on (the four corners) is not the thing: leave it out
     const at = (px, py) => { const i = (py * c.width + px) * 4; return { r: d[i], g: d[i + 1], b: d[i + 2] }; };
-    const corners = [at(0, 0), at(c.width - 1, 0), at(0, c.height - 1), at(c.width - 1, c.height - 1)];
+    const corners = groundOpt === 'none' ? [] : named ? [named] : [at(0, 0), at(c.width - 1, 0), at(0, c.height - 1), at(c.width - 1, c.height - 1)];
     for (let i = 0; i < d.length; i += 4) {
       if (d[i + 3] < 128) continue;
       const px = { r: d[i], g: d[i + 1], b: d[i + 2] };
