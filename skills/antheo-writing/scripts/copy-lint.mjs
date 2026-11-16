@@ -644,7 +644,8 @@ function untemplate(src, blade) {
   if (blade) out = out.replace(/(^|[\s>])(@[a-z]+(?:\s*\((?:[^()]|\([^()]*\))*\))?)/gim, (m, pre, d) => pre + asMark(d));
   return out;
 }
-const SKIP_DIR = new Set(['node_modules', '.git', '.next', 'dist', 'build', 'coverage', '.turbo', '.cache']);
+// .antheo holds the gate's own state and reports; .vite-cache and .svelte-kit are build output
+const SKIP_DIR = new Set(['node_modules', '.git', '.next', 'dist', 'build', 'coverage', '.turbo', '.cache', '.antheo', '.vite-cache', '.svelte-kit']);
 function walk(p, out) {
   let st;
   try { st = fs.statSync(p); } catch { fileStats.skipped.push(p + ' (not found)'); return; }

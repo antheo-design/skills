@@ -10,8 +10,12 @@ file) and reads copy in HTML, JSX/TSX, Vue, Svelte, Astro, Angular and server te
 node <antheo-review>/scripts/gate.mjs arm http://localhost:5173/settings --copy src/pages/settings
 # …build…
 node <antheo-review>/scripts/gate.mjs check     # exit 0: PASS; exit 1: still open, with what to fix
+node <antheo-review>/scripts/gate.mjs rearm     # after a PASS, when the page changes again: the same pages, round 1
 node <antheo-review>/scripts/gate.mjs disarm    # when the work is abandoned
 ```
+
+- **A PASS disarms the gate.** Any change after it (a fix, a polish, a stress pass) needs `rearm` and a fresh
+  `check` before saying done; the last check must be on the last version of the page.
 
 - **Arm it at the start** of a UI build or fix, with every page the work touches and the source folders whose words
   changed. `--widths 390,1280` by default.

@@ -8,7 +8,8 @@ Sizes and colours follow `look.md`, depth and corners antheo-surface; the values
 
 ### Button
 - **Variants:** primary (ink fill, one per surface), secondary (raised: white with the ring and 1px drop), ghost (no fill, for toolbars), danger (danger text; red fill only in its final confirm), link (inline).
-- **Sizes:** 28 / 36 / 44px tall; padding-inline 10 / 14 / 18px on both sides; label 13px 500, −0.01em.
+- **Sizes:** `--h-small` 28, `--h-control` 32, `--h-cta` 36, 44 on touch; padding-inline 10 / 12 / 12 / 16px, the
+  same on both sides; label `--t-body` at `--w-strong`.
 - **Icon + label:** icon 16px (20px beside 16px text), 6px gap, exactly 2px less padding on the icon side.
 - **Icon-only:** square (same height), `aria-label`, tooltip with the same words.
 - **Loading:** keep the width (set `min-width` before swapping), spinner replaces the icon or sits before the label, `aria-busy="true"`, ignore further clicks.
@@ -35,15 +36,25 @@ The style block has it as `.seg`: `<div class="seg" role="radiogroup" aria-label
 ## Inputs
 
 ### Text field
-- **Anatomy:** label (above, 13px 500, 6px gap) → optional hint (12px text-2) → field → error or helper message (6px below).
+- **Anatomy:** label (above, `--t-body` at `--w-strong`, `--gap-label` 6px over the field) → field → the error, when
+  there is one → the helper line, when there is one. Each line is `--t-meta` and sits 4px under the one before; the
+  error is `--danger` with an icon, the helper `--text-2`. Nothing sits between a label and its field. The same order
+  holds under every control that has messages: a select, an upload, a group of choices.
 - A well: the block's `.field` (`--h-control`, padding-inline `--s-3`, `--r-control`, no border, `--well` with `--well-edge`); 16px text on touch screens (`--t-field`), so a phone never zooms in on focus.
 - **States:** hover (the well one step deeper), focus-visible (the well deepens again plus the 2px focus ring), filled, disabled (text-2, no hover), read-only (no well, reads as text), error (a 1px danger ring + a message with an icon), success (only where it helps, e.g. "Username available").
 - **Markup:** `<label for="work-email">Work email</label>` then `<input id="work-email" type="email" autocomplete="work email" aria-describedby="work-email-hint work-email-error">`. Error message: `id="work-email-error"`, and `aria-invalid="true"` on the input.
 - Optional fields say "(optional)" in the label. Required ones don't need asterisks if most fields are required.
-- **Validation timing:** on blur, not while typing; once a field shows an error, re-check on every keystroke and clear it the moment it's fixed. Fixed-length fields (code, card) check when full.
+- **Validation timing:** on blur once the person has changed the field (an empty field someone tabs past waits for
+  the submit), and on submit; never while they type their first attempt. Once a field shows an error, re-check it as
+  they type and clear it the moment it's fixed: while typing, not on blur, because an error that vanishes on blur
+  moves the next control just as it is clicked. Fixed-length fields (code, card) check when full.
 
 ### Textarea
-- Same as text field; min 3 rows; `field-sizing: content` to grow (with `max-height` and scroll); show a character count only near the limit ("12 characters left").
+- Same as text field; min 3 rows; `field-sizing: content` to grow (with `max-height` and scroll).
+- **A limit** (characters here; files, seats or tags anywhere): show the count near it, from about 80% used ("12
+  characters left"), and past it in `--danger` ("8 characters over"). When nothing else on the screen states the
+  limit, state it from the start, in the helper line ("Up to 280 characters") or as the count. Once an error says
+  the same thing, hide the count.
 
 ### Select / combobox
 - ≤ 7 options and no search needed → native `<select>` (styled border and chevron). 2 to 3 options → radios or a segmented control instead.
@@ -55,7 +66,20 @@ The style block has it as `.seg`: `<div class="seg" role="radiogroup" aria-label
 - Checkbox: independent yes/no choices, or a list where many can be chosen; submit-to-apply.
 - Radio: one of 2 to 6 choices; always one selected by default when there's a sensible default.
 - Switch: an instant on/off setting (applies immediately). The label describes the ON state.
-- Box 16px, 4px corners; the whole label is clickable; 8px between label and control; focus ring around the box.
+- Box 16px, 4px corners (round for a radio); the whole label is clickable; 8px between label and control; focus ring
+  around the box.
+- **Off:** `--raised` with a 1px `--text-3` edge (`box-shadow: inset 0 0 0 1px var(--text-3)`). A control's
+  boundary needs 3:1 against what it sits on (WCAG 1.4.11), and `--text-3` is the lightest edge in the block that
+  passes (3.7 to 4.3:1 on every surface, light and dark); the control ring `--sh-control` is about 1.1:1, so an empty
+  box drawn with it disappears for many people.
+  **On:** `--accent` fill, the tick, dash or dot in `--on-accent`. Disabled: opacity 0.6, the label in `--text-2`.
+- **Options with a description:** the chosen one also takes a `--selected` fill across its whole row
+  (`--r-control` corners, padding `--s-2` all round), so the choice reads before the dot is found. Without
+  descriptions the dot or tick is enough.
+- A native input laid exactly over the drawn box (`position: absolute; inset: 0; opacity: 0`) keeps the browser's own
+  click, keys and focus; the box shows the state and the ring (`input:focus-visible + .box`). Give the box
+  `border: 1px solid transparent` as well as its edge: invisible normally, it becomes the system's edge colour in
+  forced colours, where shadows are dropped.
 - Switch: a track `--sw-w` × `--sw-h` (32×20; 44×26 on a phone), a white knob `--sw-knob` with a 2px inset; on fills the track with the brand colour (`--accent`), off is a grey that still passes 3:1 against its surface. It takes effect at once; a setting that needs Save is a checkbox.
 - Indeterminate checkbox for "some selected" in a table header.
 - **Keys:** Space toggles; arrows move between radios.

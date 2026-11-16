@@ -178,7 +178,10 @@ function describeFocus() {
     rect: P.rectOf(el), vrect: { top: Math.round(r.top), bottom: Math.round(r.bottom), left: Math.round(r.left), right: Math.round(r.right) },
     tabindex: el.getAttribute('tabindex'), type: el.getAttribute('type') || '',
     hidden: s.visibility === 'hidden' || s.display === 'none' || r.width === 0 || r.height === 0,
-    transparent: +s.opacity === 0, clippedOut: P.clipped(el) && !(r.width > 0 && +s.opacity > 0 && r.right > 0),
+    // a native checkbox or radio hidden over a drawn box (the box shows the state and the focus) is a sound pattern;
+    // the focus check below judges it by the pixels around it, not by the input's own opacity
+    transparent: +s.opacity === 0 && !(el.matches('input[type=checkbox], input[type=radio]') && (el.nextElementSibling || el.closest('label'))),
+    clippedOut: P.clipped(el) && !(r.width > 0 && +s.opacity > 0 && r.right > 0),
     offscreen: r.width > 0 && (r.right <= 0 || r.left >= innerWidth || r.bottom <= 0 || r.top >= innerHeight),
     obscured, ariaHiddenAnc, inert: !!el.closest('[inert]'),
     inText: el.tagName === 'A' && !!el.closest('p, li, dd, td, label, h1, h2, h3, h4, h5, h6') && s.display === 'inline',
@@ -428,7 +431,10 @@ try {
   else if (!wrapped && stops.length >= limit) add('serious', 'keyboard', last?.sel, `Tab did not finish within ${limit} presses; the page may have an endless focusable region.`, 'Check infinite scroll and focus handlers; give a way to reach the footer.');
   else if (stops.length < Math.ceil(cand * 0.5) && cand > 3) add('blocker', 'keyboard', last?.sel, `Tab reached ${stops.length} of ${cand} focusable elements and then left the page: part of the page cannot be reached by keyboard.`, 'Find what swallows focus (a handler calling preventDefault on Tab, tabindex=-1 on a container, a hidden overlay).');
   const visited = new Set(stops.map((s) => s.sel));
-  const missed = await page.evaluate(() => window.__p.candidates().filter((e) => !e.hasAttribute('data-a11y-tab') && !e.closest('[role=tablist], [role=menu], [role=listbox], [role=radiogroup], [role=toolbar], [role=tree], [role=grid]')).map(window.__p.sel).slice(0, 5));
+  // a native radio group is one tab stop by design (arrows move inside it), so a radio whose group was reached is fine
+  const missed = await page.evaluate(() => window.__p.candidates().filter((e) => !e.hasAttribute('data-a11y-tab')
+    && !e.closest('[role=tablist], [role=menu], [role=listbox], [role=radiogroup], [role=toolbar], [role=tree], [role=grid], [inert]')
+    && !(e.matches('input[type=radio]') && e.name && [...document.querySelectorAll('input[type=radio][data-a11y-tab]')].some((o) => o.name === e.name && o.form === e.form))).map(window.__p.sel).slice(0, 5));
   if (!last?.repeat && wrapped) for (const m of missed) add('moderate', 'keyboard', m, 'Visible focusable element that Tab never reached.', 'Check for tabindex=-1 or a focus handler that skips it.');
   stops.forEach((s, i) => {
     const prev = stops[i - 1];

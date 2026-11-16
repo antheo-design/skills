@@ -80,7 +80,10 @@ a row share one height. Before review, list each set of siblings and check them 
 
 Each is centred in the window. The main task fits the first screen at 1280×800: compact beats roomy. Fields that
 belong together share a row (name and email). Never invent a second half, a title column or extra chrome to fill
-space.
+space. A block narrower than the column it sits in (a form card on a settings-width page, a dialog's content, one
+group of settings) takes the column's width, with related items side by side, so it keeps the one edge; only a block
+that stands alone on the page (a sign-in card) is narrower, and then it is centred. Never a narrow block against
+one edge with bare space beside it: it reads as unfinished.
 
 ## Built to flex, not tested into shape
 

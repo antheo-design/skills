@@ -161,7 +161,7 @@ builds.
 | W1 | A full stop after a title, label, button or tag ("You're in.") | No trailing full stop on anything that isn't a sentence in body text |
 | W2 | Verbose, redundant text: a 19-word sub-line, a description under every title that repeats it, a helper under every control | A sub-line only if it adds something, in 12 words at most; a helper line only for a constraint or a consequence |
 | W3 | A control missing the one thing a person needs: a file button with no formats, a destructive action with no counts, a yearly price with no total | That one line, in the small muted size |
-| W4 | Thin or shifting states: a tiny "Saved", an error with no way out, a layout that jumps | The button says "Saved" and one line says what changed; errors offer the way out; the layout never moves |
+| W4 | Thin or shifting states: a tiny "Saved", an error with no way out, a layout that jumps | The button says the past tense of its own verb ("Saved", "Sent", "Created") and one line says what changed; errors offer the way out; the layout never moves |
 | W5 | A label repeating the control under it ("Avatar" over "Change photo") | Drop the label |
 | W6 | Styles invented per screen: new colours, sizes, corners and shadows each time | Paste the style block and use only its variables (antheo-build) |
 

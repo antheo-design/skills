@@ -70,10 +70,12 @@ dismissed and is never the only place the message lives (2.2.1). Details: `refer
 
 A visible `<label for>` above every field (a placeholder is never the label; an example placeholder goes on every
 field or none); related fields in `fieldset` and `legend`; "required" in words; `autocomplete`, the right `type` and
-`inputmode`. Check a field when it loses focus and on submit, never on every keystroke. An error is said once: an inline message under
+`inputmode`. Check a field when it loses focus after it was changed, and on submit, never on every keystroke of a first
+attempt; once it shows an error, re-check as they type. An error is said once: an inline message under
 its field, tied by `aria-describedby`, with `aria-invalid="true"`, text and an icon, entered values kept. One
 error: focus goes to that field, with no summary. Several errors: a summary at the top takes focus and links to
-each field, in exactly the words of the inline messages. Never block paste, and never
+each field, in exactly the words of the inline messages (a short form that fits one screen may focus the first
+problem instead; `references/forms.md`). Never block paste, and never
 filter what a person types as they type it (accept it, then say what is wrong). Warn before leaving a form with unsaved
 changes.
 Never ask for the same data twice in a flow (3.3.7). Sign-in works with password managers, passkeys or an email link,

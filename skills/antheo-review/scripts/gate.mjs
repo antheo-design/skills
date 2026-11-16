@@ -6,6 +6,7 @@
  *   node gate.mjs check        run the checks now; exit 0 if they pass, 1 if not (for agents without hooks: Codex, Cursor)
  *   node gate.mjs hook         the same, as a Claude Code Stop hook: blocks stopping (exit 2) while checks fail
  *   node gate.mjs status       what is armed, which round, what's waived
+ *   node gate.mjs rearm        a PASS disarms the gate; after more changes, check the same pages again
  *   node gate.mjs disarm       stop gating (after the work is done, or to abandon it)
  *
  * What it checks, on every armed target: antheo-review's check-page.mjs at the armed widths, light and dark (a
@@ -115,6 +116,14 @@ if (cmd === 'arm') {
   say(`GATE: ARMED for ${targets.length} page(s)${copy.length ? ` and ${copy.length} copy path(s)` : ''}, up to ${max} rounds.`, 'Run `node gate.mjs check` before saying the work is done (a Claude Code Stop hook runs it for you).');
   process.exit(0);
 }
+// after a PASS (or DONE) the gate disarms itself; rearm checks the same pages again after more changes
+if (cmd === 'rearm') {
+  const s = readJson(STATE, null);
+  if (!s?.targets?.length) { say('Nothing to re-arm: arm it first with `node gate.mjs arm <page>`.'); process.exit(2); }
+  save({ ...s, armed: true, round: 0, at: new Date().toISOString() });
+  say(`GATE: ARMED again for ${s.targets.length} page(s)${s.copy.length ? ` and ${s.copy.length} copy path(s)` : ''}, up to ${s.max} rounds.`, 'Run `node gate.mjs check` before saying the work is done.');
+  process.exit(0);
+}
 if (cmd === 'disarm') { if (existsSync(STATE)) rmSync(STATE); say('GATE: DISARMED'); process.exit(0); }
 if (cmd === 'status') {
   const s = readJson(STATE, null);
@@ -141,7 +150,7 @@ if (cmd === 'check' || cmd === 'hook') {
   }
   const failing = r.open.length > 0 || r.errors.length > 0;
   if (!failing) {
-    say('GATE: PASS', report(s, r));
+    say('GATE: PASS', report(s, r), '', 'The gate has disarmed itself. If you change the page again, run `node gate.mjs rearm` and check again before saying done.');
     s.armed = false;
     s.passedAt = new Date().toISOString();
     save(s);
@@ -160,5 +169,5 @@ if (cmd === 'check' || cmd === 'hook') {
   say(msg);
   process.exit(1);
 }
-say('usage: node gate.mjs arm <page>... [--copy <paths>] [--widths 390,1280] [--max 3] | check | hook | status | disarm');
+say('usage: node gate.mjs arm <page>... [--copy <paths>] [--widths 390,1280] [--max 3] | check | hook | status | rearm | disarm');
 process.exit(cmd === 'help' ? 0 : 2);

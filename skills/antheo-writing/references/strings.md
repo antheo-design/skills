@@ -180,6 +180,9 @@ Never leave a blank. Three different cases, three different texts. **Heading (wh
 ## 11. Success messages and toasts
 
 - **Past tense, specific, short.** **1 sentence, 60 characters or fewer.** "Invoice sent", "3 files uploaded", "Profile saved".
+- **A button's three labels share one verb:** at rest the action, while working the -ing form, when done the past
+  tense: "Save" → "Saving…" → "Saved", "Create project" → "Creating…" → "Created", "Send invite" → "Sending…" →
+  "Sent". Never a generic "Done" or a "Saved" on a button that creates or sends.
 - Include **Undo** or a **next step** when one exists: "Project deleted. Undo", "Message sent. View it".
 - No "successfully", no "!" (unless a true milestone: "Your first invoice is paid."), no emoji.
 - Toast duration at least 5 seconds; longer if it has an action; **never auto-dismiss an error or one that needs a decision.** Pausable on hover and focus. Announce politely (`role="status"`).

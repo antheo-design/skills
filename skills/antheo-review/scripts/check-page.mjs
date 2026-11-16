@@ -370,6 +370,8 @@ function craft() {
         const s = styleOf(n);
         if (s.display === 'none' || s.visibility === 'hidden' || +s.opacity < 0.05) continue;
         const r = n.getBoundingClientRect();
+        // a skip link or screen-reader-only text: parked off screen, clipped away or 1px; it fills no space
+        if ((s.position === 'absolute' || s.position === 'fixed') && (r.right <= 0 || r.bottom <= 0 || r.left >= innerWidth || (r.width <= 2 && r.height <= 2) || (s.clip && s.clip !== 'auto') || /inset\(50%|circle\(0/.test(s.clipPath))) continue;
         if (MEDIA.test(n.tagName)) { if (r.width > 2 && r.height > 2) rects.push(r); continue; }
         if (boxed(s) && r.width * r.height > 64 && r.width < limit) rects.push(r);
         walk(n);
@@ -562,18 +564,33 @@ function craft() {
       const p = m[1].split(/[\s,/]+/).filter(Boolean).map(Number);
       return (p[3] ?? 1) > 0.5 && Math.max(p[0], p[1], p[2]) - Math.min(p[0], p[1], p[2]) > 45;
     };
+    // status colours (an error, a success, a warning) say what happened; they are not accents, so they don't count
+    const status = new Set(['--danger', '--success', '--warning', '--error', '--color-danger', '--color-error', '--color-success', '--color-warning'].map((v) => {
+      const p = document.createElement('span'); p.style.color = `var(${v}, rgb(0, 0, 0))`; document.body.append(p);
+      const c = getComputedStyle(p).color; p.remove(); return c;
+    }).filter((c) => hue(c)));
+    const accent = (c) => hue(c) && !status.has(c);
+    // a field, or a control showing focus or an error, wears its ring as a state; it is not an outlined card
+    const fieldLike = (e) => e.matches('input, textarea, select, [contenteditable="true"], :focus, :focus-within, [aria-invalid="true"]')
+      || (e.querySelectorAll('input, textarea, select').length === 1 && !e.querySelector('button, a[href], img, h1, h2, h3, p, li'));
+    // a list of switches or checkboxes counts as one accent thing (antheo-build, rule 8): count groups, not items
+    const groups = new Set();
+    const groupOf = (e) => e.closest('fieldset, [role=group], [role=radiogroup], ul, ol, table, [role=list], [role=grid]') || e;
     let hued = 0; const huedSample = [];
     for (const e of document.querySelectorAll('body *')) {
       if (!shown(e) || e.closest('svg') && e.tagName !== 'svg') continue;
       const cs = styleOf(e); const r = e.getBoundingClientRect();
-      if (r.width >= 200 && r.height >= 80 && r.width < innerWidth * 0.98) {
+      if (r.width >= 200 && r.height >= 80 && r.width < innerWidth * 0.98 && !fieldLike(e)) {
         const border = ['Top', 'Left'].every((k) => parseFloat(cs['border' + k + 'Width']) >= 1 && alpha(cs['border' + k + 'Color']) > 0.1);
         if (border || ringOf(cs.boxShadow) > 0.1) { if (out.outlined.length < 4) out.outlined.push(item(e, 'a visible outline all round')); }
       }
       const ownText = [...e.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim());
-      if ((ownText && hue(cs.color)) || hue(cs.backgroundColor) || (e.tagName === 'svg' && (hue(cs.color) || hue(cs.stroke) || hue(cs.fill)))) { hued++; if (huedSample.length < 4) huedSample.push(sel(e)); }
+      if ((ownText && accent(cs.color)) || accent(cs.backgroundColor) || (e.tagName === 'svg' && (accent(cs.color) || accent(cs.stroke) || accent(cs.fill)))) {
+        const g = groupOf(e);
+        if (!groups.has(g)) { groups.add(g); hued++; if (huedSample.length < 4) huedSample.push(sel(e)); }
+      }
     }
-    if (hued > 8) out.hued.push(item('page', hued + ' coloured things, for example ' + huedSample.join(', ')));
+    if (hued > 8) out.hued.push(item('page', hued + ' coloured things or groups, for example ' + huedSample.join(', ')));
   }
 
   // a word split across two lines
@@ -1044,6 +1061,8 @@ try {
   {
     const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
     await page.goto(url, { waitUntil: 'networkidle', timeout: 45000 }).catch(() => {});
+    // a ring that fades in over 150ms reads as unchanged the instant after blur; judge the end state, not the fade
+    await page.addStyleTag({ content: '*, *::before, *::after { transition: none !important; animation: none !important; }' }).catch(() => {});
     const invisible = [];
     let reached = 0;
     for (let i = 0; i < 14; i++) {
@@ -1051,12 +1070,19 @@ try {
       const r = await page.evaluate(() => {
         const el = document.activeElement;
         if (!el || el === document.body) return null;
+        // the ring can be on the element, on a wrapper that reacts to :focus-within (a field's well around an input
+        // and its prefix), or on the drawn box beside a visually hidden native checkbox or radio
+        const near = [el, el.parentElement, el.parentElement?.parentElement, el.nextElementSibling].filter((n) => n && n !== document.body);
+        // snapshot as strings while focused: getComputedStyle is live, so reading it again after blur would compare
+        // the blurred style with itself
+        const snap = (n) => { const c = getComputedStyle(n); return [c.outlineStyle, c.outlineWidth, c.outlineColor, c.boxShadow, c.backgroundColor, c.borderTopColor].join('|'); };
         const s = getComputedStyle(el);
-        const ring = (s.outlineStyle !== 'none' && parseFloat(s.outlineWidth) > 0) || (s.boxShadow !== 'none');
+        const seen = +s.opacity > 0.05;
+        const ring = seen && ((s.outlineStyle !== 'none' && parseFloat(s.outlineWidth) > 0) || s.boxShadow !== 'none');
+        const focused = near.map(snap);
         const label = `${el.tagName.toLowerCase()} "${(el.innerText || el.getAttribute('aria-label') || el.value || '').trim().slice(0, 24)}"`;
         el.blur();
-        const before = getComputedStyle(el);
-        const changed = before.outlineStyle !== s.outlineStyle || before.boxShadow !== s.boxShadow || before.backgroundColor !== s.backgroundColor || before.borderColor !== s.borderColor;
+        const changed = near.some((n, i) => snap(n) !== focused[i]);
         el.focus({ focusVisible: true });
         return { label, visible: ring || changed };
       });

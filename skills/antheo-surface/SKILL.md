@@ -76,7 +76,12 @@ A sheet on a phone uses `--r-sheet` (14px) on its top corners. A shape inside an
 
 A field is a well, not an outlined box: the block's `.field` (`--well` with the faint inner `--well-edge`), a shade
 deeper than what it sits on in light, and a shade brighter in dark. A form is then a column of quiet fills, not a stack of
-frames. Focus adds the 2px `--focus` ring; an error swaps the inner edge for `--danger`.
+frames. Focus adds the 2px `--focus` ring; an error swaps the inner edge for `--danger`, and with focus it shows both.
+
+A small control whose edge is its only shape (an empty checkbox or radio, a switch's off track, a slider's track)
+needs 3:1 against what it sits on (WCAG 1.4.11). A 1px `--text-3` edge is the lightest in the block that passes (3.7
+to 4.3:1 on every surface, light and dark); the faint control ring or `--line` (about 1.1:1) leaves an empty box
+invisible to many people.
 
 ## Almost no lines
 

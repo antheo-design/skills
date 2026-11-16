@@ -40,6 +40,10 @@ and the fix. Before you say a component is done, search your code for the "spot 
 | S5 | Font weight changes on hover or selection and the row jumps | `font-weight` in `:hover` / selected | change color or underline instead, or reserve the bold width with a hidden copy |
 | S6 | A loading button changes width and the layout jumps | label replaced by a spinner | keep the label, swap only the icon; or fix the button's min-width to its rest width |
 | S7 | A selected state shown by color alone | only `background` changes | add a check, weight, underline or icon |
+| S8 | A focused control in error loses its focus ring | the `[aria-invalid]` shadow replaces the focus shadow | a combined rule: `[aria-invalid="true"]:focus-visible` draws both |
+| S9 | An unanswered radio group looks fully chosen | `:indeterminate` styles also match every radio in a group with none chosen | style the mixed state as `[type="checkbox"]:indeterminate` |
+| S10 | Something appears or disappears and moves what is under the pointer: an error cleared on blur pulls the next checkbox up as it is clicked; a hint shown on focus pushes the button down | messages added or removed on `blur` or `focus`; nothing reserves their room | clear errors while typing, not on blur; give lines that come and go a reserved line or animate their height; never re-flow on pointer-down |
+| S11 | A state sheet's forced focus copy sits in the tab order, so tabbing to it changes nothing | `.is-focus` on a live, focusable control | make forced-state rows `inert`; they are pictures of a state |
 
 ## Lists, tables and data
 

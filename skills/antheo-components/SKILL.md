@@ -126,9 +126,11 @@ Member, Guest, they recognise it.
 Controls: default, hover (pointer only, `@media (hover: hover)`), focus-visible, pressed, disabled, loading, selected,
 error. Data: loading (a skeleton after `200ms`), empty first use, empty no results, error with Retry, very long content,
 success. Write the CSS in that order: hover never removes a focus ring, error and focus outrank hover, hover skips
-disabled controls. A loading button keeps its width and label. A selected thing is unmistakable at a glance and has a cue besides
+disabled controls, and a control in error that has focus shows both (the danger edge and the focus ring). A loading button keeps its width and label. A selected thing is unmistakable at a glance and has a cue besides
 colour: a chosen chip or option is ink-filled with a check, never a faint tint; an unavailable one says why inside
-it ("Full"), not only with a strikethrough. Disabled is opacity `0.6`
+it ("Full"), not only with a strikethrough. A choice that carries a description (an option with a line under it, a
+plan card, a list choice) shows its chosen state on the whole item, a `--selected` fill across it as well as its own
+dot or tick, so the choice reads before the mark is found. Disabled is opacity `0.6`
 (`0.4` on an icon-only button), never hidden information, with the reason nearby when it isn't obvious; a control
 that must still explain itself stays focusable with `aria-disabled` instead of `disabled`. Details in
 `references/states.md`.
@@ -142,7 +144,9 @@ step (a darker fill; the 97% squeeze).
 **Showing every state at once** (a states sheet, a story, a spec): one row per state in a single `.card`, the state's
 name in `--t-meta` on the left in a fixed column, the control in the middle, and one line on the right saying what
 triggers it. Hairlines between rows, no card per state. Force the pointer states with a class that copies the
-`:hover` and `:active` rules (`.is-hover`, `.is-pressed`), and focus with `.is-focus` copying `:focus-visible`.
+`:hover` and `:active` rules (`.is-hover`, `.is-pressed`), and focus with `.is-focus` copying `:focus-visible`. A
+forced state is a picture of that state, so make its row `inert`: it leaves the tab order, and a keyboard user never
+lands on a control that already looks focused and changes nothing.
 
 ## Quick to answer, one moment at most
 

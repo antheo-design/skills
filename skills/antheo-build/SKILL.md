@@ -40,7 +40,9 @@ it goes in React, Vue, Svelte, Angular, Astro, Django, Rails, Laravel and the re
 2. **Two weights.** `--w-text` for text and prices, `--w-strong` for titles, labels and buttons. Never 600 or 700.
 3. **Headlines sit tight.** A marketing headline is `--t-display`, one colour, nine words at most, two lines at most.
    An app page title is `--t-page`. Card, plan and section titles are `--t-title`. No trailing full stop on a title,
-   label, button or tag; sentence case; no italics; no capitals for emphasis.
+   label, button or tag; sentence case; no italics; no capitals for emphasis. A page has one title and it names the
+   task ("New project", "Billing"); never a generic label above it ("Form fields", "Dashboard"), and the card under
+   it doesn't repeat it.
 4. **Cards have no outline.** A card is `.card`: the surface on the page, a faint edge and a soft drop. Never a
    visible border, never a coloured edge, never a card inside a card.
 5. **Almost no lines.** A hairline (`--line`) only between repeating rows of a list or table. Never under a card's
@@ -63,7 +65,8 @@ it goes in React, Vue, Svelte, Angular, Astro, Django, Rails, Laravel and the re
 10. **Fields are wells.** `.field`, with its label above (`--t-body`, `--w-strong`, `--text`), 6px apart. A helper
     line only for a constraint or a consequence ("JPG or PNG, up to 2 MB"; "At least 8 characters"), in `--t-meta`
     `--text-2`, 4px under. An error is the red inner edge and one line under the field naming the fix.
-11. **Chrome only as named.** A "section" or a "component" gets no site header, footer or navigation. An app page
+11. **Chrome only as named.** A "section", a "component" or a page that shows components gets no site header, footer
+    or navigation. An app page
     gets one `--h-bar` bar: a neutral logo tile (20px, the `--primary` fill, `--r-tag` corners, a simple one-shape mark inside in `--on-primary`; never an
     empty square), the product name (`--t-body`, `--w-strong`), and the one
     context the request names (a workspace name, as plain text). No sidebar unless the request lists destinations;
@@ -73,9 +76,14 @@ it goes in React, Vue, Svelte, Angular, Astro, Django, Rails, Laravel and the re
 13. **Compact, with rhythm.** Controls `--h-control`, rows `--h-row`, card padding `--pad-card`, sections
     `--gap-section` apart; more space above a title than below it; equal padding on all sides of a card or bar.
     At 1280×800 the main task fits the first screen: every plan to its last feature; a sign-up to its button; a
-    list to eight rows and its action; settings to the whole first card.
+    list to eight rows and its action; settings to the whole first card. When it doesn't fit, tighten in this order:
+    the gaps between fields or rows, then card padding, then the space above the title; never control heights or text
+    sizes.
 14. **Widths.** A form `--w-form`; settings one `--w-settings` column; a pricing row `--w-pricing`; data
-    `--w-data`. Centred in the window. Fields that belong together share a row (name and email).
+    `--w-data`. Centred in the window. Fields that belong together share a row (name and email). A block narrower than
+    the column it sits in (a form, a card, a dialog's content, one settings group) takes the column's width, with
+    related things side by side, so it keeps the one edge; only a block alone on the page (a sign-in card) stays
+    narrow, centred. Never a narrow block against one edge with bare space beside it.
 15. **One edge, matching siblings.** Everything in the column shares its left edge; the bar's contents sit on the
     window gutter. Cards in a row match in width, height, padding and the order inside; controls in a row share a
     height; a grid has one gap in both directions.
@@ -84,8 +92,9 @@ it goes in React, Vue, Svelte, Angular, Astro, Django, Rails, Laravel and the re
 17. **A unit stays with its number:** on its baseline, 6px after it, `--t-body` `--text-2`, on one line. Prices stay
     whole after a discount (15 → 12).
 18. **Every state on the same layout,** with one made-up person throughout and no placeholder text. A state
-    opened by a URL parameter or a story holds until dismissed, so it can be looked at. Saved: the
-    button says "Saved" and one line says what changed. Loading: the label swaps in place and choices stay chosen.
+    opened by a URL parameter or a story holds until dismissed, so it can be looked at. Done: the
+    button says the past tense of its own verb (Save → "Saved", Create → "Created", Send → "Sent") and one line says
+    what changed. Loading: the label swaps in place and choices stay chosen.
     Nothing covers content; a word never breaks. A row that is removed closes smoothly (antheo-motion recipe
     37); nothing on the screen jumps.
 19. **Icons are few and grey.** 16px, 1.5 stroke, `--text-3`: navigation, an icon-only button (with a name), a tick

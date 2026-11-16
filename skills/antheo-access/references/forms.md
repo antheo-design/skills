@@ -7,10 +7,10 @@ A form is where accessibility failures cost people money and time. Work through 
 ```html
 <div class="field">
   <label for="email">Email address</label>
-  <p class="hint" id="email-hint">We send the receipt here.</p>
-  <p class="error" id="email-err" hidden><svg aria-hidden="true">…</svg><span>Enter an email like name@example.com</span></p>
   <input id="email" name="email" type="email" autocomplete="email" spellcheck="false"
-         required aria-describedby="email-hint email-err">
+         required aria-describedby="email-err email-hint">
+  <p class="error" id="email-err" hidden><svg aria-hidden="true">…</svg><span>Enter an email like name@example.com</span></p>
+  <p class="hint" id="email-hint">We send the receipt here.</p>
 </div>
 ```
 
@@ -18,7 +18,7 @@ A form is where accessibility failures cost people money and time. Work through 
 |---|---|
 | Label | A visible `<label for>` for every control, above the field. Clicking it focuses the input. Never placeholder-only; the placeholder is an example, not a label. |
 | Label text vs name | Keep the visible text inside the accessible name (2.5.3). |
-| Hint | `aria-describedby` pointing at the hint id **first**, then the error id. The hint stays when the error shows. |
+| Hint | Under the field, after the error when one shows; nothing sits between a label and its field. `aria-describedby` names the error first, then the hint, so the problem is heard first. The hint stays when the error shows. |
 | Required | Native `required` plus the word in the label ("Email (required)") or "(optional)" on the few optional ones. If every field is required, say so once at the top. An asterisk alone fails (not read reliably); if used, explain it above the form. |
 | Disabled | Avoid. A disabled control leaves the tab order and hides why. Prefer `aria-disabled="true"` with the reason in the hint. |
 | Read-only | `readonly` stays focusable and submits; `disabled` does neither. |
@@ -60,15 +60,20 @@ Do not use `type="number"` for IDs, card numbers, ZIPs or phone numbers (spinner
 
 ## 4. Validation and errors
 
-When to validate: **on submit**, then on blur for fields that failed. Never on first keystroke; never while the user is still typing. Keep what they typed. Never clear the form.
+When to validate: **on submit**, and on blur for a field the person has changed (an empty field they only tabbed past waits for the submit). Never on the first keystroke; never while they are still typing a first attempt. Once a field shows an error, re-check it as they type and clear it the moment it's fixed, so nothing below it moves on blur as they click the next control. Keep what they typed. Never clear the form.
 
 Per field on error:
-1. Show the message under the label/hint, above the input, text plus icon, 4.5:1 contrast (not colour alone). Start with what to do: "Enter your email like name@example.com", not "Invalid input".
+1. Show the message directly under the field (before its hint), text plus icon, 4.5:1 contrast (not colour alone). Start with what to do: "Enter your email like name@example.com", not "Invalid input".
 2. Add `aria-invalid="true"` and make sure the message id is in `aria-describedby`.
 3. Add a visible non-colour cue on the control (thicker border, icon).
 4. Remove all three the moment the value becomes valid.
 
-Summary for forms with 2+ fields (put it above the form, `tabindex="-1"`):
+When a send finds problems: **one problem**, focus that field (its message is read with it), no summary. **Two or
+more**, a summary above the form takes focus. A short form whose fields all fit on one screen without scrolling may
+skip the summary and focus the first problem instead, because every message is in view; a form that scrolls, has
+sections or spans steps always gets the summary. If the product or the brief sets one of these, follow it.
+
+The summary (above the form, `tabindex="-1"`):
 
 ```html
 <div id="summary" class="summary" role="alert" tabindex="-1">
@@ -122,7 +127,7 @@ If a session or step times out: warn at least 20 seconds before expiry with a `r
 
 ## 9. Verify
 
-1. Submit empty: focus lands on the summary; every link works; pressing Escape or Tab doesn't lose the errors.
+1. Submit empty: focus lands on the summary (or on the first problem, in a short form with no summary); every link works; pressing Escape or Tab doesn't lose the errors.
 2. Fix one error: its message, `aria-invalid`, and summary entry disappear (or the summary is re-rendered).
 3. Screen reader on one field: "Email address, edit, required, We send the receipt here, Enter an email like …, invalid entry".
 4. Password manager fills username and password on the login form without clicking.
