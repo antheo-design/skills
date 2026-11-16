@@ -1,6 +1,6 @@
 ---
 name: antheo-mobile
-description: Makes a web app feel native on phones and touch screens. It starts from the symptom (the page zooms into a field, hover sticks after a tap, content hides under the notch or the keyboard, the page bounces, taps lag, the bottom bar jumps) and fixes the cause, then sets the phone shell, stacked actions, bottom sheets and tables that scroll sideways. Use for "it feels off on my phone", "make it work on mobile", "feels like a website, not an app", or any change that will be used on touch.
+description: Makes a web app feel native on phones and touch screens. It starts from the symptom (the page zooms into a field, hover sticks after a tap, content hides under the notch or the keyboard, the page bounces, taps lag, the bottom bar jumps) and fixes the cause, then sets the phone shell, stacked actions, bottom sheets and tables that scroll sideways. Use for "this feels wrong on my phone", "make it work on mobile", "feels like a website, not an app", or any change that will be used on touch.
 ---
 
 # Antheo Mobile
@@ -25,13 +25,13 @@ and sheet timing to **antheo-motion**; surfaces to **antheo-surface**; breakpoin
 
 | Symptom | Cause | Fix |
 |---|---|---|
-| The page zooms when a field is tapped | field text under 16px | `16px` field text on any touch screen (`@media (pointer: coarse)`) |
+| The page zooms when a field is tapped | field text under 16px | fields at `16px` wherever the pointer is coarse (`@media (pointer: coarse)`) |
 | Hover styles stay after a tap | hover not gated | hover under `@media (hover: hover) and (pointer: fine)`; show the hover look on `:active` instead |
 | Grey flash on tap | the browser's tap highlight | `-webkit-tap-highlight-color: transparent` and a real `:active` press |
 | Taps feel slow | double-tap-to-zoom wait | `touch-action: manipulation` on controls |
 | Long press selects a button's label | selection on controls | `user-select: none; -webkit-touch-callout: none` on controls only; content stays selectable |
 | Content hides under the browser bars | `100vh` | `100dvh` (`100svh` for a hero that must not jump) |
-| Content under the notch or home bar | no safe areas | `viewport-fit=cover` and `env(safe-area-inset-*)` padding on every bar, sheet and pinned action |
+| Content behind the notch or home indicator | no safe areas | `viewport-fit=cover` and `env(safe-area-inset-*)` padding on every bar, sheet and pinned action |
 | Fixed bottom actions hidden by the keyboard | the layout viewport ignores it | both: `interactive-widget=resizes-content` in the viewport meta (Android) and the `visualViewport` script (iPhone, which ignores the meta) |
 | The page behind a sheet scrolls | scroll chaining | `overscroll-behavior: contain` on sheets, drawers and chat panes |
 | The whole page bounces or reloads on pull | default overscroll on an app screen | `overscroll-behavior-y: none` on the app shell; keep pull-to-refresh only on feeds |
@@ -51,7 +51,7 @@ and sheet timing to **antheo-motion**; surfaces to **antheo-surface**; breakpoin
 | Buttons, fields, selects | `44px` tall (`--h-control` on a phone, from antheo-build's style block) |
 | Rows in a list | `52px` (`--h-row`); at least `44px` |
 | Switch | track `44×26`, knob `22px` (`--sw-*`) |
-| Icon buttons and small marks | keep their look; a `44px` hit area |
+| Icon buttons and small marks | drawn at their normal size, hit at `44px` |
 | Side gutter | `--gutter` from antheo-layout (16px at phone width); each block keeps its own sides |
 | Type | the block's phone values: body `15px`, titles `17px`, a page title `22px`, a headline `28px`; fields `16px` |
 
@@ -61,11 +61,11 @@ rows.
 ## The shell
 
 - **The panel fills the screen:** it doesn't float, and has no corners or shadow.
-- **Top bar** (only where the desktop screen has one): `--h-bar` plus the top safe area, the surface colour, no
+- **Top bar** (only where the desktop screen has one): `--h-bar` tall with the top safe area added above, the surface colour, no
   line under it until content scrolls beneath. A neutral logo tile and the name at the start; a `44px` menu button at
   the end only if there is navigation.
-- **Menu:** fills from under the bar to the bottom; is kept in the page but `inert` when closed, so dialogs opened from it
-  survive; search first, then navigation, account, settings.
+- **Menu:** fills from under the bar to the bottom; is kept in the page but `inert` when closed, so a dialog opened from the
+  menu isn't torn down with it; search first, then navigation, account, settings.
 - **Bottom bar, only when the screen needs one.** A form or flow that fits in about a screen and a half keeps its
   button in the flow, after the last field. A longer one may fix its actions to the bottom, and then the bar is:
   **opaque** (the page ground, never a gradient or a fade), with a hairline on top, padded for
@@ -105,28 +105,29 @@ not like a web page squeezed narrow. On an iPhone (393 × 852pt, the size to che
 
 | Desktop | Phone |
 |---|---|
-| Actions beside the title | under it, full width, stacked; primary on top |
+| Actions beside the title | below the title at full width, one per line, the primary first |
 | A button pair in a dialog or flow | one above the other, the confirm first, `8px` between |
-| Previous / Next | side by side, half and half |
+| Previous / Next | two equal halves on one line |
 | A grid of columns | one column |
-| A segmented control that doesn't fit | a pill that opens a sheet of choices |
+| A segmented control that doesn't fit | one button showing the current choice; tapping it lists the rest in a sheet |
 | A row of filters | one line that scrolls sideways past the gutter, faded `20px` at each end; it never wraps |
 | A tooltip | opens on tap |
 | A dialog | a bottom sheet |
-| A table | scrolls sideways inside its frame, the first column sticky while at least `88px` stays beside it; the whole row opens the item |
-| Flow actions | fixed at the foot, stacked, primary on top |
+| A table | scrolls sideways inside its frame, the first column sticky while at least `88px` stays beside it; tapping anywhere on a row opens it |
+| Flow actions | pinned to the bottom, one per line, the primary first |
 | Long labels | shortened ("org", whole amounts lose ".00"), never truncated mid-value |
 
-## Dialogs become bottom sheets
+## Bottom sheets instead of dialogs
 
-- **Shape:** full width, top corners `--r-sheet` (14px), a hairline on the top edge only; at most
-  `calc(100dvh - env(safe-area-inset-top) - 24px)` tall. Its colour runs on below its foot so pulling up shows no
-  gap; the home-bar inset is a transparent bottom border, so its padding stays its own.
-- **A grab handle instead of a close ×:** a `36×5` pill `12px` above the sheet's top edge, inside an `88×44` button
+- **Form:** the screen's full width, `--r-sheet` (14px) on the two upper corners, one hairline along the top; at most
+  `calc(100dvh - env(safe-area-inset-top) - 24px)` tall. Its fill continues past the bottom of the screen, so an
+  upward pull never reveals a gap; the home-indicator space is a see-through bottom border, which leaves the
+  sheet's own padding untouched.
+- **A grab handle instead of a close ×:** a `36×5` pill floating `12px` over the sheet's upper edge, inside an `88×44` button
   labelled "Close". Tapping it, or pressing Enter or Space, closes the sheet.
-- **Inside:** no title band; the title is a `20px` heading on the sheet. Related facts join into one raised card of
-  `48px` rows. Buttons never sit inside that card: below it, full-width `44px`, `8px` apart.
-- **Moving:** drag from anywhere on the sheet once the press has moved more than `4px` (until then a tap stays a tap);
+- **Inside:** no title band; the title is a `20px` heading on the sheet. Facts that belong together share one raised
+  card, in `48px` rows. Actions stay outside it, underneath: full-width `44px` buttons with `8px` between.
+- **Moving:** drag from anywhere on the sheet once the press has moved more than `4px` (anything less counts as a tap);
   a body that scrolls drags the sheet only from its top. Timing, closing distance, flick speed and the spring are
   antheo-motion's. Never draggable while it can't close (saving, paying).
 - **Keys and focus:** antheo-access's dialog rules; the handle is a real button, not a gesture only.
@@ -141,7 +142,7 @@ only work on hover or a long press · 100vh panels that jump.
 
 - [ ] The symptom reproduced, its cause named in code, the fix verified (in code and, where it needs one, on a device)
 - [ ] No field zooms; no hover sticks; no grey tap flash; taps answer at once
-- [ ] Nothing under the notch, the home bar, the browser bars or the keyboard; no bar covering content in any state
+- [ ] Nothing hidden behind the notch, the home indicator, the browser bars or the keyboard; no bar covering content in any state
 - [ ] No word split mid-word; the header and the content share their edges
 - [ ] Every target `44px`, no hit areas overlapping
 - [ ] No sideways scroll on the page; rows and tables scroll inside their own box

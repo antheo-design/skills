@@ -1,6 +1,6 @@
 ---
 name: antheo-system
-description: Works with an app that already exists. It extracts the design system the app really uses, maps every hard-coded value to a token by role, migrates screen by screen without visible change, documents components from their code, and keeps a record of the person's taste so the next agent starts where the last one stopped. Use for "make our UI consistent", "we hardcode colours everywhere", "extract tokens", "are we using our tokens?" (a report that changes nothing), "migrate to the new components", "document this component", "remember that I prefer…", or before building into an existing codebase.
+description: Works with an app that already exists. It extracts the design system the app really uses, maps every hard-coded value to a token by role, migrates screen by screen without visible change, documents components from their code, and keeps a record of the person's taste so the next agent starts where the last one stopped. Use for "make our UI consistent", "we hardcode colours everywhere", "extract tokens", "do we actually use our tokens?" (a report that changes nothing), "migrate to the new components", "document this component", "remember that I prefer…", or before building into an existing codebase.
 ---
 
 # Antheo System
@@ -19,8 +19,8 @@ progress), `components/<name>.md` (one page per component). Templates: `referenc
 1. **Read:** `design/taste.md` and `design/system.md` before building anything. They outrank every default in the
    other Antheo skills. Use the app's tokens and shared components; never add a second button.
 2. **Readiness:** is there a token file, a shared components folder, and a way to screenshot the key screens? Before
-   a migration, also **tone parity**: every pressable and row component crossed with every status tone plus muted;
-   each empty cell is a gap to fill first. Each missing piece becomes the first item in the plan.
+   a migration, also **tone coverage**: a grid of the clickable and row components against the status colours and
+   the muted look; any combination missing from it is filled before the migration starts. Each missing piece becomes the first item in the plan.
 3. **Extract:** what the app really uses.
 4. **Map:** every raw value to a token, by role.
 5. **Migrate:** exact, then close, then components, then strays, then lock.
@@ -63,13 +63,13 @@ node <this-skill>/scripts/audit-values.mjs src --tokens src/styles/tokens.css --
 | **close** | within ΔE 2, or 2px | swap, then look |
 | **stray** | matches nothing | used 3 or more times across 2 or more files: a gap, so propose a token; fewer: a mistake, so correct it; ask when unsure |
 
-Never borrow a token because its value fits: a border on `--color-text-subtle` because the grey matched breaks the
+A token is picked for its job, never because its value happens to match: a border on `--color-text-subtle` because the grey matched breaks the
 day the text colour changes. Payload values are not drift: colours in code samples, data URIs, third-party brand
 logos and exported files are left alone, and listed as exempt by element, not by file.
 
 ### Report only
 
-When the person asks "are we using our tokens?" or wants a token audit, change nothing: report each raw value as
+When the person asks "do we actually use our tokens?" or wants a token audit, change nothing: report each raw value as
 **exact**, **close** (with its ΔE or px), **ambiguous** (name every candidate token), **gap** (no token fits; never
 invent one in the report) or **do not use** (the value matches but the token's job differs), with its places. If at
 least 12 rows are gaps and they make up more than 30% of the rows, say "not actionable (gap threshold): the system is

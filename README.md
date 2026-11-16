@@ -102,7 +102,7 @@ to ship?" brings in antheo-review.
 
 | Skill | What it does |
 |---|---|
-| <picture><source media="(prefers-color-scheme: dark)" srcset="assets/icons/dark/antheo-critique.svg"><img src="assets/icons/antheo-critique.svg" width="20" height="20" align="top" alt=""></picture>&nbsp; [antheo&#8209;critique](skills/antheo-critique/SKILL.md) | A design partner: says what is clearly off, asks about the judgement calls, redesigns nothing unasked |
+| <picture><source media="(prefers-color-scheme: dark)" srcset="assets/icons/dark/antheo-critique.svg"><img src="assets/icons/antheo-critique.svg" width="20" height="20" align="top" alt=""></picture>&nbsp; [antheo&#8209;critique](skills/antheo-critique/SKILL.md) | A second pair of eyes: names the plain problems, raises matters of taste as questions, redesigns nothing unasked |
 | <picture><source media="(prefers-color-scheme: dark)" srcset="assets/icons/dark/antheo-explain.svg"><img src="assets/icons/antheo-explain.svg" width="20" height="20" align="top" alt=""></picture>&nbsp; [antheo&#8209;explain](skills/antheo-explain/SKILL.md) | Explains how an interface was built, layer by layer, and says how sure it is of each claim |
 
 ## How a skill works

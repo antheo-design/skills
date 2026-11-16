@@ -18,7 +18,7 @@ token names to **antheo-tokens**; how a surface moves to **antheo-motion**; phon
 1. **The ground.** Name what the thing sits on: the page, a panel, a card, a row, an overlay. Every value below is
    taken from it.
 2. **Rise, sink or stay flat.** Raised: something you press or a unit of content. Sunk (a well): somewhere you type
-   or a track. Flat: everything space already groups. Most things stay flat.
+   or a track. Flat: anything that spacing alone already holds together. Most things stay flat.
 3. **The level.** Control, card, menu, dialog: one step of the ladder each, never invented in between.
 4. **The corner.** From the scale, then concentric with its parent.
 5. **The lines.** Space first; a hairline only where space can't do the job.
@@ -74,27 +74,27 @@ A sheet on a phone uses `--r-sheet` (14px) on its top corners. A shape inside an
 
 ## Wells sink
 
-A field is a well, not an outlined box: the block's `.field` (`--well` with the faint inner `--well-edge`), one step
-darker than its surface in light and one lighter in dark. A form is then a column of quiet fills, not a stack of
+A field is a well, not an outlined box: the block's `.field` (`--well` with the faint inner `--well-edge`), a shade
+deeper than what it sits on in light, and a shade brighter in dark. A form is then a column of quiet fills, not a stack of
 frames. Focus adds the 2px `--focus` ring; an error swaps the inner edge for `--danger`.
 
 ## Almost no lines
 
 One hairline (`--line`, 1px). It appears only between repeating rows of a list or table, and under a sticky bar
 once content has scrolled beneath it. Never under a card's header, between sections of a page, between a price and
-its features, around a group that space already groups, or under a top bar at rest. No double edges (a bordered thing
-inside a bordered parent). Where content scrolls, a short fade in the surface colour says "more" better than a cut.
+its features, around things that spacing already holds together, or under a top bar at rest. No double edges (a bordered thing
+inside a bordered parent). Where content scrolls, a short fade into the surface colour hints that there is more, which a hard cut does not.
 
 ## Rows fill in place
 
 A list, menu or table row shows the pointer with the local ground **+1 step** and the chosen row with **+2 steps** in
-full ink. Each row fades its own fill where it is (timing from antheo-motion); one highlight never slides between rows.
+full ink. Each row lights its own fill where it sits (timing from antheo-motion); one highlight never slides between rows.
 A picked option in a picker also keeps its check, so the choice is not carried by colour alone.
 
 ## Behind an overlay
 
-Dialogs dim the page with `--backdrop` (about a third in light, 60% in dark). A side panel dims only when it covers the page. A
-small confirm shown in place, with no backdrop, takes the control level, not the dialog's.
+Dialogs dim the page with `--backdrop` (about a third in light, 60% in dark). A side panel darkens the page only if it sits over it.
+A little confirmation that opens where its button is, without a backdrop, uses the control level, not the dialog's.
 
 ## Translucent chrome, only over moving content
 
@@ -106,7 +106,7 @@ measure its text against the worst spot behind it (antheo-color).
 ## Images and media
 
 Content images get a `1px` outline drawn `1px` inside the edge, black at 10% in light (`oklch(0 0 0 / 0.1)`) and white
-at 10% in dark (`oklch(1 0 0 / 0.1)`). A tinted neutral or the accent would show as a coloured fringe. Skip transparent art (logos, illustrations). An
+at 10% in dark (`oklch(1 0 0 / 0.1)`). A warm or cool grey, or the accent, shows there as a coloured fringe. Skip transparent art (logos, illustrations). An
 image inside a card takes the concentric radius.
 
 ## Align by eye where geometry looks off

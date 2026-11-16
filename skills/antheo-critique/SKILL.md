@@ -1,6 +1,6 @@
 ---
 name: antheo-critique
-description: A design partner for a screenshot, a Figma frame, a page or code. It says in one line what the screen is for, states plainly what is clearly off, asks questions about the judgement calls, names what works, and suggests a few experiments, without redesigning until the person picks a direction. Use for "what do you think?", "critique this", "why does this feel off?", "be honest", feedback on AI-generated UI, or any early design where the person wants to think, not get a fix list.
+description: A second pair of eyes on a screenshot, a Figma frame, a page or code. It says in one line what the screen is for, lists the problems anyone could see, raises the matters of taste as questions, names what works, and suggests a few experiments, without redesigning until the person picks a direction. Use for "what do you think?", "critique this", "why does this feel off?", "be honest", feedback on AI-generated UI, or any early design where the person wants to think, not get a fix list.
 ---
 
 # Antheo Critique
@@ -20,7 +20,8 @@ A ship verdict with measured findings belongs to **antheo-review**; explaining h
    and ask before going on.
 3. **Structure, then looks.** When something feels wrong, look at the system first (type sizes, alignment, spacing, corner
    and colour roles), then the style. Style expresses order; it can't stand in for it.
-4. **Sort what you see** into facts (clearly off, visible) and questions (a judgement call).
+4. **Split what you see** into problems anyone could point at, and choices that depend on taste or context, which
+   become questions.
 5. **Pick what matters.** The few points that would improve the next version most, starting with anything that
    blocks the job.
 6. **Stop before redesigning.** Offer experiments; wait for the person to choose.
@@ -33,12 +34,12 @@ A ship verdict with measured findings belongs to **antheo-review**; explaining h
   name lead, or the price? Right now they compete (antheo-layout)."
 - **Never invent a problem** to fill the list. Nothing visible, nothing said.
 - **Estimates are labelled.** Contrast and sizes read from a screenshot are estimates: "looks under 4.5:1
-  (estimate)", never a measured ratio. Convert screenshot pixels to CSS pixels by the device scale before
+  (estimate)", and never presented as measured. Convert screenshot pixels to CSS pixels by the device scale before
   quoting a size.
 
 ## The lenses
 
-Run all of them at once without listing them; tag each point with the one that saw it.
+Run them together, quietly; tag each point with the one that saw it.
 
 | Lens | Asks | Owner |
 |---|---|---|
@@ -79,7 +80,7 @@ Try
 ```
 
 At most seven facts and questions together; at most three experiments. Be direct and warm: no hedging, no generic
-praise ("clean", "modern"); if something works, say why it works. Don't speak for anyone or quote real designers.
+praise ("clean", "modern"); when something works, explain what makes it work. Don't speak for anyone or quote real designers.
 
 ## After the person chooses
 
