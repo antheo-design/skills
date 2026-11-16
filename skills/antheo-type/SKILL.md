@@ -76,8 +76,8 @@ gap. A price in a plan card is `--t-num` at `--w-text`.
 
 ## Headings step down with their level
 
-An `h3` never looks bigger than an `h2`, and no heading is smaller than body text unless it is a deliberate
-overline.
+An `h3` never looks bigger than an `h2`, and no heading drops below body size, except an overline chosen
+on purpose.
 
 ## Fine points
 

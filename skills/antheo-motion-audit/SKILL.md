@@ -47,7 +47,7 @@ lines that break a rule. It reads source, so its flags are candidates: confirm e
 - Interface motion over 300ms; a page over 400ms; a close or hover-out that is delayed.
 - Growing from `scale(0)`; `transition: all`; animating width, height, top, left or margin.
 - `ease-in` on something arriving; a bounce on something closing.
-- A state change carried by motion alone, with no static cue left behind.
+- A change of state shown only by movement, with nothing left on screen to show it afterwards.
 - An animation that blocks input while it plays.
 - No reduced-motion handling, or reduced motion that removes the feedback instead of turning it into a short fade.
 

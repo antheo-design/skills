@@ -12,8 +12,8 @@ timing to **antheo-motion**, the words to **antheo-writing**, reflow and right-t
 
 ## A finding cites a criterion
 
-Every finding names a WCAG 2.2 A or AA criterion by number, or a concrete task an assistive-technology user cannot
-complete. Anything else is a recommendation, never high severity.
+Every finding cites a WCAG 2.2 A or AA success criterion by its number, or names a real task that someone using
+assistive technology can't finish. Anything else is a recommendation, never high severity.
 
 ## Native first, ARIA last
 
@@ -70,7 +70,7 @@ dismissed and is never the only place the message lives (2.2.1). Details: `refer
 
 A visible `<label for>` above every field (a placeholder is never the label; an example placeholder goes on every
 field or none); related fields in `fieldset` and `legend`; "required" in words; `autocomplete`, the right `type` and
-`inputmode`. Validate on blur and on submit, never on every keystroke. An error is said once: an inline message under
+`inputmode`. Check a field when it loses focus and on submit, never on every keystroke. An error is said once: an inline message under
 its field, tied by `aria-describedby`, with `aria-invalid="true"`, text and an icon, entered values kept. One
 error: focus goes to that field, with no summary. Several errors: a summary at the top takes focus and links to
 each field, in exactly the words of the inline messages. Never block paste, and never

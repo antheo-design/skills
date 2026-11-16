@@ -206,10 +206,10 @@ A skill earns its place when its side passes more checks and fails none that the
 4. **Measured, not guessed.** Real pages, real widths, both themes.
 5. **Proven by a run.** A claim about a screen comes with the check that shows it.
 
-## Pairs well with
+## What they don't cover
 
-These skills own how an interface looks, reads, moves and works for people, not how its code is structured. For that,
-pair them with Vercel's react-best-practices for React performance and Matt Pocock's tdd and diagnosing-bugs skills.
+These skills own how an interface looks, reads, moves and works for people, not how its code is structured. Use them
+alongside your framework's own guides and the engineering practices you already trust.
 
 ## License
 

@@ -69,7 +69,7 @@ one in the project: louder, larger, browner or busier anywhere is a finding.
   of made-up destinations).
 - A leaked code value (`NaN`, `undefined`, `[object Object]`, `${…}`, lorem ipsum); an image that failed.
 - A submit that visibly does nothing; an error with no way to recover; a destructive action with no confirm or undo.
-- A state change carried by motion alone; a disclosure with no visible cue that it opens.
+- A change of state shown only by movement; a disclosure with no visible cue that it opens.
 
 ## Two reviewers, kept apart
 
@@ -140,7 +140,7 @@ shared component. Problems that were already there go in a separate list of at m
 Ready to ship: no. Enter in the email field closes the dialog (1 blocker, 2 high, 3 medium).
 ```
 
-Any blocker or high finding makes it **no**; an inferred one, **no, pending** the check; mediums alone **yes, with
+Any blocker or high finding makes it **no**; a high finding that was inferred rather than measured, **no, pending** the check; mediums alone **yes, with
 fixes**; lows alone **yes**. Then the findings by severity, the check score and the design score, three things that
 work and should be kept, and decisions that belong to a person.
 

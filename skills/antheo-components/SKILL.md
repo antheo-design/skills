@@ -23,9 +23,9 @@ word belongs to **antheo-writing**; keyboard, names and hit-area minimums to **a
 Most weak components start at step 5. Work down; each step limits the next.
 
 1. **The job.** Name the one thing a person does here. That is the one primary action, or there is none.
-2. **The least content that does the job.** One strong value beats six small ones. Lists stop at 5 to 6 rows, then
+2. **The least content that does the job.** One clear number is worth more than six small ones. Lists show 5 to 6 rows, then
    "View all". Leave out what is empty, finished or not relevant yet.
-3. **The component.** Use the project's own first. Plain rows for lists, a card for one unit of related data, a table
+3. **The component.** Use the project's own first. Plain rows for lists, a card for one thing and its details, a table
    for many records, a dialog only for a focused task or a confirm.
 4. **The surface.** What it sits on, then raised or sunk: decided with **antheo-surface**.
 5. **Size and type.** From the tables in `references/look.md`.

@@ -9,8 +9,8 @@ does it behave like an object? These rules make dragged, swiped and thrown thing
    on every `pointermove`, inside `requestAnimationFrame`. Any lag reads as broken.
 2. **Release keeps the speed.** When the finger lifts, the thing continues with the velocity it had, then settles
    with a spring. A thing that stops dead and then animates is the most common gesture bug.
-3. **The decision uses distance or speed.** A sheet dismisses if pulled past `min(64px, 15%)` of its height **or**
-   flung downward faster than 0.11px/ms, measured over the last 100ms. Speed alone or distance alone feels wrong.
+3. **The decision uses distance or speed.** A sheet dismisses on a downward throw faster than 0.11px/ms (measured over
+   the last 100ms), **or** once it has been dragged `min(64px, 15%)` of its height. Speed alone or distance alone feels wrong.
 4. **Resistance at the edges.** Pulled beyond its range, the thing moves less than the finger (rubber band), and
    springs back on release.
 

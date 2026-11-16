@@ -58,7 +58,7 @@ Chart palettes (one measure in one colour, categories, sequential and diverging 
 - Text: L ~0.93 to 0.96, never #fff.
 - Saturated colors look brighter on dark: reduce chroma 10 to 20% and raise lightness.
 - Elevation: each layer up gets ~0.04 lighter.
-- Shadows mostly disappear; a raised thing gets one solid 0.5px outline lighter than its fill (1px at lower contrast on 1× screens).
+- Shadows mostly disappear; a raised thing gets a single 0.5px line all round, lighter than its fill (1px at lower contrast on 1× screens).
 - Re-check every pair; a palette that passes in light can fail in dark.
 
 ## Sources

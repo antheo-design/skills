@@ -53,7 +53,7 @@ run `linear`.
 | Menu, popover, select | 150ms, from `scale(0.97)` and a fade, at the trigger | 120ms |
 | Tooltip | 400ms delay, then a 150ms fade; at once within 300ms of another closing | at once |
 | Dialog | 250ms: 8px rise, fade, scale from 0.96 | 200ms |
-| Sheet, drawer | 300ms from its edge, solid the whole way (no fade, no blur) | 200ms |
+| Sheet, drawer | 300ms from its edge, fully opaque throughout (no fade, no blur) | 200ms |
 | Toast | 200ms, 12px rise | 200ms, out the way it came |
 | Accordion, height reveal | 250ms, `grid-template-rows: 0fr` to `1fr` | 200ms |
 
@@ -97,8 +97,8 @@ arrive.
 
 A switch knob, a released drag, a gliding segmented pill. Bounce 0 to 0.2 on controls (the overshoot stays inside the
 track), up to 0.45 for a rare celebration; one wobble at most. A drag follows the finger with no transition and, on
-release, springs from the release speed; a sheet closes past `min(64px, 15%)` of its height or on a flick above
-about 0.11px per ms, otherwise it springs back (`references/gestures.md`).
+release, springs from the release speed; a sheet closes on a flick faster than about 0.11px per
+ms, or once it has travelled `min(64px, 15%)` of its height, otherwise it springs back (`references/gestures.md`).
 
 ## Nothing jumps
 

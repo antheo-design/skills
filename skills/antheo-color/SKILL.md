@@ -88,7 +88,7 @@ the colour on its background, never on its label alone; one filled button per vi
 | Ground | off-black, OKLCH lightness 0.15 to 0.20 (never `#000`) |
 | Text | lightness 0.93 to 0.96 (never `#fff`) |
 | Each layer up | about 0.03 to 0.04 lighter; elevation is lightness, not shadow |
-| Raised edge | one solid 0.5px outline lighter than the fill (1px at lower contrast on 1× screens, where 0.5px can vanish) |
+| Raised edge | a single 0.5px line all round, lighter than the fill (1px at lower contrast on 1× screens, where 0.5px can vanish) |
 | Accents | lightness raised, chroma lowered 10 to 20% so they don't vibrate; every pair re-checked |
 | Drawn objects and illustrations | keep their light-mode colours; only the page around them changes |
 | Page | `color-scheme: dark` and a matching `<meta name="theme-color">` |

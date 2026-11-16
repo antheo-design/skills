@@ -31,11 +31,11 @@ and sheet timing to **antheo-motion**; surfaces to **antheo-surface**; breakpoin
 | Taps feel slow | double-tap-to-zoom wait | `touch-action: manipulation` on controls |
 | Long press selects a button's label | selection on controls | `user-select: none; -webkit-touch-callout: none` on controls only; content stays selectable |
 | Content hides under the browser bars | `100vh` | `100dvh` (`100svh` for a hero that must not jump) |
-| Content under the notch or home bar | no safe areas | `viewport-fit=cover` and `env(safe-area-inset-*)` on bars, sheets and fixed actions |
+| Content under the notch or home bar | no safe areas | `viewport-fit=cover` and `env(safe-area-inset-*)` padding on every bar, sheet and pinned action |
 | Fixed bottom actions hidden by the keyboard | the layout viewport ignores it | both: `interactive-widget=resizes-content` in the viewport meta (Android) and the `visualViewport` script (iPhone, which ignores the meta) |
 | The page behind a sheet scrolls | scroll chaining | `overscroll-behavior: contain` on sheets, drawers and chat panes |
 | The whole page bounces or reloads on pull | default overscroll on an app screen | `overscroll-behavior-y: none` on the app shell; keep pull-to-refresh only on feeds |
-| Something only appears on hover | hover-only information | open tips on tap; the reason a control is disabled shows as text under it |
+| Something only appears on hover | hover-only information | tips open on tap; a disabled control explains why in a line of text beneath it |
 | Small icons hard to hit | the drawn size is the hit size | a 44px hit area round the icon (`::after`), look unchanged; hit areas never overlap |
 | A horizontal scrollbar on a phone | something wider than the screen | find it (`* { outline: 1px solid red }`), usually a fixed width, `100vw`, a long word or a table; give it `min-width: 0` or let it scroll inside its own box |
 | Text tiny, or huge after rotating | text inflation | `-webkit-text-size-adjust: 100%; text-size-adjust: 100%` on `html` |
@@ -60,11 +60,11 @@ rows.
 
 ## The shell
 
-- **The panel goes edge to edge:** no float, no corners, no shadow round the page.
+- **The panel fills the screen:** it doesn't float, and has no corners or shadow.
 - **Top bar** (only where the desktop screen has one): `--h-bar` plus the top safe area, the surface colour, no
   line under it until content scrolls beneath. A neutral logo tile and the name at the start; a `44px` menu button at
   the end only if there is navigation.
-- **Menu:** fills from under the bar to the bottom; stays mounted and `inert` while closed so dialogs opened from it
+- **Menu:** fills from under the bar to the bottom; is kept in the page but `inert` when closed, so dialogs opened from it
   survive; search first, then navigation, account, settings.
 - **Bottom bar, only when the screen needs one.** A form or flow that fits in about a screen and a half keeps its
   button in the flow, after the last field. A longer one may fix its actions to the bottom, and then the bar is:
@@ -106,11 +106,11 @@ not like a web page squeezed narrow. On an iPhone (393 × 852pt, the size to che
 | Desktop | Phone |
 |---|---|
 | Actions beside the title | under it, full width, stacked; primary on top |
-| A button pair in a dialog or flow | stacked, confirm on top, `8px` apart |
+| A button pair in a dialog or flow | one above the other, the confirm first, `8px` between |
 | Previous / Next | side by side, half and half |
 | A grid of columns | one column |
 | A segmented control that doesn't fit | a pill that opens a sheet of choices |
-| A row of filters | scrolls sideways under the gutter with `20px` edge fades; never wraps |
+| A row of filters | one line that scrolls sideways past the gutter, faded `20px` at each end; it never wraps |
 | A tooltip | opens on tap |
 | A dialog | a bottom sheet |
 | A table | scrolls sideways inside its frame, the first column sticky while at least `88px` stays beside it; the whole row opens the item |
@@ -123,7 +123,7 @@ not like a web page squeezed narrow. On an iPhone (393 × 852pt, the size to che
   `calc(100dvh - env(safe-area-inset-top) - 24px)` tall. Its colour runs on below its foot so pulling up shows no
   gap; the home-bar inset is a transparent bottom border, so its padding stays its own.
 - **A grab handle instead of a close ×:** a `36×5` pill `12px` above the sheet's top edge, inside an `88×44` button
-  labelled "Close". A tap, Enter or Space on it closes the sheet.
+  labelled "Close". Tapping it, or pressing Enter or Space, closes the sheet.
 - **Inside:** no title band; the title is a `20px` heading on the sheet. Related facts join into one raised card of
   `48px` rows. Buttons never sit inside that card: below it, full-width `44px`, `8px` apart.
 - **Moving:** drag from anywhere on the sheet once the press has moved more than `4px` (until then a tap stays a tap);
@@ -145,7 +145,7 @@ only work on hover or a long press · 100vh panels that jump.
 - [ ] No word split mid-word; the header and the content share their edges
 - [ ] Every target `44px`, no hit areas overlapping
 - [ ] No sideways scroll on the page; rows and tables scroll inside their own box
-- [ ] Sheets: a tap on a row still lands; a short pull or a flick closes; the handle works by keyboard
+- [ ] Sheets: tapping a row still works; a short drag or a flick dismisses; the handle works by keyboard
 - [ ] Light and dark, at 200% zoom, on a real phone (iOS Safari and Android Chrome)
 - [ ] Checked against every habit in `references/habits.md`
 

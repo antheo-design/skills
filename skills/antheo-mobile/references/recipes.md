@@ -46,7 +46,7 @@ Tailwind v4, so every `hover:` utility is gated at once:
 @custom-variant hover (@media (hover: hover) and (pointer: fine) { &:hover { @slot; } });
 ```
 
-`:where()` keeps the touch press at zero specificity, so a control's own `:active` style still wins.
+`:where()` keeps the touch press at zero specificity, so any `:active` style a control sets for itself takes precedence.
 
 ## 4. A 44px hit area, look unchanged
 

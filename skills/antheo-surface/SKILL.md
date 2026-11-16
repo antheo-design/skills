@@ -35,7 +35,7 @@ an edge or a radius of its own.
 | The page | `--bg` | one step off white | the darkest step |
 | A card, a table, a dialog | `--surface` | white | a clearly lighter fill than the page |
 | A raised control (a secondary button, a chosen segment) | `--raised` | white | lighter again |
-| A well (a field, a switch or progress track) | `--well` | one step darker than its surface | one step lighter |
+| A well (a field, a switch or progress track) | `--well` | a step below its surface | a step above it |
 | Hover, selected | `--hover`, `--selected` | one and two steps darker | lighter |
 
 White on white is told apart by a faint edge and a soft drop, never by a visible line.
@@ -105,8 +105,8 @@ measure its text against the worst spot behind it (antheo-color).
 
 ## Images and media
 
-Content images get a `1px` outline inset by `1px`: `oklch(0 0 0 / 0.1)` in light, `oklch(1 0 0 / 0.1)` in dark. Never
-a tinted neutral or the accent, which shows as a coloured fringe. Skip transparent art (logos, illustrations). An
+Content images get a `1px` outline drawn `1px` inside the edge, black at 10% in light (`oklch(0 0 0 / 0.1)`) and white
+at 10% in dark (`oklch(1 0 0 / 0.1)`). A tinted neutral or the accent would show as a coloured fringe. Skip transparent art (logos, illustrations). An
 image inside a card takes the concentric radius.
 
 ## Align by eye where geometry looks off

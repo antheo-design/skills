@@ -14,15 +14,15 @@ A ship verdict with measured findings belongs to **antheo-review**; explaining h
 
 ## Decide in this order
 
-1. **Look first.** Work from what you can see: a screenshot, a frame, a running page, the code. If an image holds
-   several screens, name the one you mean. Say whether it is a phone or a desktop.
+1. **Look first.** Work from what you can see: a screenshot, a frame, a running page, the code. If one image shows
+   more than one screen, say which you mean. Say whether it is a phone or a desktop.
 2. **Its one job.** One line: who it is for and what they are trying to do here. If you can't tell, say your guess
    and ask before going on.
-3. **Order before style.** When something feels off, check the system first (type sizes, alignment, spacing, corner
+3. **Structure, then looks.** When something feels wrong, look at the system first (type sizes, alignment, spacing, corner
    and colour roles), then the style. Style expresses order; it can't stand in for it.
 4. **Sort what you see** into facts (clearly off, visible) and questions (a judgement call).
-5. **Pick what matters.** Only what would most change the next version, starting with whatever stops someone doing
-   the job.
+5. **Pick what matters.** The few points that would improve the next version most, starting with anything that
+   blocks the job.
 6. **Stop before redesigning.** Offer experiments; wait for the person to choose.
 
 ## Facts are stated, judgement is asked
