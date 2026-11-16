@@ -13,8 +13,8 @@ gives each a role, and proves every pair readable in both themes. The token name
 ## Take the brand colour from the subject
 
 List three real colours from the product's world (a bike shop: frame-paint red, chain-oil black, tyre tan) and pick
-the one most specific to this product. Never the reflex: SaaS blue `#3b82f6`, startup purple `#8b5cf6`, teal, or
-cream with forest green and terracotta, unless the subject truly is that colour and the brief says which noun.
+the one most specific to this product. Don't reach for the reflex (SaaS blue `#3b82f6`, startup purple `#8b5cf6`,
+teal, or cream with forest green and terracotta) when choosing freely; a brand that already is one of these keeps it.
 
 ## Chrome is near-grey; colour comes from content
 

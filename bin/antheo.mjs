@@ -39,6 +39,7 @@ function help() {
 
 ${Object.entries(TOOLS).map(([k, [, d]]) => `  ${k.padEnd(width)}  ${d}`).join('\n')}
   ${'init'.padEnd(width)}  put the style block in your project and the gate rule in AGENTS.md (see: antheo init --help)
+  ${'doctor'.padEnd(width)}  is every installed copy of the skills up to date?
   ${'self-test'.padEnd(width)}  test the skills and tools themselves (add --browser for the page checks)
 
 The browser checks need Playwright in your project (npm i -D playwright-core) and Chrome or Edge.
@@ -88,7 +89,49 @@ function init(rest) {
   }
 }
 
+// doctor: is every installed copy of the skills the same as this one (the latest, when run with npx from GitHub)?
+function doctor() {
+  const os = process.env.USERPROFILE || process.env.HOME || '';
+  const config = process.env.CLAUDE_CONFIG_DIR;
+  const places = [
+    ...(config ? [path.join(config, 'skills')] : []),
+    path.join(os, '.claude', 'skills'),
+    path.join(os, '.agents', 'skills'),
+    path.join(process.cwd(), '.claude', 'skills'),
+    path.join(process.cwd(), '.agents', 'skills'),
+  ].filter((p, i, all) => all.indexOf(p) === i && fs.existsSync(p));
+  const files = (dir, base = dir) => fs.readdirSync(dir, { withFileTypes: true }).flatMap((e) => {
+    const p = path.join(dir, e.name);
+    return e.isDirectory() ? files(p, base) : [path.relative(base, p)];
+  });
+  const same = (a, b) => fs.readFileSync(a, 'utf8').replace(/\r\n/g, '\n') === fs.readFileSync(b, 'utf8').replace(/\r\n/g, '\n');
+  const ours = fs.readdirSync(SKILLS).filter((d) => d.startsWith('antheo-'));
+  let stale = 0;
+  let found = 0;
+  for (const place of places) {
+    const installed = ours.filter((s) => fs.existsSync(path.join(place, s, 'SKILL.md')));
+    if (!installed.length) continue;
+    found++;
+    const off = [];
+    for (const s of installed) {
+      const mine = files(path.join(SKILLS, s));
+      const changed = mine.filter((f) => { const there = path.join(place, s, f); return !fs.existsSync(there) || !same(path.join(SKILLS, s, f), there); });
+      if (changed.length) off.push(`${s} (${changed.length} file${changed.length === 1 ? '' : 's'})`);
+    }
+    const missing = ours.length - installed.length;
+    if (off.length) stale++;
+    console.log(`${off.length ? 'OUT OF DATE' : 'up to date '}  ${place}  ${installed.length} of ${ours.length} skills${missing ? `, ${missing} not installed` : ''}`);
+    for (const o of off) console.log(`               ${o}`);
+  }
+  if (!found) { console.log('No Antheo skills installed here or in your home folder. Install them with: npx skills@latest add antheo-design/skills'); return; }
+  console.log(stale
+    ? '\nUpdate with: npx skills@latest add antheo-design/skills --global (and again without --global inside a project that has its own copy)'
+    : '\nEvery installed copy matches.');
+  if (stale) process.exitCode = 1;
+}
+
 if (!cmd || cmd === 'help' || cmd === '--help' || cmd === '-h') help();
+else if (cmd === 'doctor') doctor();
 else if (TOOLS[cmd]) run(TOOLS[cmd][0], args);
 else if (cmd === 'init') init(args);
 else if (cmd === 'self-test') {

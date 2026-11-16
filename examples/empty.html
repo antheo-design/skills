@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Projects · Northwind</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400..600&display=swap">
+<link rel="stylesheet" href="../skills/antheo-build/references/quiet.css">
+<style>
+  .bar { display: flex; align-items: center; gap: var(--s-2); height: var(--h-bar); padding-inline: var(--gutter); }
+  .logo { display: grid; place-items: center; width: var(--s-5); height: var(--s-5); border-radius: var(--r-tag); background: var(--primary); color: var(--on-primary); }
+  .logo svg { width: var(--s-3); height: var(--s-3); }
+  .product { font-weight: var(--w-strong); }
+  .context { color: var(--text-2); }
+  main { width: min(var(--w-settings), 100% - 2 * var(--gutter)); margin: var(--s-8) auto var(--s-16); display: grid; gap: var(--s-4); }
+  /* empty on first use: what will be here, why it helps, and the one action that fills it */
+  .empty { display: grid; justify-items: start; gap: var(--s-3); padding: var(--s-10) var(--pad-card); }
+  .empty p { max-width: var(--measure); color: var(--text-2); }
+  .empty .btn { margin-block-start: var(--s-1); }
+</style>
+</head>
+<body>
+<header class="bar">
+  <span class="logo" aria-hidden="true"><svg viewBox="0 0 12 12"><path d="M2 10V2l8 8V2" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+  <span class="product">Northwind</span>
+  <span class="context">Maya Lindqvist</span>
+</header>
+<main>
+  <h1 class="t-page">Projects</h1>
+  <section class="card empty" aria-labelledby="none-yet">
+    <h2 class="t-title" id="none-yet">No projects yet</h2>
+    <p>A project keeps a client's time, files and invoices together, so billing takes minutes instead of an afternoon.</p>
+    <button class="btn btn-primary" type="button">Create a project</button>
+  </section>
+</main>
+</body>
+</html>

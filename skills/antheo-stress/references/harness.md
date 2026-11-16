@@ -51,8 +51,8 @@ const variant = new URLSearchParams(location.search).get('variant') ?? 'a';
 
 - The variants differ in structure or hierarchy, not in a color or a pixel; the page and its data are identical.
 - Each variant is complete: every state, both themes, phone and wide.
-- Compare the same URL with only `?variant=` changed: screenshots at one width, then `scripts/pixdiff.mjs` to see
-  exactly which regions differ, and `scripts/latency-probe.mjs` to compare how they feel under the pointer.
+- Compare the same URL with only `?variant=` changed: screenshots at one width, then antheo-review's `scripts/pixdiff.mjs` to see
+  exactly which regions differ, and its `scripts/latency-probe.mjs` to compare how they feel under the pointer.
 - When one wins, delete the picker and the losing variants in the same change.
 
 ## 3. Scenario axes from the component's own props

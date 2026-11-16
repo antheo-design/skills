@@ -5,7 +5,7 @@ A form is where accessibility failures cost people money and time. Work through 
 ## 1. Anatomy of one field
 
 ```html
-<div class="field">
+<div class="form-row">  <!-- a wrapper; .field in the style block is the input itself -->
   <label for="email">Email address</label>
   <input id="email" name="email" type="email" autocomplete="email" spellcheck="false"
          required aria-describedby="email-err email-hint">

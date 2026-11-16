@@ -103,6 +103,13 @@ The block's name first (what components read), then the generator's long-form to
 Before the second screen, put the brief, the fonts and any changed rule at the top of `tokens.css` or in a
 `DESIGN.md` beside it, where the next agent will read it.
 
+## More than one product shape
+
+A product can need more than one density (compact for a tool, comfortable for touch), more than two themes (a
+brand theme, a high-contrast one) and more than one brand. Each is a set of values on the same names, never new
+names. A token that belongs to one component (a chart's series, a brand's hero button) is fine when it has a reason
+and is named by its role, and it still reads from the shared scale.
+
 ## Done
 
 - [ ] No raw colour, size, radius, shadow or duration in any component (search the styles for `#`, `rgb(`, `px`)

@@ -9,7 +9,7 @@ file) and reads copy in HTML, JSX/TSX, Vue, Svelte, Astro, Angular and server te
 ```bash
 node <antheo-review>/scripts/gate.mjs arm http://localhost:5173/settings --copy src/pages/settings
 # …build…
-node <antheo-review>/scripts/gate.mjs check     # exit 0: PASS; exit 1: still open, with what to fix
+node <antheo-review>/scripts/gate.mjs check     # see the four outcomes below
 node <antheo-review>/scripts/gate.mjs rearm     # after a PASS, when the page changes again: the same pages, round 1
 node <antheo-review>/scripts/gate.mjs disarm    # when the work is abandoned
 ```
@@ -21,8 +21,18 @@ node <antheo-review>/scripts/gate.mjs disarm    # when the work is abandoned
   changed. `--widths 390,1280` by default.
 - **Check before saying done.** A blocker or a high finding from `check-page.mjs` (at each width, light and dark), or
   a high finding from `copy-lint.mjs`, keeps it open.
-- **Three rounds.** Each failed check is a round. After three it stops blocking and says `GATE: DONE` with what is
-  left: tell the person; don't loop.
+- **Four outcomes, never confused:**
+
+  | Says | Exit (`check`) | Means |
+  |---|---|---|
+  | `GATE: PASS` | 0 | the automated checks found nothing blocking; not a full release review |
+  | `GATE: OPEN` | 1 | findings to fix; this was one round |
+  | `GATE: DONE, UNRESOLVED` | 3 | three rounds ran out with work still open: tell the person what is left; don't loop. **Not a pass** |
+  | `GATE: TOOL ERROR` | 4 | a checker crashed or wrote no report: nothing was verified |
+
+  Every round deletes the last report first, so a crash can never leave an old passing result behind. In CI, only
+  exit 0 is success. The Claude Code hook lets the agent stop after the last round, so the unresolved list reaches the
+  person instead of looping.
 - **Each round, keep what worked and undo what didn't.** Before a round's fix, reproduce the finding on the page.
   If the fix didn't move it, revert that change before trying the next idea; never stack guesses. A finding still
   open after a change means the cause was wrong.
@@ -51,7 +61,7 @@ That path is for skills installed in the project (`npx skills@latest add` withou
 **Codex, Cursor, OpenCode and agents without a stop hook:** put this line in `AGENTS.md` or a project rule:
 
 > Before saying a UI change is done, run `node <antheo-review>/scripts/gate.mjs check`. If it says GATE: OPEN, fix what
-> it lists and run it again; after GATE: DONE, tell me what is still open.
+> it lists and run it again; after GATE: DONE, UNRESOLVED or GATE: TOOL ERROR, tell me what is still open or unverified.
 
 ## Why
 

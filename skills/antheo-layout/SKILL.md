@@ -58,6 +58,11 @@ text block starts on it, and things at the end (a row's control, a card's button
 or nav item lines up by its **text**. At most three left edges, and no two within 8px of each other: almost aligned
 is worse than clearly different.
 
+Not every screen is one column. A dense tool (an editor, an inbox, a data workspace) sets panes side by side, the
+main one widest, the others resizable or collapsible, and keeps the one-edge rule inside each pane. An editorial or
+long-reading page runs a reading measure (`--measure`) with images and quotes free to break out of it. "Fits the
+first screen" is for a task screen; a document, a report or a story scrolls.
+
 Text starts at the start edge. A centred block centres everything in it (its heading with its content); never a
 left-aligned heading above a centred grid, or the reverse.
 

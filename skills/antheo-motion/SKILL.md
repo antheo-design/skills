@@ -132,6 +132,13 @@ Check each in `references/habits.md` before calling it done: transition: all · 
 it · a blanket reduced-motion reset · a focus ring that fades or slides in · motion that performs · hover effects on
 things that aren't clickable · a transition reading a name nobody defined.
 
+## When more motion is right
+
+The purpose and frequency rules decide; the numbers are defaults. A game, a creative tool, a learning product or a
+brand moment the person asked for may move more and longer. It still answers input at once, never blocks the next
+action, can be interrupted mid-way, respects reduced motion, and shows its cost: a slow frame on a mid-range phone
+is a finding whatever the style.
+
 ## Done
 
 - [ ] Every change listed with how often it is seen; frequent ones barely move; keyboard actions don't travel

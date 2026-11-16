@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Overview · Northwind</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400..600&display=swap">
+<link rel="stylesheet" href="../skills/antheo-build/references/quiet.css">
+<style>
+  .bar { display: flex; align-items: center; gap: var(--s-2); height: var(--h-bar); padding-inline: var(--gutter); }
+  .logo { display: grid; place-items: center; width: var(--s-5); height: var(--s-5); border-radius: var(--r-tag); background: var(--primary); color: var(--on-primary); }
+  .logo svg { width: var(--s-3); height: var(--s-3); }
+  .product, strong { font-weight: var(--w-strong); }
+  .context { color: var(--text-2); }
+  main { width: min(var(--w-data), 100% - 2 * var(--gutter)); margin: var(--s-8) auto var(--s-16); display: grid; gap: var(--gap-group); }
+  /* three figures people compare: the value, then the comparison in words; no figure larger than the page title */
+  .kpis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s-4); }
+  .kpi { display: grid; gap: var(--s-1); }
+  .kpi .label, .kpi .delta { color: var(--text-2); }
+  .value { font-size: var(--t-page); line-height: var(--l-page); letter-spacing: var(--k-page); font-variant-numeric: tabular-nums; }
+  .grid { display: grid; grid-template-columns: 3fr 2fr; gap: var(--s-4); align-items: start; }
+  .chart { display: grid; gap: var(--s-3); }
+  .bars { display: grid; grid-template-columns: repeat(12, 1fr); align-items: end; gap: var(--s-2); height: 160px; }
+  .bars span { border-radius: var(--r-tag) var(--r-tag) 0 0; background: var(--text-3); }
+  .bars span:last-child { background: var(--text); }
+  .months { display: grid; grid-template-columns: repeat(12, 1fr); gap: var(--s-2); font-size: var(--t-meta); line-height: var(--l-meta); color: var(--text-2); text-align: center; }
+  ul { margin: 0; padding: 0; list-style: none; }
+  li { display: flex; justify-content: space-between; gap: var(--s-3); min-height: var(--h-row); align-items: center; }
+  li + li { border-block-start: 1px solid var(--line); }
+  li .num { font-variant-numeric: tabular-nums; }
+  @media (max-width: 47.99rem) { .kpis, .grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<header class="bar">
+  <span class="logo" aria-hidden="true"><svg viewBox="0 0 12 12"><path d="M2 10V2l8 8V2" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+  <span class="product">Northwind</span>
+  <span class="context">Maya Lindqvist</span>
+</header>
+<main>
+  <h1 class="t-page">Overview</h1>
+  <section class="kpis" aria-label="This month">
+    <div class="card kpi"><span class="label">Invoiced in November</span><span class="value">€ 19,250</span><span class="delta">12% more than October</span></div>
+    <div class="card kpi"><span class="label">Waiting to be paid</span><span class="value">€ 6,900</span><span class="delta">2 invoices, 1 overdue</span></div>
+    <div class="card kpi"><span class="label">Hours logged</span><span class="value">326</span><span class="delta">Across 5 projects</span></div>
+  </section>
+  <div class="grid">
+    <section class="card chart" aria-labelledby="by-month">
+      <h2 class="t-title" id="by-month">Invoiced by month, EUR</h2>
+      <div class="bars" role="img" aria-label="Invoiced by month, December 2025 to November 2026: rising from 9,800 to 19,250 euros">
+        <span style="height: 51%"></span><span style="height: 47%"></span><span style="height: 58%"></span><span style="height: 55%"></span>
+        <span style="height: 62%"></span><span style="height: 66%"></span><span style="height: 60%"></span><span style="height: 71%"></span>
+        <span style="height: 78%"></span><span style="height: 74%"></span><span style="height: 89%"></span><span style="height: 100%"></span>
+      </div>
+      <div class="months" aria-hidden="true"><span>D</span><span>J</span><span>F</span><span>M</span><span>A</span><span>M</span><span>J</span><span>J</span><span>A</span><span>S</span><span>O</span><span>N</span></div>
+    </section>
+    <section class="card" aria-labelledby="clients">
+      <h2 class="t-title" id="clients">Top clients this year</h2>
+      <ul>
+        <li><span>Lumen Health</span><span class="num">€ 41,075</span></li>
+        <li><span>Moonlight Hotels</span><span class="num">€ 28,800</span></li>
+        <li><span>Ferro Bikes</span><span class="num">€ 12,600</span></li>
+        <li><span>Oslo Public Library</span><span class="num">€ 5,760</span></li>
+      </ul>
+    </section>
+  </div>
+</main>
+</body>
+</html>

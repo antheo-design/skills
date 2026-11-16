@@ -382,7 +382,12 @@ try {
   browser = await launchBrowser(chromium);
   const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 } });
   const page = await ctx.newPage();
-  const open = async () => { await page.goto(url, { waitUntil: 'load', timeout: 30000 }); await wait(500); await page.evaluate(`(${helpers})()`); };
+  // a page that doesn't load is a tool error (exit 4), never probed as if it were the page
+  const open = async () => {
+    const res = await page.goto(url, { waitUntil: 'load', timeout: 30000 });
+    if (res && typeof res.status === 'function' && res.status() >= 400) throw new Error(`HTTP ${res.status()}`);
+    await wait(500); await page.evaluate(`(${helpers})()`);
+  };
   await open();
 
   /* 6 inventory first (no mutation) */
@@ -412,13 +417,18 @@ try {
   const cand = await page.evaluate(() => window.__p.candidates().length);
   report.candidates = cand;
   await page.evaluate(() => { document.activeElement?.blur?.(); scrollTo(0, 0); });
-  const stops = []; let first = null; let wrapped = false; const seen = new Map();
+  const stops = []; let first = null; let wrapped = false; const seen = new Map(); let lastKey = null;
   const limit = Math.min(MAX_TABS, cand * 2 + 10);
   for (let n = 0; n < limit; n++) {
     await page.keyboard.press('Tab');
     const d = await page.evaluate(describeFocus);
     if (d.body) { wrapped = n > 0; if (wrapped) break; continue; }
     const key = `${d.sel}@${d.rect.x},${d.rect.y}`;
+    // a native date or time field is one element with several parts (day, month, year): Tab walks the parts while focus
+    // stays on the same element, which is not a loop
+    const segmented = key === lastKey && await page.evaluate(() => !!document.activeElement?.matches?.('input[type=date], input[type=time], input[type=datetime-local], input[type=month], input[type=week]'));
+    lastKey = key;
+    if (segmented) continue;
     if (first === null) first = key;
     else if (key === first) { wrapped = true; break; }
     if (seen.has(key)) { stops.push({ ...d, order: stops.length + 1, repeat: true }); break; }
@@ -451,7 +461,13 @@ try {
     else if (s.clippedOut && s.rect.w <= 2) add('serious', 'focus-hidden', s.sel, 'Focus lands on a 1px or clipped element (hidden-until-focus must become visible on :focus).', 'Show it on :focus, as a skip link does.');
     else if (s.transparent) add('serious', 'focus-hidden', s.sel, 'Focused element has opacity 0.', 'Reveal it on :focus-visible or take it out of the tab order.');
     if (s.obscured) add('serious', 'focus-obscured', s.sel, `Focused element is covered by ${s.obscured} (WCAG 2.4.11).`, 'Add scroll-padding-top equal to the sticky bar height, and keep banners out of the focus path.');
-    if (s.rect.w > 0 && (s.rect.w < 24 || s.rect.h < 24) && !s.inText && !['textbox', 'checkbox', 'radio'].includes(s.role)) add('moderate', 'target-size', s.sel, `Target is ${s.rect.w}x${s.rect.h}px, under the 24x24 minimum (WCAG 2.5.8).`, 'Pad it to 24px (44px on touch) or space it so a 24px circle around it touches no other target.');
+    // WCAG 2.5.8's spacing exception: a smaller target passes when a 24px circle on its centre touches no other target
+    const spaced = (t) => {
+      const cx = t.rect.x + t.rect.w / 2, cy = t.rect.y + t.rect.h / 2;
+      return stops.every((o) => o === t || o.repeat || o.hidden || !o.rect.w ||
+        Math.hypot(Math.max(o.rect.x - cx, 0, cx - (o.rect.x + o.rect.w)), Math.max(o.rect.y - cy, 0, cy - (o.rect.y + o.rect.h))) >= 12);
+    };
+    if (s.rect.w > 0 && (s.rect.w < 24 || s.rect.h < 24) && !s.inText && !['textbox', 'checkbox', 'radio'].includes(s.role) && !spaced(s)) add('moderate', 'target-size', s.sel, `Target is ${s.rect.w}x${s.rect.h}px, under the 24x24 minimum (WCAG 2.5.8).`, 'Pad it to 24px (44px on touch) or space it so a 24px circle around it touches no other target.');
   });
   if (stops.length > 5) {
     const firstMain = stops.findIndex((s) => s.inMain);
@@ -592,6 +608,11 @@ try {
   const loops = await page.evaluate(motionScan);
   for (const l of loops) add('moderate', 'motion', l, 'Animation keeps running under prefers-reduced-motion: reduce (infinite or longer than 5s).', 'Wrap it in @media (prefers-reduced-motion: no-preference) and give long loops a visible pause button (WCAG 2.2.2).');
   report.liveAfter = inv.live.length;
+} catch (e) {
+  // a crash or a page that didn't load: say so and exit 4, so it is never read as "not ready" (exit 1)
+  await browser?.close();
+  console.error(`The probe could not run on ${url}: ${String(e.message || e).split('\n')[0]}. Nothing was checked.`);
+  process.exit(4);
 } finally {
   await browser?.close();
 }

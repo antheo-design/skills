@@ -27,7 +27,10 @@ would someone who uses this every day want to skip it? Then it goes, or plays on
 3. **The meaning test.** One sentence says what it tells the person ("your site is live, step by step, and it
    worked"). No sentence: it is decoration.
 
-## Six beats, planned before building
+## Up to six beats: only the ones the event needs
+
+A quick event may need only Response and Finish. Alive and Progress exist only while real work takes time, and
+follow that work: a step is shown when it really happens, never on a timer.
 
 | Beat | What it does | Typical |
 |---|---|---|
@@ -38,13 +41,15 @@ would someone who uses this every day want to skip it? Then it goes, or plays on
 | Finish | the peak: it worked | a tick draws itself; a short burst in the moment's colours; a sheen passes once |
 | Exit | leaves faster than it came | the light sweeps away; focus moves to the result |
 
-Then five to eight small touches: text that rolls instead of swapping; digits that roll; the changed thing lifting
+Then, only where they help, a few small touches (rarely more than five): text that rolls instead of swapping; digits that roll; the changed thing lifting
 for a moment; a failure designed too (it warms to red, names the step, Try again resumes); a vibration on phones
 after a real press; an optional soft chime, off by default.
 
 ## Its numbers
 
-Under 1 second from press to finish, once, skippable, never blocking the next action. A burst stays invisible until
+The finish itself lasts under a second, plays once, is skippable and never blocks the next action. The whole moment
+follows the real work: if sending takes four seconds, Alive and Progress run for those four seconds and the finish
+plays when it is done. Never wait just to animate, and never fake a delay to make room for one. A burst stays invisible until
 the tick has drawn, so it never reads as a spinner. Springs up to bounce 0.45 here, and only here. Colour may be
 lavish during the moment and leaves when it ends. Sound and vibration only after a real press, never on load.
 
@@ -61,9 +66,9 @@ The moment lives in the job, not in the subject's world: no postal routes, paper
 ## Done
 
 - [ ] The event is rare and meaningful, or the brief says "none"
-- [ ] Six beats planned; five to eight touches; the failure designed
+- [ ] Only the beats it needs, following the real work; touches only where they help; the failure designed
 - [ ] The screen-record, frame and meaning tests pass
-- [ ] Under 1s, once, skippable; reduced motion keeps the finish as a crossfade
+- [ ] The finish under 1s, once, skippable, with no added delay; reduced motion keeps the finish as a crossfade
 - [ ] Checked at 0.1× speed and repeated twenty times
 
 ## Files

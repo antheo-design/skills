@@ -63,8 +63,10 @@ precisely, they are what people prefer.
    - one display face for headlines only, with a neutral text face for everything read or pressed (antheo-type);
    - one colour field and one accent taken from the nouns (antheo-color);
    - **one** image made from the subject: the product itself as UI, the object drawn, or a diagram of how it works.
-3. **One expressive device for the whole page,** chosen with the person: the display face, the colour field, or the
-   image. Not all three at full volume, and never a decoration with no job.
+3. **One expressive idea for the whole page,** chosen with the person, carried by as many devices as it needs (a
+   display face, a colour field, an image, an unusual layout) as long as each serves that idea and has a job. Two
+   ideas competing at full volume is the failure, not the number of devices. When the person hasn't chosen, offer two
+   or three coherent directions from the nouns, each a whole idea, and let them pick.
 
 The structure does not change: one content edge, matching siblings, the spacing scale, units beside their numbers,
 nothing rotated or hand-drawn unless the person asked for exactly that. Sections share one ground unless a second
@@ -73,14 +75,14 @@ ground has a reason (the closing section, a quote). Plan the sections with `refe
 ## Before you finish, one line each
 
 1. Clean or Brand, and who asked for Brand.
-2. For a Brand page: the three nouns, the direction, the one device.
+2. For a Brand page: the three nouns, the direction, the one idea and the devices that carry it.
 3. What you removed: every decoration that had no job.
 
 ## Done
 
 - [ ] Clean unless the person asked for Brand; in Clean, no ornament from the subject
 - [ ] No tell from `references/slop.md`: lazy, invented or over-designed
-- [ ] A Brand page keeps antheo-build's fundamentals: one device, a neutral text face, no decoration without a job
+- [ ] A Brand page keeps antheo-build's "always" list: one idea, a readable text face, no decoration without a job
 - [ ] Looked at on a phone and at 1280px before calling it done
 
 ## Files

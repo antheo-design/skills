@@ -38,7 +38,7 @@ against it. Things that can be pressed look pressable. The demo content is part 
 | body, rows, buttons, fields, labels | `--t-body` (13/20) | `--w-text`; labels, buttons and names at `--w-strong`; fields 16px on touch |
 | help, meta, column headers | `--t-meta` (12/16) | `--text-2`; never smaller |
 | a component's title | `--t-title` (15/22) | `--w-strong`; its description in `--t-body` `--text-2`, 2px below |
-| a value that matters | `--t-num` (28/32) | `--w-text`, tabular; its unit beside it in `--t-body` `--text-2` |
+| a value that matters | `--t-num` (28/32) | `--w-text`, proportional alone, tabular in a column or when it ticks; its unit beside it in `--t-body` `--text-2` |
 
 - **One grotesk:** the project's, else Geist. Mono only for code and IDs a person copies.
 - **Two weights,** sentence case, no tracked uppercase labels, no full stop after a title or label.

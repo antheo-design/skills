@@ -189,10 +189,10 @@ a { color: inherit; text-decoration: underline; text-decoration-thickness: 1px; 
 
 .card { background: var(--surface); border: 1px solid transparent; border-radius: var(--r-card); box-shadow: var(--sh-card); padding: var(--pad-card); }
 .field {
-  height: var(--h-control); width: 100%; padding: 0 var(--s-3); border: 0; border-radius: var(--r-control);
+  height: var(--h-control); width: 100%; padding: 0 var(--s-3); border: 1px solid transparent; border-radius: var(--r-control);
   background: var(--well); box-shadow: var(--well-edge); font-size: var(--t-field);
 }
-.field:focus-visible { outline: none; box-shadow: var(--well-edge), 0 0 0 2px var(--focus); }
+.field:focus-visible { outline: 2px solid transparent; outline-offset: 2px; box-shadow: var(--well-edge), 0 0 0 2px var(--focus); } /* the transparent border and outline turn visible in forced colours, where shadows are dropped */
 .field[aria-invalid="true"] { box-shadow: inset 0 0 0 1px var(--danger); }
 .field[aria-invalid="true"]:focus-visible { box-shadow: inset 0 0 0 1px var(--danger), 0 0 0 2px var(--focus); } /* in error and focused: both */
 .btn {
@@ -225,7 +225,15 @@ a { color: inherit; text-decoration: underline; text-decoration-thickness: 1px; 
 }
 @media (hover: hover) and (pointer: fine) { .switch:hover { background-image: linear-gradient(var(--wash), var(--wash)); } }
 .switch:active::after { scale: 0.9; }
-.switch[aria-checked="true"] { background: var(--accent); }
+.switch[aria-checked="true"] { background-color: var(--accent); } /* the colour only: the shorthand would wipe the hover wash */
+/* forced colours drop fills and shadows: a transparent outline turns into the system's edge, and "on" takes the system
+   highlight, so a switch or a chosen segment stays visible (not while focused, so the focus ring wins) */
+.switch:not(:focus-visible), .seg > button:not(:focus-visible) { outline: 1px solid transparent; outline-offset: -1px; }
+@media (forced-colors: active) {
+  .switch[aria-checked="true"], .seg > button[aria-checked="true"] { background-color: Highlight; color: HighlightText; }
+  .switch::after { background: CanvasText; }
+  .switch[aria-checked="true"]::after { background: HighlightText; }
+}
 .switch[aria-checked="true"]::after { translate: calc(var(--sw-w) - var(--sw-knob) - 4px) 0; }
 .switch[aria-checked="true"]:dir(rtl)::after { translate: calc(-1 * (var(--sw-w) - var(--sw-knob) - 4px)) 0; }
 /* A segmented control: <div class="seg" role="radiogroup"> of <button role="radio" aria-checked>. Labels only inside.

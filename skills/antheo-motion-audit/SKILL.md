@@ -102,6 +102,13 @@ Risk: menus in the editor use a custom portal; check the origin there
 Lead with a summary ("41 surfaces audited, 6 plans, no source changed"). The first plan is usually tokens: the
 durations and curves collapsed to antheo-motion's set, so the rest of the plans are value swaps.
 
+## Rank by reach
+
+Order what you find by what it costs people: how many see it (a shared component or a screen used every day before
+a settings page), how much it gets in the way (motion that blocks input or can make someone ill before motion that
+is merely slow), and how far one fix travels (a token or a shared component before one screen). The top of the
+list is what a single change improves for the most people.
+
 ## Done
 
 - [ ] The scanner run; every flag checked by eye; surfaces opened on screen, not judged from code alone

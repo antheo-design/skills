@@ -140,6 +140,13 @@ Check each in `references/habits.md` before calling it done: raw palette classes
 token names · a component restyled from outside · a component rebuilt beside the one that exists · drift late in a
 long session · old script for what the platform now does.
 
+## Migrate without surprises
+
+A migration ships in small batches or behind a switch, each batch with a before and after screenshot and its
+behaviour checked against the old one: the same props, states, keys and accessible names. The old version stays
+until the new one has run in production, and there is a written way back. Tokens and components carry a version,
+every change has an owner, and adoption is measured by the screens moved, not the components written.
+
 ## Done
 
 - [ ] `taste.md` and `system.md` read (or created) before building; readiness gaps planned first

@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>الإعدادات · Northwind</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400..600&family=Noto+Sans+Arabic:wght@400..600&display=swap">
+<link rel="stylesheet" href="../skills/antheo-build/references/quiet.css">
+<style>
+  /* right to left: the same page as settings.html, mirrored by logical properties alone (inline-start, inline-end),
+     with an Arabic face after Geist so Arabic letters are drawn by a font made for them */
+  :root { --font: "Geist", "Noto Sans Arabic", ui-sans-serif, system-ui, "Segoe UI", sans-serif; }
+  html { font-size-adjust: none; }
+  .bar { display: flex; align-items: center; gap: var(--s-2); height: var(--h-bar); padding-inline: var(--gutter); }
+  .logo { display: grid; place-items: center; width: var(--s-5); height: var(--s-5); border-radius: var(--r-tag); background: var(--primary); color: var(--on-primary); }
+  .logo svg { width: var(--s-3); height: var(--s-3); }
+  .product, strong { font-weight: var(--w-strong); }
+  .context { color: var(--text-2); }
+  main { width: min(var(--w-settings), 100% - 2 * var(--gutter)); margin: var(--s-8) auto var(--s-16); display: grid; gap: var(--gap-section); }
+  section { display: grid; gap: var(--s-3); }
+  .card { display: grid; gap: var(--gap-field); }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--gap-field); }
+  label { display: block; margin-block-end: var(--gap-label); font-weight: var(--w-strong); }
+  .switches { padding-block: 0; }
+  .setting { display: flex; align-items: center; justify-content: space-between; gap: var(--s-4); min-height: var(--h-row); padding-block: var(--s-3); }
+  .setting + .setting { border-block-start: 1px solid var(--line); }
+  .setting p { color: var(--text-2); }
+  .ltr { direction: ltr; text-align: end; }
+  @media (max-width: 47.99rem) { .row { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<header class="bar">
+  <span class="logo" aria-hidden="true"><svg viewBox="0 0 12 12"><path d="M2 10V2l8 8V2" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+  <span class="product" dir="ltr">Northwind</span>
+  <span class="context">ليلى حداد</span>
+</header>
+<main>
+  <h1 class="t-page">الإعدادات</h1>
+
+  <section aria-labelledby="profile">
+    <h2 class="t-title" id="profile">الملف الشخصي</h2>
+    <form class="card" onsubmit="event.preventDefault()">
+      <div class="row">
+        <div><label for="name">الاسم الكامل</label><input class="field" id="name" autocomplete="name" value="ليلى حداد"></div>
+        <div><label for="email">البريد الإلكتروني</label><input class="field ltr" id="email" type="email" autocomplete="email" value="layla@northwind.studio"></div>
+      </div>
+      <div><button class="btn btn-primary" type="submit">حفظ التغييرات</button></div>
+    </form>
+  </section>
+
+  <section aria-labelledby="notifications">
+    <h2 class="t-title" id="notifications">الإشعارات</h2>
+    <div class="card switches">
+      <div class="setting"><div><strong id="s1">التعليقات</strong><p>على المشاريع التي تتابعينها</p></div><button class="switch" role="switch" aria-checked="true" aria-labelledby="s1" onclick="this.setAttribute('aria-checked', this.getAttribute('aria-checked') !== 'true')"></button></div>
+      <div class="setting"><div><strong id="s2">ملخص أسبوعي</strong><p>كل يوم اثنين</p></div><button class="switch" role="switch" aria-checked="false" aria-labelledby="s2" onclick="this.setAttribute('aria-checked', this.getAttribute('aria-checked') !== 'true')"></button></div>
+    </div>
+  </section>
+</main>
+</body>
+</html>

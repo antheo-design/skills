@@ -49,7 +49,7 @@
 - [ ] Content widths from the block: a form `--w-form`, settings `--w-settings`, pricing `--w-pricing`, data `--w-data`, prose `--measure`
 - [ ] Sticky elements don't cover content or focus
 
-## The look (components and app screens)
+## The look (components and app screens, in the Quiet preset; with the project's own system, check it against that system instead)
 
 - [ ] No costume: no serif or display face inside, no paper or texture, no stamps, no dashed borders, no uppercase tracked labels, no brown or brand-tinted neutrals (antheo-direction `references/slop.md` C1 to C7)
 - [ ] Chrome chroma ≤ 0.01; the accent is the ink or one brand signal; colour comes from content

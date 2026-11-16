@@ -127,6 +127,12 @@ with no fieldset and legend · collapsed content still reachable · aria-expande
 updated · icon-only buttons with no name; a div with a click handler · outline: none with nothing in its place ·
 every item in a toolbar or grid its own tab stop.
 
+## Say what was automated and what was not
+
+Every report says which checks were automated (the probe, the page check, a linter), which were done by hand (a
+screen reader on a named browser, voice control, zoom on a real phone), and which were not done. Automated checks
+catch only part of WCAG; a clean probe is never "accessible" on its own.
+
 ## Done
 
 - [ ] Native elements; every control named with its visible text
@@ -143,7 +149,7 @@ every item in a toolbar or grid its own tab stop.
 
 ## Files
 
-- `scripts/a11y-probe.mjs`: drives a page by keyboard and gives a verdict (exit 0 clean, 1 not ready, 3 broken)
+- `scripts/a11y-probe.mjs`: drives a page by keyboard and gives a verdict (exit 0 clean, 1 not ready, 3 broken, 4 could not run: nothing was checked)
 - `references/patterns.md`: key maps and markup for 20 widgets; roving tabindex and combobox code
 - `references/forms.md`: labels, groups, errors, the summary, autocomplete tokens, input types, timeouts
 - `references/screen-readers.md`: live regions, hidden content, images, tables, charts, the 15-minute test

@@ -1,6 +1,6 @@
 # The generated look, and what to do instead
 
-These are the patterns that make a UI read as "an AI made this": the lazy defaults, and the decoration of UI that is trying too hard. **Fix every one you find.** The fix is never something more original: it is the familiar pattern built precisely (antheo-build), with real content.
+These are the patterns that make a UI read as "an AI made this": the lazy defaults, and the decoration of UI that is trying too hard. **Fix every one you find**, except where the project's own system or a requested direction chose it on purpose: the costume list (C1 to C7) and N3 describe the Quiet preset, and a brand whose face is a serif, or whose cards are outlined, keeps them. The fix is never something more original: it is the familiar pattern built precisely (antheo-build), with real content.
 
 ## Color and surface
 
@@ -13,7 +13,7 @@ These are the patterns that make a UI read as "an AI made this": the lazy defaul
 | 5 | Neon glows and colored shadows | Neutral, tinted, layered shadows |
 | 6 | Gray text that fails contrast to look "subtle" | `--text-2`, which passes 4.5:1 |
 
-## Costume (components and app screens)
+## Costume (components and app screens, in the Quiet preset)
 
 | # | Tell | Instead |
 |---|---|---|

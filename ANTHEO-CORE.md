@@ -31,8 +31,9 @@ it goes in React, Vue, Svelte, Angular, Astro, Django, Rails, Laravel and the re
 
 ## 2. The usage rules
 
-1. **Few sizes.** An app screen uses at most four text sizes (meta, body, title, page); a marketing section at most
-   five (adds num and display). Nothing is larger than `--t-page` in an app, or `--t-display` anywhere.
+1. **Few sizes.** An app screen uses at most four text sizes (meta, body, title, page); a data screen may add `--t-num`
+   for its key figures and nothing else; a marketing section at most five (adds num and display). Nothing is larger
+   than `--t-page` in an app except those figures, or `--t-display` anywhere.
 2. **Two weights.** `--w-text` for text and prices, `--w-strong` for titles, labels and buttons. Never 600 or 700.
 3. **Headlines sit tight.** A marketing headline is `--t-display`, one colour, nine words at most, two lines at most.
    An app page title is `--t-page`. Card, plan and section titles are `--t-title`. No trailing full stop on a title,
@@ -60,7 +61,7 @@ it goes in React, Vue, Svelte, Angular, Astro, Django, Rails, Laravel and the re
    filled button, a `.tag-accent` "Recommended" and `--sh-lift`, at exactly its neighbours' size.
 10. **Fields are wells.** `.field`, with its label above (`--t-body`, `--w-strong`, `--text`), 6px apart. A helper
     line only for a constraint or a consequence ("JPG or PNG, up to 2 MB"; "At least 8 characters"), in `--t-meta`
-    `--text-2`, 4px under. An error is the red inner edge and one line under the field naming the fix.
+    `--text-2`, 4px under. An error is the red inner edge and a short message under the field naming the fix (antheo-writing).
 11. **Chrome only as named.** A "section", a "component" or a page that shows components gets no site header, footer
     or navigation. An app page
     gets one `--h-bar` bar: a neutral logo tile (20px, the `--primary` fill, `--r-tag` corners, a simple one-shape mark inside in `--on-primary`; never an
@@ -85,8 +86,8 @@ it goes in React, Vue, Svelte, Angular, Astro, Django, Rails, Laravel and the re
     height; a grid has one gap in both directions.
 16. **Two text tones in a card.** `--text` for values, titles and labels; `--text-2` for descriptions and meta.
     `--text-3` only for icons, ticks and placeholders.
-17. **A unit stays with its number:** on its baseline, 6px after it, `--t-body` `--text-2`, on one line. Prices stay
-    whole after a discount (15 → 12).
+17. **A unit stays with its number:** on its baseline, 6px after it, `--t-body` `--text-2`, on one line. A discounted
+    price keeps the precision of the original (15 → 12, 9.99 → 7.99), never a computed 9.60 nobody would publish.
 18. **Every state on the same layout,** with one made-up person throughout and no placeholder text. A state
     opened by a URL parameter or a story holds until dismissed, so it can be looked at. Done: the
     button says the past tense of its own verb (Save → "Saved", Create → "Created", Send → "Sent") and one line says
@@ -94,14 +95,16 @@ it goes in React, Vue, Svelte, Angular, Astro, Django, Rails, Laravel and the re
     Nothing covers content; a word never breaks. A row that is removed closes smoothly (antheo-motion recipe
     37); nothing on the screen jumps.
 19. **Icons are few and grey.** 16px, 1.5 stroke, `--text-3`: navigation, an icon-only button (with a name), a tick
-    in a list. None inside a primary button.
+    in a list. No decorative icon inside a primary button; a spinner while it works and a check when it's done are
+    states, not decoration (antheo-components).
 20. **Count before done.** Open the 1280px screenshots, light and dark, and count: text sizes, weights, corner sizes,
     accent things, tags, hairlines. Each within the limits above, and the main task on the first screen. A
     checker's score is not a look.
 21. **Arm the gate, and pass it.** At the start, arm antheo-review's gate on every page the work touches
-    (`gate.mjs arm <url-or-file> --copy <source folder>`); before saying done, `gate.mjs check` must say PASS, or
-    after three rounds DONE with what is left, told to the person. Setup for each agent: antheo-review
-    `references/gate.md`.
+    (`gate.mjs arm <url-or-file> --copy <source folder>`, plus `--preset none` when the project has its own system);
+    before saying done, `gate.mjs check` must say PASS, or after three rounds DONE, UNRESOLVED with what is left, told
+    to the person. How much to check beyond the gate depends on the size of the change (antheo-review, "How much to
+    check"). Setup for each agent: antheo-review `references/gate.md`.
 
 ## The traps that look finished and break in use
 
@@ -112,7 +115,7 @@ it goes in React, Vue, Svelte, Angular, Astro, Django, Rails, Laravel and the re
 | F4 | What was typed is lost after a failed request | the form resets in the error branch | keep every value; only clear on success |
 | L2 | A dialog is rendered conditionally, so it can't animate out and loses its scroll and form state | `{open && <Dialog/>}` | keep it mounted (`<dialog>` with `open`/`close()`, or an exit state) and let it animate out |
 | S1 | Hovering a focused control hides its focus ring | `:hover` rule after `:focus-visible` that resets `outline` or `box-shadow` | order rules default → hover → focus-visible → active → invalid → disabled; hover never touches the ring |
-| S6 | A loading button changes width and the layout jumps | label replaced by a spinner | keep the label, swap only the icon; or fix the button's min-width to its rest width |
+| S6 | A loading button changes width and the layout jumps | label replaced by a spinner alone | keep the width (its rest width as `min-width`); the label becomes the -ing form ("Sending…") with a spinner before it |
 | S7 | A selected state shown by color alone | only `background` changes | add a check, weight, underline or icon |
 | S8 | A focused control in error loses its focus ring | the `[aria-invalid]` shadow replaces the focus shadow | a combined rule: `[aria-invalid="true"]:focus-visible` draws both |
 | S10 | Something appears or disappears and moves what is under the pointer: an error cleared on blur pulls the next checkbox up as it is clicked; a hint shown on focus pushes the button down | messages added or removed on `blur` or `focus`; nothing reserves their room | clear errors while typing, not on blur; give lines that come and go a reserved line or animate their height; never re-flow on pointer-down |
@@ -326,10 +329,10 @@ a { color: inherit; text-decoration: underline; text-decoration-thickness: 1px; 
 
 .card { background: var(--surface); border: 1px solid transparent; border-radius: var(--r-card); box-shadow: var(--sh-card); padding: var(--pad-card); }
 .field {
-  height: var(--h-control); width: 100%; padding: 0 var(--s-3); border: 0; border-radius: var(--r-control);
+  height: var(--h-control); width: 100%; padding: 0 var(--s-3); border: 1px solid transparent; border-radius: var(--r-control);
   background: var(--well); box-shadow: var(--well-edge); font-size: var(--t-field);
 }
-.field:focus-visible { outline: none; box-shadow: var(--well-edge), 0 0 0 2px var(--focus); }
+.field:focus-visible { outline: 2px solid transparent; outline-offset: 2px; box-shadow: var(--well-edge), 0 0 0 2px var(--focus); } /* the transparent border and outline turn visible in forced colours, where shadows are dropped */
 .field[aria-invalid="true"] { box-shadow: inset 0 0 0 1px var(--danger); }
 .field[aria-invalid="true"]:focus-visible { box-shadow: inset 0 0 0 1px var(--danger), 0 0 0 2px var(--focus); } /* in error and focused: both */
 .btn {
@@ -362,7 +365,15 @@ a { color: inherit; text-decoration: underline; text-decoration-thickness: 1px; 
 }
 @media (hover: hover) and (pointer: fine) { .switch:hover { background-image: linear-gradient(var(--wash), var(--wash)); } }
 .switch:active::after { scale: 0.9; }
-.switch[aria-checked="true"] { background: var(--accent); }
+.switch[aria-checked="true"] { background-color: var(--accent); } /* the colour only: the shorthand would wipe the hover wash */
+/* forced colours drop fills and shadows: a transparent outline turns into the system's edge, and "on" takes the system
+   highlight, so a switch or a chosen segment stays visible (not while focused, so the focus ring wins) */
+.switch:not(:focus-visible), .seg > button:not(:focus-visible) { outline: 1px solid transparent; outline-offset: -1px; }
+@media (forced-colors: active) {
+  .switch[aria-checked="true"], .seg > button[aria-checked="true"] { background-color: Highlight; color: HighlightText; }
+  .switch::after { background: CanvasText; }
+  .switch[aria-checked="true"]::after { background: HighlightText; }
+}
 .switch[aria-checked="true"]::after { translate: calc(var(--sw-w) - var(--sw-knob) - 4px) 0; }
 .switch[aria-checked="true"]:dir(rtl)::after { translate: calc(-1 * (var(--sw-w) - var(--sw-knob) - 4px)) 0; }
 /* A segmented control: <div class="seg" role="radiogroup"> of <button role="radio" aria-checked>. Labels only inside.

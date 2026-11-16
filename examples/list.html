@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Team · Northwind</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400..600&display=swap">
+<link rel="stylesheet" href="../skills/antheo-build/references/quiet.css">
+<style>
+  .bar { display: flex; align-items: center; gap: var(--s-2); height: var(--h-bar); padding-inline: var(--gutter); }
+  .logo { display: grid; place-items: center; width: var(--s-5); height: var(--s-5); border-radius: var(--r-tag); background: var(--primary); color: var(--on-primary); }
+  .logo svg { width: var(--s-3); height: var(--s-3); }
+  .product, strong { font-weight: var(--w-strong); }
+  .context { color: var(--text-2); }
+  main { width: min(var(--w-settings), 100% - 2 * var(--gutter)); margin: var(--s-8) auto var(--s-16); display: grid; gap: var(--s-4); }
+  .head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--s-3) var(--s-4); }
+  /* a list: plain rows, a hairline between repeating rows, nothing louder than the names */
+  ul { margin: 0; padding: 0 var(--pad-card); list-style: none; }
+  li { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: var(--s-3); min-height: var(--h-row); padding-block: var(--s-2); }
+  li + li { border-block-start: 1px solid var(--line); }
+  .avatar { display: grid; place-items: center; width: var(--h-control); height: var(--h-control); border-radius: var(--r-full); background: var(--well); color: var(--text-2); font-size: var(--t-meta); font-weight: var(--w-strong); }
+  .who p, .role { color: var(--text-2); }
+  .who { min-width: 0; }
+  .who p { overflow-wrap: anywhere; } /* an email is text someone typed: the one kind that may break, on a narrow phone */
+  .count { color: var(--text-2); }
+</style>
+</head>
+<body>
+<header class="bar">
+  <span class="logo" aria-hidden="true"><svg viewBox="0 0 12 12"><path d="M2 10V2l8 8V2" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+  <span class="product">Northwind</span>
+  <span class="context">Maya Lindqvist</span>
+</header>
+<main>
+  <div class="head">
+    <h1 class="t-page">Team</h1>
+    <button class="btn btn-primary" type="button">Invite people</button>
+  </div>
+  <p class="count">8 people in Northwind</p>
+  <ul class="card" aria-label="Team members">
+    <li><span class="avatar" aria-hidden="true">ML</span><div class="who"><strong>Maya Lindqvist</strong><p>maya@northwind.studio</p></div><span class="role">Owner</span></li>
+    <li><span class="avatar" aria-hidden="true">JA</span><div class="who"><strong>Jonas Aho</strong><p>jonas@northwind.studio</p></div><span class="role">Admin</span></li>
+    <li><span class="avatar" aria-hidden="true">PR</span><div class="who"><strong>Priya Raman</strong><p>priya@northwind.studio</p></div><span class="role">Member</span></li>
+    <li><span class="avatar" aria-hidden="true">TO</span><div class="who"><strong>Tomás Ortega</strong><p>tomas@northwind.studio</p></div><span class="role">Member</span></li>
+    <li><span class="avatar" aria-hidden="true">AK</span><div class="who"><strong>Amara Kone</strong><p>amara@northwind.studio</p></div><span class="role">Member</span></li>
+    <li><span class="avatar" aria-hidden="true">LB</span><div class="who"><strong>Lea Brandt</strong><p>lea@northwind.studio</p></div><span class="role">Member</span></li>
+    <li><span class="avatar" aria-hidden="true">KS</span><div class="who"><strong>Kenji Sato</strong><p>kenji@northwind.studio</p></div><span class="role">Guest</span></li>
+    <li><span class="avatar" aria-hidden="true">NH</span><div class="who"><strong>Nadia Haddad</strong><p>Invited 2 days ago</p></div><span class="role">Member</span></li>
+  </ul>
+</main>
+</body>
+</html>

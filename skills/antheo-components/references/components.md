@@ -42,7 +42,7 @@ The style block has it as `.seg`: `<div class="seg" role="radiogroup" aria-label
   holds under every control that has messages: a select, an upload, a group of choices.
 - A well: the block's `.field` (`--h-control`, padding-inline `--s-3`, `--r-control`, no border, `--well` with `--well-edge`); 16px text on touch screens (`--t-field`), so a phone never zooms in on focus.
 - **States:** hover (the well one step deeper), focus-visible (the well deepens again plus the 2px focus ring), filled, disabled (text-2, no hover), read-only (no well, reads as text), error (a 1px danger ring + a message with an icon), success (only where it helps, e.g. "Username available").
-- **Markup:** `<label for="work-email">Work email</label>` then `<input id="work-email" type="email" autocomplete="work email" aria-describedby="work-email-hint work-email-error">`. Error message: `id="work-email-error"`, and `aria-invalid="true"` on the input.
+- **Markup:** `<label for="work-email">Work email</label>` then `<input id="work-email" type="email" autocomplete="work email" aria-describedby="work-email-error work-email-hint">`. Error message: `id="work-email-error"`, and `aria-invalid="true"` on the input.
 - Optional fields say "(optional)" in the label. Required ones don't need asterisks if most fields are required.
 - **Validation timing:** on blur once the person has changed the field (an empty field someone tabs past waits for
   the submit), and on submit; never while they type their first attempt. Once a field shows an error, re-check it as
@@ -181,7 +181,7 @@ The style block has it as `.seg`: `<div class="seg" role="radiogroup" aria-label
 - See `states.md`. Progress bar for known durations (with %), spinner for unknown short waits, skeleton for content.
 
 ### Stat / KPI
-- Label → value (tabular, 3xl) → change (arrow + sign + period). See antheo-data `references/charts.md`.
+- Label → value (`--t-num`, proportional) → change (arrow + sign + period). See antheo-data `references/charts.md`.
 
 ### Accordion / disclosure
 - `<details><summary>` (keyboard and screen readers for free). Summary row ≥ 44px, chevron that rotates 90° or 180° on open. Allow several open unless there's a reason not to.

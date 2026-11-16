@@ -11,8 +11,11 @@ every size, weight, line height and wrap. The words themselves belong to **anthe
 
 ## One face for the interface
 
-Product UI uses one grotesk: the project's own, else Geist. A mono only for code, IDs and keys a person copies. A
-plain face such as Inter or Geist is fine: precise spacing and hierarchy matter more than the face. A Brand page
+Product UI uses one text face: the project's own, else Geist (the Quiet preset). A brand whose face is a serif or
+something else keeps it. A mono only for code, IDs and keys a person copies. A plain face such as Inter or Geist is
+fine: precise spacing and hierarchy matter more than the face. Text in another script (Arabic, Hebrew, Devanagari,
+Chinese, Japanese) needs a face made for it, listed after the Latin one, with its own line height; turn off a
+`font-size-adjust` tuned for Latin there, or the script shrinks. A Brand page
 (antheo-direction) may add one display face for headlines only; everything read or pressed (body, labels, buttons,
 prices) stays in the text face. Never two similar sans faces, whose difference looks like a mistake.
 
@@ -33,7 +36,7 @@ large, loose type reads as generated.
 | `--t-body` | 13 / 20 | 0 | everything read or pressed: text, labels, buttons, fields, rows |
 | `--t-title` | 15 / 22 | −0.01em | a card, plan, dialog or section title |
 | `--t-page` | 20 / 28 | −0.015em | an app page's title: the largest text in an app |
-| `--t-num` | 28 / 32 | −0.02em | a price or key figure, tabular |
+| `--t-num` | 28 / 32 | −0.02em | a price or key figure: proportional alone, tabular in a column or when it ticks |
 | `--t-display` | 36 / 40 | −0.025em | a marketing headline: the largest text anywhere |
 
 On a phone the block raises them (body 15/22, title 17/24, page 22/28, display 28/32), and fields are 16px on any
@@ -42,7 +45,8 @@ reading (an article, docs) is the one exception: 16px body, 1.6 line height, at 
 
 ## Two weights
 
-`--w-text` (450) for text and for prices; `--w-strong` (550) for titles, labels and buttons. Never 600 or 700,
+In the Quiet preset, `--w-text` (450) for text and for prices; `--w-strong` (550) for titles, labels and buttons. A
+project or brand with its own weights keeps them. In the preset: never 600 or 700,
 never a third weight, never a weight the font request doesn't load (`font-synthesis: none`, so nothing is faked
 bold). In-between weights give a quieter hierarchy than 400 against 700. A weight never changes on hover.
 

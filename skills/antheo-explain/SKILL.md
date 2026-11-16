@@ -71,6 +71,12 @@ own values. "The trick is a delay: the label follows the box 60ms later, so the 
 antheo-motion can apply that to your menu." A snippet only when they ask for one, and then the smallest one that
 shows the mechanism.
 
+## Plain first, then deeper
+
+Open with the mechanism in one plain sentence anyone could repeat ("a blurred copy of the picture sits behind a
+see-through panel"). Then the layers, values and code for the person who wants them, each still tagged measured,
+worked out or guessed. Stop at the depth the question asked for.
+
 ## Done
 
 - [ ] The question answered, not the whole page

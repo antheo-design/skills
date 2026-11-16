@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Invoices · Northwind</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400..600&display=swap">
+<link rel="stylesheet" href="../skills/antheo-build/references/quiet.css">
+<style>
+  .bar { display: flex; align-items: center; gap: var(--s-2); height: var(--h-bar); padding-inline: var(--gutter); }
+  .logo { display: grid; place-items: center; width: var(--s-5); height: var(--s-5); border-radius: var(--r-tag); background: var(--primary); color: var(--on-primary); }
+  .logo svg { width: var(--s-3); height: var(--s-3); }
+  .product { font-weight: var(--w-strong); }
+  .context { color: var(--text-2); }
+  main { width: min(var(--w-data), 100% - 2 * var(--gutter)); margin: var(--s-8) auto var(--s-16); display: grid; gap: var(--s-4); }
+  .head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--s-3) var(--s-4); }
+  /* a table: numbers at the end edge in tabular figures, the unit in the header, a word for status, hairlines between rows */
+  .frame { padding: 0; overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; }
+  th { position: sticky; top: 0; height: var(--h-row); padding: 0 var(--s-4); text-align: start; font-size: var(--t-meta); line-height: var(--l-meta); font-weight: var(--w-strong); color: var(--text-2); background: var(--surface); white-space: nowrap; }
+  td { height: var(--h-row); padding: 0 var(--s-4); border-block-start: 1px solid var(--line); white-space: nowrap; }
+  .num { text-align: end; font-variant-numeric: tabular-nums; }
+  .id { font-family: var(--mono); color: var(--text-2); }
+  .status::before { content: ""; display: inline-block; width: calc(var(--s-1) + 2px); height: calc(var(--s-1) + 2px); margin-inline-end: var(--s-2); border-radius: var(--r-full); background: var(--text-3); vertical-align: middle; }
+  .paid::before { background: var(--success); }
+  .overdue::before { background: var(--danger); }
+</style>
+</head>
+<body>
+<header class="bar">
+  <span class="logo" aria-hidden="true"><svg viewBox="0 0 12 12"><path d="M2 10V2l8 8V2" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+  <span class="product">Northwind</span>
+  <span class="context">Maya Lindqvist</span>
+</header>
+<main>
+  <div class="head">
+    <h1 class="t-page">Invoices</h1>
+    <button class="btn btn-primary" type="button">New invoice</button>
+  </div>
+  <div class="card frame">
+    <table>
+      <thead><tr><th scope="col">Invoice</th><th scope="col">Client</th><th scope="col">Sent</th><th scope="col">Status</th><th scope="col" class="num">Amount, EUR</th></tr></thead>
+      <tbody>
+        <tr><td class="id">NW-1042</td><td>Moonlight Hotels</td><td>14 Nov 2026</td><td class="status">Sent</td><td class="num">4,800.00</td></tr>
+        <tr><td class="id">NW-1041</td><td>Lumen Health</td><td>9 Nov 2026</td><td class="status paid">Paid</td><td class="num">12,350.00</td></tr>
+        <tr><td class="id">NW-1040</td><td>Ferro Bikes</td><td>2 Nov 2026</td><td class="status overdue">Overdue</td><td class="num">2,100.00</td></tr>
+        <tr><td class="id">NW-1039</td><td>Moonlight Hotels</td><td>28 Oct 2026</td><td class="status paid">Paid</td><td class="num">4,800.00</td></tr>
+        <tr><td class="id">NW-1038</td><td>Oslo Public Library</td><td>21 Oct 2026</td><td class="status paid">Paid</td><td class="num">960.00</td></tr>
+        <tr><td class="id">NW-1037</td><td>Ferro Bikes</td><td>14 Oct 2026</td><td class="status paid">Paid</td><td class="num">2,100.00</td></tr>
+        <tr><td class="id">NW-1036</td><td>Lumen Health</td><td>7 Oct 2026</td><td class="status paid">Paid</td><td class="num">8,725.50</td></tr>
+        <tr><td class="id">NW-1035</td><td>Kite Studio</td><td>30 Sep 2026</td><td class="status paid">Paid</td><td class="num">1,450.00</td></tr>
+      </tbody>
+    </table>
+  </div>
+</main>
+</body>
+</html>

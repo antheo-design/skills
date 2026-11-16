@@ -67,11 +67,11 @@ label or a pattern.
 
 ```
 Revenue                       --t-body, --text-2
-$48,260                       .t-num (28px) at --w-strong, proportional figures
+$48,260                       .t-num (28px) at --w-text, proportional figures; in an app, the one size allowed above --t-page (antheo-build rule 1)
 ↑ 12.4% vs last 30 days       an arrow, a sign and the period; coloured by good or bad, not by up or down
 ```
 
-Three to five tiles, the one that matters most larger; or one hero number with two or three smaller ones under a
+Three to five tiles at one size, the one that matters most first and wider; or one hero number with two or three smaller ones under a
 hairline. The comparison period said once in the header when every tile shares it. Compact notation ("$48.3k") only
 where space demands, with the full number on focus and hover. A fall can be good (costs, churn, wait times).
 
@@ -87,6 +87,13 @@ Check each in `references/habits.md` before calling it done: a sparkline beside 
 or many categories · chart chrome · a chart with no period or source · a filter wired to one chart of four · labels
 clipped at the axis; a chart spilling out of its card · sample data shown as real · thousands of rows put straight
 into the page · rows of identical dots or icons standing in for a quantity.
+
+## Honest numbers
+
+A missing value is a gap, never a zero, and the chart says why it is missing. A metric names its definition where
+it is shown (on focus or hover: "Active: signed in during the last 28 days"). Show the uncertainty when it is known
+(a range, a sample size, "estimated") and compare like with like: the same period, the same base, the same units,
+and a percentage change only on a base big enough to mean something (say "from 3 to 6", not "+100%").
 
 ## Done
 

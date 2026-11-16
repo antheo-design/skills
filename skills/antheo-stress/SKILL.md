@@ -73,6 +73,12 @@ rtl       · 390px · dark    broke: the chevron points the wrong way      → a
 
 Every break names its owner. Nothing is "fine" without a screenshot behind it.
 
+## Cases from the contract
+
+Take the cases from the component's own contract, not a blanket matrix: each prop and slot, its type, its limits
+and the data it really receives in this product. A fixed-length code never needs "very long"; a name typed by
+people always does. Small changes stress only what they touched; a new component or a release takes the full set.
+
 ## Done
 
 - [ ] The axes chosen from the component's props; the skipped ones named with a reason

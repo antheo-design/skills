@@ -72,6 +72,13 @@ Our dark mode looks muddy. Fix it.
 Is this page ready to ship? http://localhost:3000/pricing
 ```
 
+New to this? Install, ask for what you want in plain words, and let the gate check the result. Already reviewing a
+page you built? Ask "fix my page: http://localhost:3000/settings" and the agent reproduces each problem, fixes it and
+shows it gone. [`GUIDE.md`](GUIDE.md) explains how the skills fit together, the default look and when it steps aside,
+and how much gets checked for a small change versus a release. [`examples/`](examples) has ten pages built only from
+the style block: sign-up, settings, a list, a table, a dashboard, pricing, an empty state, an error, a phone screen and
+a right-to-left page.
+
 Every build starts with **antheo-build**. It pastes one designed style block, follows its rules, and opens another
 skill only when the work needs it: a table brings in antheo-data, a dialog that opens brings in antheo-motion, "ready
 to ship?" brings in antheo-review.

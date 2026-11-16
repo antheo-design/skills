@@ -89,9 +89,9 @@ text; only its final confirm is filled red.
 ## Text: two tones, two weights
 
 Body, rows, labels and controls `--t-body` (13/20); help and meta `--t-meta` (12/16); a title `--t-title`
-(15/22); a value that matters `--t-num` with tabular figures. `--text` and `--text-2` only; a field's label is
-`--text` at `--w-strong`. Hierarchy is weight and tone, not size jumps or colour. One grotesk; no serif, italics
-or tracked uppercase inside a component.
+(15/22); a value that matters `--t-num` (tabular figures only when it lines up with others or ticks). `--text` and `--text-2` only; a field's label is
+`--text` at `--w-strong`. Hierarchy is weight and tone, not size jumps or colour. In the Quiet preset, one grotesk
+and no serif, italics or tracked uppercase inside a component; a project's own system decides otherwise.
 
 ## Nothing inside a control that isn't part of it
 
@@ -126,7 +126,8 @@ Member, Guest, they recognise it.
 Controls: default, hover (pointer only, `@media (hover: hover)`), focus-visible, pressed, disabled, loading, selected,
 error. Data: loading (a skeleton after `200ms`), empty first use, empty no results, error with Retry, very long content,
 success. Write the CSS in that order: hover never removes a focus ring, error and focus outrank hover, hover skips
-disabled controls, and a control in error that has focus shows both (the danger edge and the focus ring). A loading button keeps its width and label. A selected thing is unmistakable at a glance and has a cue besides
+disabled controls, and a control in error that has focus shows both (the danger edge and the focus ring). A loading button keeps its width; its label turns into the -ing form of the same verb ("Sending…") with a spinner
+before it, never a spinner alone. A selected thing is unmistakable at a glance and has a cue besides
 colour: a chosen chip or option is ink-filled with a check, never a faint tint; an unavailable one says why inside
 it ("Full"), not only with a strikethrough. A choice that carries a description (an option with a line under it, a
 plan card, a list choice) shows its chosen state on the whole item, a `--selected` fill across it as well as its own
@@ -136,8 +137,8 @@ that must still explain itself stays focusable with `aria-disabled` instead of `
 `references/states.md`.
 
 **No two states look alike.** Put them side by side and each must be told apart at a glance, without its label:
-loading keeps the ink fill and swaps the label for a spinner and "Sending…" (never the same grey as disabled);
-disabled is the well fill with `--text-3` text; done shows a check and the past tense ("Sent"); an error keeps the
+loading keeps the ink fill, with a spinner before "Sending…" (never the same grey as disabled);
+disabled is the well fill with its label in `--text-2`; done shows a check and the past tense ("Sent"); an error keeps the
 button as it was and adds the red message under it with an icon. Hover and pressed differ from rest by a visible
 step (a darker fill; the 97% squeeze).
 

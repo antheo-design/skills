@@ -35,12 +35,12 @@ Avoid: pies with many slices, 3D anything, radial gauges, dual y-axes, area char
 
 ```
 Revenue                          ← label, --t-body, --text-2
-$48,260                          ← value, .t-num at --w-strong
+$48,260                          ← value, .t-num at --w-text, proportional figures
 ↑ 12.4% vs last 30 days          ← change: arrow + sign + period; success/danger color plus the arrow
 ```
 
 - A big standalone figure (a KPI, a hero number) uses the font's **normal proportional figures**, never a monospace font: many fonts give the comma and period a full digit's width under `tabular-nums`, which prints "$50 , 699". `tabular-nums` is for figures that line up in a column or change in place (tables, timers, counters); there, check the separator does not open a gap, and if it does, wrap the separators in `<span style="font-variant-numeric: proportional-nums">`.
-- 3 to 5 tiles. The one that matters most is bigger (spans two columns, or a larger value).
+- 3 to 5 tiles. The one that matters most comes first and wider (it spans two columns), at the same size as the rest.
 - Show the comparison period once in the page header if every tile uses the same one.
 - Format: `Intl.NumberFormat(locale, { style: 'currency', currency, maximumFractionDigits: 0 })` for big money; compact notation ("$48.3k") only where space demands, with the full number in a tooltip.
 - A change can be good when it goes down (costs, churn, response time): color by good/bad, not by up/down.

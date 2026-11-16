@@ -37,7 +37,7 @@ is unfinished.
 | Field label | 1 to 4 words | a noun, never a question; "(optional)" when it is |
 | Placeholder | an example only | "name@example.com", never the label |
 | Help text | one line, 90 characters | what to type, in what format |
-| Error | two sentences | what happened. How to fix it. Never blame, never a code alone |
+| Error | usually two sentences | what happened. How to fix it. Never blame, never a code alone |
 | Toast | one sentence, 60 characters | past tense, with Undo or the next step |
 | Empty state | heading, one line, one action | what will be here, why it is empty, what to do |
 | Page title | 65 characters | "Billing history · Acme" |
@@ -74,7 +74,8 @@ a workspace, account or repository asks the person to type its name, with the bu
 - **One made-up person** across every state of a screen: the same name, email and numbers in the default, error
   and done states. If the dialog says 38 projects, so does the page.
 - **No placeholder text** in anything shown: no "Shown here", "Lorem", "Item 1", "TBD".
-- **Prices people would publish:** whole numbers on every billing period (15 monthly, 12 yearly), never 9.60.
+- **Prices people would publish:** in the precision the product and currency use, on every billing period (15 monthly,
+  12 yearly; or 9.99 and 7.99), never a computed 9.60.
 - **Each link once:** one "Log in" on a sign-up screen, and none after signing in.
 
 ## The mechanics
@@ -135,7 +136,7 @@ nothing specific.
 - [ ] Undo before confirm; confirms name the thing and the loss; toggles name "on"
 - [ ] Sentence case; no hype, "please", "sorry", "oops" or em dashes; one "!" at most
 - [ ] Whole sentences, ICU plurals, `Intl` formatting, room to grow, people's text isolated
-- [ ] Sample content: only what was asked, one person across states, no placeholders, whole prices
+- [ ] Sample content: only what was asked, one person across states, no placeholders, prices as a business publishes them
 - [ ] copy-lint clean or justified; read aloud once
 - [ ] Checked against every habit in `references/habits.md`
 - [ ] Reported in antheo-review's format (`references/report.md` there): Block or Approve first, then Seen, Why

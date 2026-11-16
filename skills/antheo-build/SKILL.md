@@ -10,6 +10,34 @@ colour, and everything the person needs on the first screen. A build looks gener
 it goes. So every build starts from one designed style block and stays inside it. These rules outrank every other
 Antheo skill.
 
+## What always holds, and what is the Quiet preset
+
+**Always, in any style:** the person's task is clear and can be finished; every control works and every state is
+reachable; keyboard, names, contrast, targets and zoom hold (**antheo-access**); real content survives every width and
+both themes; the project's existing system, components and contracts are kept; nothing is invented; and every claim
+comes with the check that shows it, with what wasn't checked said as unchecked.
+
+**The Quiet preset** is the style block and the look in the rules below (rules 1 to 8, 13 to 17 and 19, the plan, field and logo-tile looks in rules 9 to 11, and the counts in rule 20): the default look for a new product
+with no system of its own. It gives way, in this order, to the person's explicit direction ("bold", "editorial", a
+reference they praise: **antheo-direction**) and to the project's own tokens and components (**antheo-system**).
+Then its numbers stop applying: outlined cards, pill buttons, more weights, larger or serif type and several meaningful
+colours are choices to judge on their own terms, not defects. Keep the restraint either way, and every device earns
+its place. Check such work with the gate's `--preset none`, which keeps every universal check and drops the Quiet ones.
+
+## Match the person
+
+Read who is asking from how they ask, and change the depth, never the quality of the work. Ask only when the answer
+would change what gets built.
+
+| Person | Give them |
+|---|---|
+| New to design | the sensible default, built and working, in plain words, and the one mistake to avoid |
+| Practised | the options and their trade-offs, and how it fits the code they have |
+| Senior | the constraints, exceptions, behaviour contract and the evidence |
+| Lead | the outcome for people and the business, the options with cost and owner, rollout and how success is measured |
+
+A small component task gets no strategy memo; a rollout question gets more than a component.
+
 ## 1. Paste the style block first
 
 Paste `references/quiet.css` whole, as the first CSS of the build, and load its font. After it, **every** colour,
@@ -35,8 +63,9 @@ it goes in React, Vue, Svelte, Angular, Astro, Django, Rails, Laravel and the re
 
 ## 2. The usage rules
 
-1. **Few sizes.** An app screen uses at most four text sizes (meta, body, title, page); a marketing section at most
-   five (adds num and display). Nothing is larger than `--t-page` in an app, or `--t-display` anywhere.
+1. **Few sizes.** An app screen uses at most four text sizes (meta, body, title, page); a data screen may add `--t-num`
+   for its key figures and nothing else; a marketing section at most five (adds num and display). Nothing is larger
+   than `--t-page` in an app except those figures, or `--t-display` anywhere.
 2. **Two weights.** `--w-text` for text and prices, `--w-strong` for titles, labels and buttons. Never 600 or 700.
 3. **Headlines sit tight.** A marketing headline is `--t-display`, one colour, nine words at most, two lines at most.
    An app page title is `--t-page`. Card, plan and section titles are `--t-title`. No trailing full stop on a title,
@@ -64,7 +93,7 @@ it goes in React, Vue, Svelte, Angular, Astro, Django, Rails, Laravel and the re
    filled button, a `.tag-accent` "Recommended" and `--sh-lift`, at exactly its neighbours' size.
 10. **Fields are wells.** `.field`, with its label above (`--t-body`, `--w-strong`, `--text`), 6px apart. A helper
     line only for a constraint or a consequence ("JPG or PNG, up to 2 MB"; "At least 8 characters"), in `--t-meta`
-    `--text-2`, 4px under. An error is the red inner edge and one line under the field naming the fix.
+    `--text-2`, 4px under. An error is the red inner edge and a short message under the field naming the fix (antheo-writing).
 11. **Chrome only as named.** A "section", a "component" or a page that shows components gets no site header, footer
     or navigation. An app page
     gets one `--h-bar` bar: a neutral logo tile (20px, the `--primary` fill, `--r-tag` corners, a simple one-shape mark inside in `--on-primary`; never an
@@ -89,8 +118,8 @@ it goes in React, Vue, Svelte, Angular, Astro, Django, Rails, Laravel and the re
     height; a grid has one gap in both directions.
 16. **Two text tones in a card.** `--text` for values, titles and labels; `--text-2` for descriptions and meta.
     `--text-3` only for icons, ticks and placeholders.
-17. **A unit stays with its number:** on its baseline, 6px after it, `--t-body` `--text-2`, on one line. Prices stay
-    whole after a discount (15 → 12).
+17. **A unit stays with its number:** on its baseline, 6px after it, `--t-body` `--text-2`, on one line. A discounted
+    price keeps the precision of the original (15 → 12, 9.99 → 7.99), never a computed 9.60 nobody would publish.
 18. **Every state on the same layout,** with one made-up person throughout and no placeholder text. A state
     opened by a URL parameter or a story holds until dismissed, so it can be looked at. Done: the
     button says the past tense of its own verb (Save → "Saved", Create → "Created", Send → "Sent") and one line says
@@ -98,14 +127,16 @@ it goes in React, Vue, Svelte, Angular, Astro, Django, Rails, Laravel and the re
     Nothing covers content; a word never breaks. A row that is removed closes smoothly (antheo-motion recipe
     37); nothing on the screen jumps.
 19. **Icons are few and grey.** 16px, 1.5 stroke, `--text-3`: navigation, an icon-only button (with a name), a tick
-    in a list. None inside a primary button.
+    in a list. No decorative icon inside a primary button; a spinner while it works and a check when it's done are
+    states, not decoration (antheo-components).
 20. **Count before done.** Open the 1280px screenshots, light and dark, and count: text sizes, weights, corner sizes,
     accent things, tags, hairlines. Each within the limits above, and the main task on the first screen. A
     checker's score is not a look.
 21. **Arm the gate, and pass it.** At the start, arm antheo-review's gate on every page the work touches
-    (`gate.mjs arm <url-or-file> --copy <source folder>`); before saying done, `gate.mjs check` must say PASS, or
-    after three rounds DONE with what is left, told to the person. Setup for each agent: antheo-review
-    `references/gate.md`.
+    (`gate.mjs arm <url-or-file> --copy <source folder>`, plus `--preset none` when the project has its own system);
+    before saying done, `gate.mjs check` must say PASS, or after three rounds DONE, UNRESOLVED with what is left, told
+    to the person. How much to check beyond the gate depends on the size of the change (antheo-review, "How much to
+    check"). Setup for each agent: antheo-review `references/gate.md`.
 
 ## 3. Then the screen's pattern card
 
@@ -167,8 +198,8 @@ promised · drift · quieting a check instead of fixing it · a fix loop · anot
 ## Done
 
 - [ ] The style block pasted; no colour, size, weight, radius or shadow outside it
-- [ ] At most 4 text sizes (5 in a marketing section), 2 weights, 3 corner sizes
-- [ ] No outlined cards; hairlines only between repeating rows; at most 2 tags; at most 4 accent things
+- [ ] In the Quiet preset: at most 4 text sizes (5 in a marketing section), 2 weights, 3 corner sizes
+- [ ] In the Quiet preset: no outlined cards; hairlines only between repeating rows; at most 2 tags; at most 4 accent things
 - [ ] Nothing the request didn't name: no header on a section, no invented navigation, data or copy
 - [ ] The main task fits 1280×800; every state on the same layout, one person throughout
 - [ ] The screenshots opened and the six counts made, light and dark, at 390px and 1280px

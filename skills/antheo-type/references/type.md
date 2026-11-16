@@ -67,7 +67,7 @@ Uppercase labels: +0.05em at 14px and under, `--t-meta`, `--w-strong`. Use them 
 - `font-variant-numeric: tabular-nums` on prices, totals, table cells, timers, counters, dates in lists.
 - Right-align numbers in tables; keep the same decimal places in one column.
 - Format with `Intl.NumberFormat` and `Intl.DateTimeFormat`, never hand-concatenate "$" + value.
-- Big KPI numbers: `.t-num` (28px, `-0.02em`) at `--w-strong`; a price at `--w-text`; **proportional figures**, `tabular-nums` only when the number ticks or lines up with others, and then check the comma does not open a gap ("$50 , 699").
+- Big KPI numbers: `.t-num` (28px, `-0.02em`) at `--w-text`; a price at `--w-text`; **proportional figures**, `tabular-nums` only when the number ticks or lines up with others, and then check the comma does not open a gap ("$50 , 699").
 
 ## Loading fonts without layout shift
 

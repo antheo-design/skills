@@ -19,7 +19,7 @@
 5. Meta: date, author, count; `--t-meta` in `--text-2`, one line.
 6. Actions: bottom, pushed down with `margin-top: auto`; one primary (or a link), secondary in a "More" menu.
 
-A card is the block's `.card`: `--surface`, padding `--pad-card` (`--s-6` for a plan card), `--r-card`, and `--sh-card` for its edge. Never a visible border, never a coloured edge, never a card inside a card. The one card to notice gets `--sh-lift`, at the same size as its neighbours.
+A card is the block's `.card`: `--surface`, padding `--pad-card` (`--s-6` for a plan card), `--r-card`, and `--sh-card` for its edge. In the Quiet preset, never a visible border or a coloured edge (a project's own system may use them); never a card inside a card. The one card to notice gets `--sh-lift`, at the same size as its neighbours.
 
 ## Card grids
 
@@ -81,7 +81,7 @@ Don't nest links. Don't make the whole card a `<button>` that contains other but
 
 ## KPI tiles (dashboard cards)
 
-- Label (`--t-body`, `--text-2`) → value (`.t-num`, tabular) → change (`--t-body`: sign and word, in `--success` or `--danger`) → optional sparkline (no axes, 32 to 40px tall).
+- Label (`--t-body`, `--text-2`) → value (`.t-num`, proportional) → change (`--t-body`: sign and word, in `--success` or `--danger`) → optional sparkline (no axes, 32 to 40px tall).
 - A tile only for a number the request names. Never four identical tiles of invented metrics, each with a "▲ 12%".
 - Say the comparison period once, in the header ("vs previous 30 days"), not on every tile.
 - The most important metric gets 2 columns or a bigger value.

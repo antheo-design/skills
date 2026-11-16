@@ -123,7 +123,8 @@ Rules:
 8. **Do not show an error before it is one.** Validate on blur or submit, not while they are still typing. Exception: password strength and character counters help live.
 9. **Do not rely on color.** Icon + text + `aria-invalid` + `aria-describedby`; announce (live region or focus).
 10. Offer a fix when you can: "Did you mean name@gmail.com?" "Send a new code".
-11. **2 sentences, about 120 characters.** If it needs more, link to a page.
+11. **Usually 2 sentences, about 120 characters.** A message whose reason the person must act on (a payment declined
+    by the bank, a file rejected for a stated rule) may run longer; anything more than that links to a page.
 12. Use an error message only for input problems. For "you can't", "the service is down", write a page or banner.
 
 | Before | After |
@@ -214,7 +215,7 @@ Never leave a blank. Three different cases, three different texts. **Heading (wh
 
 1. Name the object and the scope: who loses what.
 2. Say if it can be undone and for how long: "You can restore it for 30 days."
-3. For very rare, severe acts (delete an account, a repository, production data), **make people type the name** of the thing, and keep the destructive button disabled until it matches.
+3. For very rare, severe acts (delete an account, a repository, production data), **make people type the name** of the thing, and keep the destructive button pressable: until the name matches, pressing it says what to type, in the field's error line.
 4. Button label is the verb + object ("Delete account"), in danger style. Cancel is the default focus.
 5. After success, confirm with Undo if possible; if not, say what is gone.
 6. Prefer archive over delete when history matters.

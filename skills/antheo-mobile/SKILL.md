@@ -139,6 +139,14 @@ Check each in `references/habits.md` before calling it done: small targets · na
 a phone · a desktop layout squeezed · a hint hidden by the keyboard · a swipe that leaves the page · things that
 only work on hover or a long press · 100vh panels that jump.
 
+## A website or an app screen
+
+Decide first. A website opened on a phone keeps the web's habits: the page scrolls, links go somewhere, and the main
+button sits in the flow after what it acts on. An app-like screen (a flow inside a product, an installed web app)
+takes the phone's habits: fixed bars, sheets, an action bar over the home indicator. Don't turn a marketing page
+into a fake app. What depends on a real device (the keyboard covering a field, safe areas, gestures, haptics) is
+checked on one, or said as unverified.
+
 ## Check on a phone
 
 - [ ] The symptom reproduced, its cause named in code, the fix verified (in code and, where it needs one, on a device)

@@ -8,7 +8,7 @@ Design all of these at once, as one family: they share layout, size and tone, so
 |---|---|
 | under ~200ms | nothing (a flash of a spinner is worse than nothing) |
 | 0.2 to 1s for content | skeleton shaped like the content |
-| 0.2 to 1s for an action | the button's loading state (spinner inside, label kept) |
+| 0.2 to 1s for an action | the button's loading state (width kept; a spinner before the -ing label, "Saving…") |
 | 1 to 10s | skeleton or spinner + a short line ("Loading orders…") |
 | over 10s | progress bar with % or steps, time estimate, Cancel |
 

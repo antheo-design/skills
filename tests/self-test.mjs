@@ -209,6 +209,76 @@ test('the gate arms, re-arms, reports and disarms', () => {
   return out;
 });
 
+test("a checker that crashes is a TOOL ERROR (exit 4), even with an old passing report left behind", () => {
+  const gate = path.join(SKILLS, 'antheo-review', 'scripts', 'gate.mjs');
+  const dir = path.join(tmp, 'stale');
+  fs.mkdirSync(dir, { recursive: true });
+  fs.writeFileSync(path.join(dir, 'index.html'), '<!doctype html><title>t</title><p>Hello</p>');
+  const g = (...a) => spawnSync(process.execPath, [gate, ...a], { cwd: dir, encoding: 'utf8', timeout: 240000 });
+  g('arm', 'index.html');
+  const state = path.join(dir, '.antheo', 'gate.json');
+  const s = JSON.parse(read(state));
+  // an old passing report where the next one will be written, and a setting that makes the checker fail before writing
+  fs.writeFileSync(path.join(dir, '.antheo', `page-${Buffer.from(s.targets[0]).toString('base64url').slice(-24)}.json`), JSON.stringify({ overall: 100, verdict: 'READY', findings: [] }));
+  fs.writeFileSync(state, JSON.stringify({ ...s, widths: 'not-a-number' }));
+  const r = g('check');
+  const out = [];
+  if (/GATE: PASS/.test(r.stdout)) out.push('the gate passed on a stale report');
+  if (r.status !== 4) out.push(`exit ${r.status}, expected 4`);
+  if (!/TOOL ERROR/.test(r.stdout)) out.push('it did not say TOOL ERROR');
+  return out;
+});
+
+test('three rounds with work still open is DONE, UNRESOLVED (exit 3), never a pass', () => {
+  const gate = path.join(SKILLS, 'antheo-review', 'scripts', 'gate.mjs');
+  const dir = path.join(tmp, 'done');
+  fs.mkdirSync(path.join(dir, 'src'), { recursive: true });
+  // a high copy finding (a sentence built from pieces), checked without a browser: no pages, only the copy
+  fs.writeFileSync(path.join(dir, 'src', 'Summary.tsx'), 'export const S = ({ n }: { n: number }) => <h2>Fix {n} things to continue</h2>;\n');
+  fs.mkdirSync(path.join(dir, '.antheo'), { recursive: true });
+  fs.writeFileSync(path.join(dir, '.antheo', 'gate.json'), JSON.stringify({ armed: true, targets: [], copy: [path.join(dir, 'src')], widths: '390,1280', max: 3, round: 2 }));
+  const r = spawnSync(process.execPath, [gate, 'check'], { cwd: dir, encoding: 'utf8', timeout: 120000 });
+  const out = [];
+  if (/GATE: PASS/.test(r.stdout)) out.push('it said PASS with work open');
+  if (r.status !== 3) out.push(`exit ${r.status}, expected 3 (${r.stdout.split('\n')[0]})`);
+  if (!/DONE, UNRESOLVED/.test(r.stdout)) out.push('it did not say DONE, UNRESOLVED');
+  return out;
+});
+
+test('nothing checked is never a pass: a missing page, unread copy, an empty waiver, an unarmed check', () => {
+  const gate = path.join(SKILLS, 'antheo-review', 'scripts', 'gate.mjs');
+  const checkPage = path.join(SKILLS, 'antheo-review', 'scripts', 'check-page.mjs');
+  const out = [];
+  // a page file that doesn't exist: exit 4, before any browser starts
+  const missing = spawnSync(process.execPath, [checkPage, path.join(tmp, 'no-such-page.html')], { encoding: 'utf8', timeout: 60000 });
+  if (missing.status !== 4) out.push(`check-page on a missing file exited ${missing.status}, expected 4`);
+  // copy that reads no files, with no pages: a tool error, not clean copy
+  const dir = path.join(tmp, 'nothing');
+  fs.mkdirSync(path.join(dir, '.antheo'), { recursive: true });
+  const state = path.join(dir, '.antheo', 'gate.json');
+  const arm = (extra) => fs.writeFileSync(state, JSON.stringify({ armed: true, targets: [], copy: [path.join(dir, 'no-such-folder')], widths: '390,1280', max: 3, round: 0, ...extra }));
+  const g = () => spawnSync(process.execPath, [gate, 'check'], { cwd: dir, encoding: 'utf8', timeout: 120000 });
+  arm();
+  let r = g();
+  if (r.status !== 4 || !/TOOL ERROR/.test(r.stdout)) out.push(`copy that read no files: exit ${r.status}, expected 4 (TOOL ERROR)`);
+  // an empty waiver rule would waive everything: refused
+  fs.mkdirSync(path.join(dir, 'src'), { recursive: true });
+  fs.writeFileSync(path.join(dir, 'src', 'A.tsx'), 'export const A = ({ n }: { n: number }) => <h2>Fix {n} things to continue</h2>;\n');
+  arm({ copy: [path.join(dir, 'src')] });
+  fs.writeFileSync(path.join(dir, '.antheo', 'waivers.json'), JSON.stringify([{ rule: '', reason: 'this would waive every finding at once' }]));
+  r = g();
+  if (/GATE: PASS/.test(r.stdout)) out.push('an empty waiver rule waived the findings');
+  fs.rmSync(path.join(dir, '.antheo', 'waivers.json'));
+  // not armed: after an unresolved run, still non-zero; with no state, nothing was checked
+  fs.writeFileSync(state, JSON.stringify({ armed: false, result: 'unresolved', targets: [] }));
+  r = g();
+  if (r.status !== 3) out.push(`check after an unresolved run exited ${r.status}, expected 3`);
+  fs.rmSync(state);
+  r = g();
+  if (r.status !== 2) out.push(`check with nothing armed exited ${r.status}, expected 2`);
+  return out;
+});
+
 /* ---------------- the tools on real pages ---------------- */
 
 const PAGE_HEAD = (title) => `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${title}</title>`;
@@ -267,6 +337,80 @@ if (BROWSER) {
   test('a page broken on purpose is caught on each planted problem', () => {
     const rules = page(broken).findings.map((f) => f.rule);
     return ['no visible focus', 'cards with a visible outline', 'colour on too many things'].filter((want) => !rules.includes(want)).map((r) => `not caught: ${r}`);
+  });
+
+  // the ten example pages are the golden pages: built from the style block, each must pass both checkers. They link the
+  // block by a relative path that only resolves in the public repo, so each is tested with the block inlined.
+  const examples = [path.resolve(SKILLS, '..', 'examples'), path.resolve(here, '..', 'examples')].find((d) => fs.existsSync(d));
+  if (examples) {
+    const golden = fs.readdirSync(examples).filter((f) => f.endsWith('.html'));
+    test(`the ${golden.length} example pages pass the page check and the access probe (no blocker or high, probe CLEAN)`, () => {
+      const out = [];
+      for (const f of golden) {
+        const file = path.join(tmp, `golden-${f}`);
+        fs.writeFileSync(file, read(path.join(examples, f)).replace(/<link rel="stylesheet" href="[^"]*quiet\.css">/, () => `<style>${quiet}</style>`));
+        const r = page(file);
+        for (const x of r.findings.filter((x) => ['blocker', 'high'].includes(x.severity))) out.push(`${f}: page check ${x.severity}: ${x.rule}`);
+        const json = file.replace(/\.html$/, '.probe.json');
+        spawnSync(process.execPath, [probe, file, '--json', json], { encoding: 'utf8', timeout: 240000 });
+        const p = fs.existsSync(json) ? JSON.parse(read(json)) : { verdict: 'DID NOT RUN', findings: [] };
+        if (p.verdict !== 'CLEAN') out.push(`${f}: access probe ${p.verdict}: ${(p.findings ?? []).slice(0, 2).map((x) => `${x.area} ${x.element}`).join('; ')}`);
+      }
+      return out;
+    });
+  }
+
+  // pages broken on purpose, one defect each: every checker must name what was planted
+  const BAD = {
+    'low-contrast': ['page', 'text below contrast minimum', '<p style="color:#b5b5b5">Grey text a person must read, at about 2:1</p>'],
+    // the style block is OKLCH and Chrome keeps it OKLCH: a reader that only knew rgb() skipped every Antheo text
+    'low-contrast-oklch': ['page', 'text below contrast minimum', '<p style="color:oklch(0.82 0.01 80)">Pale grey written in OKLCH, about 1.8:1</p>'],
+    'overflow': ['page', 'horizontal scroll', '<div style="width:900px;background:#eee;padding:8px">A box fixed at 900px wide, so a phone scrolls sideways</div>'],
+    'many-sizes': ['page', 'text sizes on one screen', [11, 13, 15, 17, 19, 22, 26, 30].map((s) => `<p style="font-size:${s}px">Text at ${s}px</p>`).join('')],
+    // a resting shadow is not a focus ring: the button looks the same focused and not
+    'shadow-not-focus': ['page', 'no visible focus', '<button type="button" style="height:32px;padding:0 12px;border:0;border-radius:6px;background:#fff;box-shadow:0 0 0 1px rgba(0,0,0,.15),0 1px 1px rgba(0,0,0,.1);outline:none">Save</button><style>button:focus{outline:none}</style>'],
+    'unnamed': ['probe', 'names', '<button type="button" style="width:32px;height:32px"><svg width="16" height="16" aria-hidden="true"><circle cx="8" cy="8" r="6"/></svg></button>'],
+    'tiny-targets': ['probe', 'target-size', '<div style="display:flex;gap:2px">' + ['A', 'B', 'C', 'D'].map((l) => `<button type="button" style="width:16px;height:16px;padding:0;font-size:10px">${l}</button>`).join('') + '</div>'],
+  };
+  test(`${Object.keys(BAD).length} more pages broken on purpose are each caught on what was planted`, () => {
+    const out = [];
+    for (const [name, [tool, want, body]] of Object.entries(BAD)) {
+      const file = path.join(tmp, `bad-${name}.html`);
+      fs.writeFileSync(file, `${PAGE_HEAD(`Broken: ${name}`)}<style>body{margin:0;font:14px/20px system-ui;background:#fff;color:#222}main{max-width:640px;margin:0 auto;padding:24px 16px}</style></head><body><main><h1 style="font-size:20px">Broken on purpose</h1>${body}</main></body></html>`);
+      if (tool === 'page') {
+        const rules = page(file).findings.map((f) => f.rule);
+        if (!rules.some((r) => r.includes(want))) out.push(`${name}: the page check didn't name "${want}" (it found: ${rules.slice(0, 4).join('; ') || 'nothing'})`);
+      } else {
+        const json = file.replace(/\.html$/, '.probe.json');
+        spawnSync(process.execPath, [probe, file, '--json', json], { encoding: 'utf8', timeout: 240000 });
+        const areas = fs.existsSync(json) ? (JSON.parse(read(json)).findings ?? []).map((f) => f.area) : [];
+        if (!areas.includes(want)) out.push(`${name}: the access probe didn't name "${want}" (it found: ${[...new Set(areas)].join(', ') || 'nothing'})`);
+      }
+    }
+    return out;
+  });
+
+  test('--preset none stops judging the Quiet look but still catches what is wrong in any style', () => {
+    const file = path.join(tmp, 'own-system.html');
+    fs.writeFileSync(file, `${PAGE_HEAD('Own system')}<style>body{margin:0;font:15px/22px Georgia,serif;color:#1a1a1a;background:#fff}main{max-width:720px;margin:40px auto;padding:0 16px}.card{border:1px solid #c8c8c8;border-radius:16px;padding:24px;min-height:120px}</style></head><body><main><h1>A studio with its own look</h1><div class="card"><p>Outlined cards and a serif are this brand's choices.</p><p style="color:#c4c4c4">But this pale note fails contrast in any style.</p></div></main></body></html>`);
+    const run = (preset) => {
+      const json = file.replace(/\.html$/, `.${preset}.json`);
+      spawnSync(process.execPath, [checkPage, file, '--widths', '1280', '--preset', preset, '--json', json], { encoding: 'utf8', timeout: 240000 });
+      return JSON.parse(read(json)).findings.map((f) => f.rule);
+    };
+    const quietRules = run('quiet');
+    const noneRules = run('none');
+    const out = [];
+    if (!quietRules.includes('cards with a visible outline')) out.push('the Quiet preset should flag the outlined card');
+    if (noneRules.includes('cards with a visible outline')) out.push('--preset none still judged the outlined card');
+    if (noneRules.some((r) => /serif or display face/.test(r))) out.push('--preset none still judged the serif');
+    if (!noneRules.includes('text below contrast minimum')) out.push('--preset none dropped a universal check (contrast)');
+    return out;
+  });
+
+  test('a page that does not load (a stopped server) is a tool error, exit 4, not a measured page', () => {
+    const r = spawnSync(process.execPath, [checkPage, 'http://127.0.0.1:59999/', '--widths', '1280'], { encoding: 'utf8', timeout: 240000 });
+    return r.status === 4 ? [] : [`check-page on a dead server exited ${r.status}, expected 4`];
   });
 
   test('the access probe calls the good page clean', () => {

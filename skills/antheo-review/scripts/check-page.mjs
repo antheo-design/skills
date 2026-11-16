@@ -21,24 +21,34 @@
  */
 import { createRequire } from 'node:module';
 import { pathToFileURL } from 'node:url';
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 
 const argv = process.argv.slice(2);
-const VALUE_FLAGS = ['--json', '--widths', '--kind', '--shots'];
+const VALUE_FLAGS = ['--json', '--widths', '--kind', '--shots', '--preset'];
 const STRESS = argv.includes('--stress');
-const target = argv.find((a, i) => !a.startsWith('--') && !/^\d/.test(a) && !VALUE_FLAGS.includes(argv[i - 1]));
+// the first argument that isn't a flag or a flag's value (a page named 2fa.html is a page, not a number)
+const target = argv.find((a, i) => !a.startsWith('--') && !VALUE_FLAGS.includes(argv[i - 1]));
 const flag = (name) => { const i = argv.indexOf(`--${name}`); return i < 0 ? undefined : argv[i + 1] ?? true; };
 if (!target) {
-  console.error('usage: node check-page.mjs <url or html file> [--widths 320,390,768,1024,1280,1440,1920] [--kind page|app] [--shots folder] [--stress] [--json out.json] [--quiet]');
+  console.error('usage: node check-page.mjs <url or html file> [--widths 320,390,768,1024,1280,1440,1920] [--kind page|app] [--preset quiet|none] [--shots folder] [--stress] [--json out.json] [--quiet]');
   process.exit(2);
 }
 const kind = ['page', 'app'].includes(flag('kind')) ? flag('kind') : 'auto';
 const widths = String(flag('widths') ?? '320,390,768,1024,1280,1440,1920').split(',').map(Number).filter(Boolean);
+if (!widths.length) { console.error(`--widths needs numbers, like 390,1280 (got "${flag('widths')}")`); process.exit(2); }
+// --preset quiet (the default) also judges the Antheo Quiet look: outlined cards, many colours, weights, sizes and
+// corners, costume tells. --preset none is for a project with its own design system or a requested direction: only
+// what is wrong in any style is judged (contrast, overflow, focus, names, targets, broken text, alignment, states).
+const preset = flag('preset') === 'none' ? 'none' : 'quiet';
+const QUIET_ONLY = /^(cards with a visible outline|colour on too many things|corners up to|\d+ corner sizes|\d+ font weights|\d+ text sizes on one screen|\d+ different text colors|bands of different backgrounds|the header is off the content edge|tilted elements at rest)/;
 const shots = typeof flag('shots') === 'string' ? resolve(flag('shots')) : null;
 // a local file may carry a query or hash (page.html?state=error): keep it out of the path
 const [, filePart, tail = ''] = /^https?:|^file:/.test(target) ? [null, target] : target.match(/^([^?#]*)(.*)$/);
 const url = /^https?:|^file:/.test(target) ? target : pathToFileURL(resolve(filePart)).href + tail;
+// exit 4 means the page couldn't be checked at all (no file, no server, an error status): nothing was measured
+if (!/^https?:|^file:/.test(target) && !existsSync(resolve(filePart))) { console.error(`No such file: ${resolve(filePart)}`); process.exit(4); }
+let loadFailed = null;
 
 async function loadChromium() {
   const require = createRequire(pathToFileURL(resolve('package.json')).href);
@@ -55,10 +65,37 @@ async function loadChromium() {
 /* ── what runs inside the page ───────────────────────────────────────────────────────────────────────────────── */
 function measure(kind) {
   const vw = innerWidth;
-  const out = { overflow: [], contrast: [], targets: [], unnamed: [], unlabeled: [], alt: [], headings: [], placeholderLabels: [] };
+  const out = { overflow: [], contrast: [], unmeasured: [], onImage: [], targets: [], unnamed: [], unlabeled: [], alt: [], headings: [], placeholderLabels: [] };
   const visible = (el) => { const r = el.getBoundingClientRect(); const s = getComputedStyle(el); return r.width > 0 && r.height > 0 && s.visibility !== 'hidden' && s.display !== 'none' && +s.opacity > 0.05; };
   const sel = (el) => { const id = el.id ? `#${el.id}` : ''; const cls = typeof el.className === 'string' && el.className.trim() ? `.${el.className.trim().split(/\s+/).slice(0, 2).join('.')}` : ''; const t = (el.innerText || el.getAttribute('aria-label') || '').trim().replace(/\s+/g, ' ').slice(0, 30); return `${el.tagName.toLowerCase()}${id}${cls}${t ? ` "${t}"` : ''}`; };
-  const parse = (c) => { const m = c.match(/rgba?\(([^)]+)\)/); if (!m) return null; const p = m[1].split(/[\s,/]+/).filter(Boolean).map(Number); return { r: p[0], g: p[1], b: p[2], a: p[3] ?? 1 }; };
+  // any CSS colour to sRGB 0-255: rgb() directly; oklch(), lab(), color(display-p3 …), hsl() and names through the
+  // browser's own canvas, so nothing is guessed. Chrome keeps OKLCH as OKLCH in computed styles, and the style block is
+  // OKLCH, so an rgb-only reader would skip every text on an Antheo page. null means "couldn't read it", which is
+  // reported, never treated as a pass.
+  const parse = (() => {
+    const cv = document.createElement('canvas'); cv.width = cv.height = 1;
+    const cx = cv.getContext('2d', { willReadFrequently: true });
+    const cache = new Map();
+    return (c) => {
+      if (!c) return null;
+      if (cache.has(c)) return cache.get(c);
+      let v = null;
+      const m = c.match(/^rgba?\(([^)]+)\)$/);
+      if (m) { const p = m[1].split(/[\s,/]+/).filter(Boolean).map(parseFloat); v = { r: p[0], g: p[1], b: p[2], a: p[3] ?? 1 }; }
+      else if (c === 'transparent') v = { r: 0, g: 0, b: 0, a: 0 };
+      else if (cx) {
+        cx.fillStyle = '#010203'; cx.fillStyle = c;
+        if (cx.fillStyle !== '#010203' || /^#010203$/i.test(c)) {
+          cx.clearRect(0, 0, 1, 1); cx.fillRect(0, 0, 1, 1);
+          const d = cx.getImageData(0, 0, 1, 1).data;
+          const alpha = c.match(/\/\s*([\d.]+%?)\s*\)$/);
+          v = { r: d[0], g: d[1], b: d[2], a: alpha ? (alpha[1].endsWith('%') ? parseFloat(alpha[1]) / 100 : +alpha[1]) : d[3] / 255 };
+        }
+      }
+      cache.set(c, v);
+      return v;
+    };
+  })();
   const lum = ({ r, g, b }) => { const f = (v) => { v /= 255; return v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; }; return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b); };
   const blend = (fg, bg) => ({ r: fg.r * fg.a + bg.r * (1 - fg.a), g: fg.g * fg.a + bg.g * (1 - fg.a), b: fg.b * fg.a + bg.b * (1 - fg.a), a: 1 });
   // the colour behind an element: the first opaque background up the tree; null when an image or gradient is in the way
@@ -112,6 +149,8 @@ function measure(kind) {
     colors[s.color] = (colors[s.color] || 0) + 1;
     const fg = parse(s.color);
     const bg = behind(el);
+    if (!fg && out.unmeasured.length < 8) out.unmeasured.push(`${sel(el)} (color: ${s.color})`);
+    if (fg && !bg && out.onImage.length < 6) out.onImage.push(sel(el)); // no single colour behind it: said, not skipped
     if (fg && bg && fg.a > 0.05) {
       const c = blend(fg, bg);
       const [hi, lo] = [lum(c), lum(bg)].sort((a, b) => b - a);
@@ -316,7 +355,9 @@ function measure(kind) {
     const declared = new Set([...css.matchAll(/(--[\w-]+)\s*:/g)].map((x) => x[1]));
     for (const x of css.matchAll(/@property\s+(--[\w-]+)/g)) declared.add(x[1]);
     for (const s of document.scripts) for (const x of (s.textContent || '').matchAll(/setProperty\(\s*['"`](--[\w-]+)/g)) declared.add(x[1]);
-    return [...new Set([...css.matchAll(/var\(\s*(--[\w-]+)\s*\)/g)].map((x) => x[1]).filter((n) => !declared.has(n)))].slice(0, 8);
+    // a linked sheet can be unreadable (file://, another origin), so a name the page actually resolves counts as defined
+    const root = getComputedStyle(document.documentElement);
+    return [...new Set([...css.matchAll(/var\(\s*(--[\w-]+)\s*\)/g)].map((x) => x[1]).filter((n) => !declared.has(n) && !root.getPropertyValue(n).trim()))].slice(0, 8);
   })();
   // a framework's default palette, used unchanged
   const SWATCH = { 'rgb(99, 102, 241)': 'indigo-500', 'rgb(79, 70, 229)': 'indigo-600', 'rgb(59, 130, 246)': 'blue-500', 'rgb(37, 99, 235)': 'blue-600', 'rgb(139, 92, 246)': 'violet-500', 'rgb(124, 58, 237)': 'violet-600', 'rgb(168, 85, 247)': 'purple-500', 'rgb(16, 185, 129)': 'emerald-500', 'rgb(15, 23, 42)': 'slate-900' };
@@ -352,7 +393,15 @@ function craft() {
   const visible = (el) => { const r = el.getBoundingClientRect(); const s = styleOf(el); return r.width > 0 && r.height > 0 && s.visibility !== 'hidden' && s.display !== 'none' && +s.opacity > 0.05; };
   const sel = (el) => { const id = el.id ? `#${el.id}` : ''; const cls = typeof el.className === 'string' && el.className.trim() ? `.${el.className.trim().split(/\s+/).slice(0, 2).join('.')}` : ''; const t = (el.innerText || el.getAttribute('aria-label') || '').trim().replace(/\s+/g, ' ').slice(0, 28); return `${el.tagName.toLowerCase()}${id}${cls}${t ? ` "${t}"` : ''}`; };
   const item = (el, detail) => ({ id: typeof el === 'string' ? el : sel(el), detail });
-  const alpha = (c) => { const m = c.match(/rgba?\(([^)]+)\)/); if (!m) return 0; const p = m[1].split(/[\s,/]+/).filter(Boolean).map(Number); return p[3] ?? 1; };
+  // the opacity of any CSS colour: rgb(), oklch(), lab(), color() and the rest (Chrome keeps OKLCH as OKLCH, so an
+  // rgb-only reader called every Quiet colour transparent)
+  const alpha = (c) => {
+    if (!c || c === 'transparent') return 0;
+    const m = c.match(/rgba?\(([^)]+)\)/);
+    if (m) { const p = m[1].split(/[\s,/]+/).filter(Boolean).map(Number); return p[3] ?? 1; }
+    const a = c.match(/\/\s*([\d.]+)(%?)\s*\)\s*$/);
+    return a ? (a[2] ? +a[1] / 100 : +a[1]) : 1;
+  };
   const boxed = (s) => alpha(s.backgroundColor) > 0.05 || s.backgroundImage !== 'none' || ['Top', 'Right', 'Bottom', 'Left'].some((k) => parseFloat(s[`border${k}Width`]) > 0 && alpha(s[`border${k}Color`]) > 0.05 && s[`border${k}Style`] !== 'none');
   const MEDIA = /^(img|svg|canvas|video|input|select|textarea|iframe|picture)$/i;
   const range = document.createRange();
@@ -542,7 +591,9 @@ function craft() {
   // what kind of screen: sign-in and checkout are narrow on purpose; an app screen has controls to work with
   const fieldCount = [...document.querySelectorAll('input:not([type=hidden]):not([type=radio]):not([type=checkbox]), select, textarea')].filter(shown).length;
   const isAuth = !!document.querySelector('input[type=password]') && fieldCount <= 8;
-  const isApp = !isAuth && !!document.querySelector('h1') && (fieldCount >= 2 || !!document.querySelector('[role=switch], table, [role=grid]'));
+  // an app bar (antheo-build rule 11): a short header holding the product and its context, with no navigation links
+  const appBar = [...document.querySelectorAll('header, [role=banner]')].some((h) => { const r = h.getBoundingClientRect(); return r.height > 0 && r.height <= 64 && !h.querySelector('a[href], nav'); });
+  const isApp = !isAuth && !!document.querySelector('h1') && (fieldCount >= 2 || appBar || !!document.querySelector('[role=switch], table, [role=grid]'));
   const topBar = [...document.querySelectorAll('header, [role=banner], nav')].filter(shown).find((h) => { const r = h.getBoundingClientRect(); return r.top < 80 && r.height < innerHeight * 0.25 && r.width >= innerWidth * 0.9; });
 
   // counts that define a quiet screen: outlined cards, colour, corner sizes
@@ -717,7 +768,15 @@ function motionAudit() {
   const out = { noHover: [], noPress: [], slow: [], layoutProps: [], scaleZero: [], loadCount: 0, loadSample: [], durations: [], hoverUngated: 0, hoverRules: 0, reduce: false, moving: 0, linkNoHover: 0, links: 0 };
   const visible = (el) => { const r = el.getBoundingClientRect(); const cs = getComputedStyle(el); return r.width > 0 && r.height > 0 && cs.visibility !== 'hidden' && cs.display !== 'none' && +cs.opacity > 0.05; };
   const sel = (el) => { const id = el.id ? '#' + el.id : ''; const cls = typeof el.className === 'string' && el.className.trim() ? '.' + el.className.trim().split(/\s+/).slice(0, 2).join('.') : ''; const t = (el.innerText || el.getAttribute('aria-label') || '').trim().replace(/\s+/g, ' ').slice(0, 26); return el.tagName.toLowerCase() + id + cls + (t ? ' "' + t + '"' : ''); };
-  const alpha = (c) => { const m = c.match(/rgba?\(([^)]+)\)/); if (!m) return 0; const p = m[1].split(/[\s,/]+/).filter(Boolean).map(Number); return p[3] ?? 1; };
+  // the opacity of any CSS colour: rgb(), oklch(), lab(), color() and the rest (Chrome keeps OKLCH as OKLCH, so an
+  // rgb-only reader called every Quiet colour transparent)
+  const alpha = (c) => {
+    if (!c || c === 'transparent') return 0;
+    const m = c.match(/rgba?\(([^)]+)\)/);
+    if (m) { const p = m[1].split(/[\s,/]+/).filter(Boolean).map(Number); return p[3] ?? 1; }
+    const a = c.match(/\/\s*([\d.]+)(%?)\s*\)\s*$/);
+    return a ? (a[2] ? +a[1] / 100 : +a[1]) : 1;
+  };
   const LAYOUT = /^(width|height|min-width|min-height|max-width|max-height|top|right|bottom|left|inset|margin|margin-.*|padding|padding-.*)$/;
 
   // split a selector list on its top-level commas only: ':where(a, b):hover, c' is two selectors, not three
@@ -759,6 +818,8 @@ function motionAudit() {
   for (const el of controls) {
     const cs = getComputedStyle(el);
     if (el.disabled || el.getAttribute('aria-disabled') === 'true') continue;
+    // the option already chosen (a segment, a tab, the current page): pressing it changes nothing, so it needn't answer a hover
+    if (el.matches('[aria-checked="true"], [aria-selected="true"], [aria-pressed="true"], [aria-current]:not([aria-current="false"])')) continue;
     const er = el.getBoundingClientRect();
     if (er.right <= 4 || er.bottom + scrollY <= 4 || er.width <= 2 || er.height <= 2) continue; // parked off-screen until focused (skip links)
     const buttonLike = el.tagName !== 'A' || boxed(cs);
@@ -779,7 +840,7 @@ function motionAudit() {
     if (max > 0 && visible(el)) {
       out.moving++;
       td.filter((d) => d > 1).forEach((d) => durs.add(Math.round(d)));
-      if (max > 450 && !tp.every((p) => /stroke-dash|^(inline-size|width)$/.test(p) && el.closest('svg, progress, [role=progressbar], [role=timer]')) && out.slow.length < 6) out.slow.push(sel(el) + ': ' + Math.round(max) + 'ms on ' + tp.slice(0, 3).join(', '));
+      if (max > 400 && !tp.every((p) => /stroke-dash|^(inline-size|width)$/.test(p) && el.closest('svg, progress, [role=progressbar], [role=timer]')) && out.slow.length < 6) out.slow.push(sel(el) + ': ' + Math.round(max) + 'ms on ' + tp.slice(0, 3).join(', '));
       const bad = tp.filter((p) => LAYOUT.test(p));
       if (bad.length && out.layoutProps.length < 6) out.layoutProps.push(sel(el) + ' transitions ' + bad.slice(0, 3).join(', '));
     }
@@ -832,7 +893,31 @@ function stressApply(mode) {
 /* ── dark: does the dark theme have depth, or is it mud? ─────────────────────────────────────────────────────── */
 function darkAudit() {
   const out = { melt: [], glare: null, tiers: null };
-  const parse = (c) => { const m = c.match(/rgba?\(([^)]+)\)/); if (!m) return null; const p = m[1].split(/[\s,/]+/).filter(Boolean).map(Number); return { r: p[0], g: p[1], b: p[2], a: p[3] ?? 1 }; };
+  // the same reader as measure(): any CSS colour to sRGB through the canvas, so OKLCH dark themes are judged too
+  const parse = (() => {
+    const cv = document.createElement('canvas'); cv.width = cv.height = 1;
+    const cx = cv.getContext('2d', { willReadFrequently: true });
+    const cache = new Map();
+    return (c) => {
+      if (!c) return null;
+      if (cache.has(c)) return cache.get(c);
+      let v = null;
+      const m = c.match(/^rgba?\(([^)]+)\)$/);
+      if (m) { const p = m[1].split(/[\s,/]+/).filter(Boolean).map(parseFloat); v = { r: p[0], g: p[1], b: p[2], a: p[3] ?? 1 }; }
+      else if (c === 'transparent') v = { r: 0, g: 0, b: 0, a: 0 };
+      else if (cx) {
+        cx.fillStyle = '#010203'; cx.fillStyle = c;
+        if (cx.fillStyle !== '#010203' || /^#010203$/i.test(c)) {
+          cx.clearRect(0, 0, 1, 1); cx.fillRect(0, 0, 1, 1);
+          const d = cx.getImageData(0, 0, 1, 1).data;
+          const alpha = c.match(/\/\s*([\d.]+%?)\s*\)$/);
+          v = { r: d[0], g: d[1], b: d[2], a: alpha ? (alpha[1].endsWith('%') ? parseFloat(alpha[1]) / 100 : +alpha[1]) : d[3] / 255 };
+        }
+      }
+      cache.set(c, v);
+      return v;
+    };
+  })();
   const lum = ({ r, g, b }) => { const f = (v) => { v /= 255; return v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; }; return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b); };
   const ratio = (a, b) => { const [x, y] = [lum(a), lum(b)].sort((p, q) => q - p); return (x + 0.05) / (y + 0.05); };
   const visible = (el) => { const r = el.getBoundingClientRect(); const cs = getComputedStyle(el); return r.width > 0 && r.height > 0 && cs.visibility !== 'hidden' && cs.display !== 'none' && +cs.opacity > 0.05; };
@@ -910,6 +995,9 @@ const full = (m) => {
     add('layout', 'high', 'side panel stops before the page ends', m.shortPanels, 'make it sticky (position: sticky; top: 0; height: 100dvh) or let the shell grid stretch it (min-height: 100dvh on the grid, align-self: stretch)');
     {
       add('access', 'high', 'text below contrast minimum', m.contrast, 'WCAG 2.2 1.4.3: 4.5:1 for text, 3:1 for 24px+ (or 18.66px bold)');
+      // a colour the checker couldn't read is not a pass: it stays open until someone measures it
+      add('access', 'high', 'contrast not measured: a text colour this checker could not read', m.unmeasured, 'measure these pairs with antheo-color/scripts/contrast.mjs, or waive with the measured ratio as the reason');
+      add('access', 'medium', 'contrast not measured: text on an image or gradient', m.onImage, 'look at it in both themes, and measure the lightest and darkest spot behind the text with antheo-color/scripts/contrast.mjs');
       add('access', 'high', 'controls with no accessible name', m.unnamed, 'visible text, or aria-label on icon-only controls');
       add('access', 'high', 'form fields with no label', m.unlabeled, '<label for> tied to the field; placeholders are not labels');
       add('access', 'medium', 'placeholder used as the label', m.placeholderLabels, 'add a visible label above the field; keep the placeholder as an example');
@@ -942,7 +1030,7 @@ const full = (m) => {
       if (c.glass >= 3) add('character', 'low', `${c.glass} frosted-glass panels`, [`${c.glass} panels`], 'solid surfaces; blur only for floating chrome over media');
       if (!c.marketing && c.costume) {
         const look = 'antheo-components references/look.md';
-        add('character', 'medium', 'a serif or display face inside the UI (costume)', c.costume.serif, `one grotesk for the whole component or screen; a 15/600 title (${look})`);
+        add('character', 'medium', 'a serif or display face inside the UI (costume)', c.costume.serif, `one grotesk for the whole component or screen; a 15/550 title (${look})`);
         add('character', 'medium', 'dashed or dotted borders (costume)', c.costume.dashed, 'hairlines between rows; a band or sunken card between sections; dashes only on a drag target while dragging');
         add('character', 'low', 'uppercase tracked labels', c.costume.tracked, 'sentence case at 12px in the second text tone');
         add('character', 'medium', 'tinted panels: colour on the chrome', c.costume.tinted, 'white surface (0.215 in dark), a band one step off it, chroma ≤ 0.01; colour only from content');
@@ -959,7 +1047,11 @@ try {
   const load = async (width, theme) => {
     await page.emulateMedia({ colorScheme: theme });
     await page.setViewportSize({ width, height: width < 600 ? 844 : 900 });
-    await page.goto(url, { waitUntil: 'networkidle', timeout: 45000 }).catch(() => {});
+    // a page that didn't load (a stopped server, a 404, a missing file) is a tool error, never measured as if it were
+    // the page: a blank error page only earns medium findings and would pass
+    const res = await page.goto(url, { waitUntil: 'networkidle', timeout: 45000 }).catch((e) => ({ failed: String(e.message || e).split('\n')[0] }));
+    if (res?.failed) { loadFailed = res.failed; throw new Error(loadFailed); }
+    if (res && typeof res.status === 'function' && res.status() >= 400) { loadFailed = `HTTP ${res.status()}`; throw new Error(loadFailed); }
     await page.waitForTimeout(450);
   };
   if (shots) mkdirSync(shots, { recursive: true });
@@ -1009,11 +1101,11 @@ try {
         add('motion', 'high', 'buttons that do not answer a hover', mo.noHover, 'every control shows it can be pressed: a step darker or lighter on :hover, inside @media (hover: hover)');
         add('motion', 'medium', 'buttons with no press feedback', mo.noPress, ':active { scale: 0.97 } (or a step darker) at --dur-instant, so a press is felt');
         if (mo.links >= 3 && mo.linkNoHover / mo.links > 0.5) add('motion', 'low', `${mo.linkNoHover} of ${mo.links} text links do not change on hover`, [`${mo.linkNoHover} links`], 'underline, thicken the underline or change color on :hover');
-        add('motion', 'medium', 'interface motion slower than 450ms', mo.slow, 'use the duration tokens: interface motion up to --dur-slow (320ms), page and shared-element moves --dur-page (450ms); only a rare, deliberate moment runs longer');
+        add('motion', 'medium', 'interface motion slower than 400ms', mo.slow, 'use the duration tokens: interface motion up to --dur-slow (300ms), page and shared-element moves --dur-page (400ms); only a rare, deliberate moment runs longer');
         add('motion', 'medium', 'animating layout properties', mo.layoutProps, 'animate transform and opacity; for height use grid-template-rows 0fr → 1fr or interpolate-size');
         add('motion', 'medium', 'something grows from nothing (scale 0)', [...new Set(mo.scaleZero)], 'start at --scale-pop (0.96) or --scale-tip (0.98) with opacity 0; badges from 0.6 at the least');
         if (mo.loadCount > 6) add('motion', 'medium', `${mo.loadCount} elements animate as the page loads`, mo.loadSample, 'one orchestrated entrance (the hero or the signature); everything else is simply there');
-        if (mo.durations.length > 6) add('motion', 'low', `${mo.durations.length} different transition durations`, [mo.durations.join(', ') + 'ms'], 'use the five duration tokens: 100, 160, 220, 320, 450ms');
+        if (mo.durations.length > 6) add('motion', 'low', `${mo.durations.length} different transition durations`, [mo.durations.join(', ') + 'ms'], 'use the six duration tokens: 100, 150, 200, 250, 300, 400ms');
         if (mo.moving > 0 && !mo.reduce && !mo.blind) add('motion', 'medium', 'motion with no reduced-motion rule', ['no @media (prefers-reduced-motion) in the page'], 'under reduce: keep fades and color, remove travel, scale and loops');
         if (mo.moving === 0) add('motion', 'medium', 'nothing on the page moves: every change will jump', ['no transitions or animations'], 'press and hover feedback on controls; enter and exit for anything that appears');
         if (mo.blind) console.error(`note: ${mo.blind} stylesheet(s) could not be read by the check (linked from file:// or another origin); press-feedback and reduced-motion rules in them were not judged`);
@@ -1076,21 +1168,22 @@ try {
         // snapshot as strings while focused: getComputedStyle is live, so reading it again after blur would compare
         // the blurred style with itself
         const snap = (n) => { const c = getComputedStyle(n); return [c.outlineStyle, c.outlineWidth, c.outlineColor, c.boxShadow, c.backgroundColor, c.borderTopColor].join('|'); };
-        const s = getComputedStyle(el);
-        const seen = +s.opacity > 0.05;
-        const ring = seen && ((s.outlineStyle !== 'none' && parseFloat(s.outlineWidth) > 0) || s.boxShadow !== 'none');
+        // focus shows only if something changes when focus arrives: a shadow or ring the control wears at rest (every
+        // raised button has one) is not a focus indicator
         const focused = near.map(snap);
         const label = `${el.tagName.toLowerCase()} "${(el.innerText || el.getAttribute('aria-label') || el.value || '').trim().slice(0, 24)}"`;
         el.blur();
         const changed = near.some((n, i) => snap(n) !== focused[i]);
         el.focus({ focusVisible: true });
-        return { label, visible: ring || changed };
+        return { label, visible: changed };
       });
       if (!r) continue;
       reached++;
       if (!r.visible) invisible.push(r.label);
     }
-    if (!reached) add('access', 'high', 'keyboard cannot reach anything', ['Tab reaches no control'], 'use real <button>, <a href>, <input>; never remove them from the tab order');
+    // a read-only page (a report, a printed view) has nothing to reach; it is a defect only when something looks pressable
+    const pressable = !reached && await page.evaluate(() => [...document.querySelectorAll('body *')].some((e) => e.hasAttribute('onclick') || getComputedStyle(e).cursor === 'pointer')).catch(() => true);
+    if (!reached && pressable) add('access', 'high', 'keyboard cannot reach anything', ['Tab reaches no control, though something looks pressable'], 'use real <button>, <a href>, <input>; never remove them from the tab order');
     add('access', 'high', 'no visible focus', invisible, ':focus-visible { outline: 2px solid var(--focus); outline-offset: 2px } (or the ring on the wrapper that draws the field, with :focus-within)');
     await page.close();
   }
@@ -1105,12 +1198,17 @@ try {
     await page.close();
   }
 
+} catch (e) {
+  if (!loadFailed) throw e;
 } finally {
   await browser.close();
 }
+if (loadFailed) { console.error(`Could not load ${url}: ${loadFailed}. Nothing was checked.`); process.exit(4); }
 
 /* ── score and report ───────────────────────────────────────────────────────────────────────────────────────── */
-const WEIGHT = { access: 25, layout: 15, craft: 30, consistency: 10, motion: 10, robustness: 10 }; // "character" findings (tells) are listed, never scored
+// with --preset none, the Quiet look's own rules and the costume tells step aside; nothing universal is dropped
+if (preset === 'none') for (let i = findings.length - 1; i >= 0; i--) if (findings[i].area === 'character' || QUIET_ONLY.test(findings[i].rule)) findings.splice(i, 1);
+const WEIGHT ={ access: 25, layout: 15, craft: 30, consistency: 10, motion: 10, robustness: 10 }; // "character" findings (tells) are listed, never scored
 const COST = { blocker: 100, high: 12, medium: 6, low: 3 };
 const scores = Object.fromEntries(Object.keys(WEIGHT).map((a) => {
   const lost = findings.filter((f) => f.area === a).reduce((s, f) => s + COST[f.severity] * Math.min(3, Math.max(1, Math.ceil(f.items.length / 3))), 0);
@@ -1133,6 +1231,7 @@ if (!flag('quiet')) {
   console.log(`verdict: ${verdict}`);
   console.log(`checked at ${widths.join(', ')}px, light${results.dark?.supported ? ' and dark' : ''}${shots ? `; screenshots in ${shots}` : ''}`);
   console.log('100 means no measured defect, not a good design: open the screenshots (--shots) and look before you call it done.');
+  console.log(preset === 'none' ? 'preset: none (the project\'s own look is not judged; universal checks only)' : 'preset: Quiet (also judges the Antheo Quiet look; --preset none for a project with its own system or a requested direction)');
   if (flag('no-dark') !== undefined) console.log('WARNING: dark mode was not checked (--no-dark). People with a dark system setting will see a theme nobody looked at.');
   if (results.dark) console.log(`dark theme: ${results.dark.supported ? 'yes' : 'none found'}`);
   if (!findings.length) console.log('\nNo findings. Still look at it at 390px and in dark mode yourself.');
@@ -1144,7 +1243,7 @@ if (!flag('quiet')) {
   }
 }
 const json = flag('json');
-if (json && json !== true) writeFileSync(json, JSON.stringify({ url, overall, verdict, scores, findings, dark: results.dark, motion: results.motion }, null, 2));
+if (json && json !== true) writeFileSync(json, JSON.stringify({ url, preset, overall, verdict, scores, findings, dark: results.dark, motion: results.motion }, null, 2));
 if (flag('quiet')) console.log(JSON.stringify({ overall, verdict, highs, mediums, scores }));
 
 // Chrome, then Edge, then Playwright's own Chromium; one clear line if none is installed. (The same function is in every

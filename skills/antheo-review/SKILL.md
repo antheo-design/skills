@@ -8,8 +8,24 @@ description: Checks a running screen, page, component or change in a real browse
 A review answers one question, "is it ready?", and backs the answer with evidence: what was measured, where, at
 which width, and the cheapest fix. The first judgement is the one a person makes in five seconds: is it calm and
 precise, or does it look generated? Clean is counts (few text sizes, two weights, three corner sizes, almost no
-lines or colour), so the review counts them. A taste you merely disagree with (a density, a corner size, a voice) is
-not a finding. The render is the evidence; the source code only supports it.
+lines or colour), so the review counts them in the Quiet preset. When the project has its own system or the person
+asked for a direction, those counts are not findings (`check-page.mjs --preset none`; antheo-build, "What always
+holds"). A taste you merely disagree with (a density, a corner size, a voice) is not a finding. The render is the
+evidence; the source code only supports it.
+
+## How much to check
+
+Match the check to what changed, and say which level you used. What a level leaves out is listed as not checked,
+never reported as passed.
+
+| Level | When | Check |
+|---|---|---|
+| **Small change** | a fix, a copy edit, one control's style | the behaviour that changed and the states it touches, at 390 and 1280px, light and dark; the gate on that page |
+| **Component or flow** | a new component, a form, a screen, a flow | the above, plus the behaviour contract, keyboard and focus, errors and empty and loading states, awkward content (antheo-stress), both themes; two reviewers kept apart |
+| **Release or migration** | a launch, a redesign, a system migration | the above on every changed route at all seven widths, the access probe, real devices, an independent reviewer, regressions against a baseline, and the rollout and rollback plan |
+
+A PASS from the gate means the automated checks found nothing blocking at that level. It is not release readiness:
+taste, real devices, screen readers and anything the level skipped stay unverified until someone checks them.
 
 Review runs the other skills' checks and puts them in one report: the access probe (**antheo-access**), the copy
 linter (**antheo-writing**), the motion approve-or-block (**antheo-motion-audit**), every state and the stress pass
@@ -20,7 +36,8 @@ linter (**antheo-writing**), the motion approve-or-block (**antheo-motion-audit*
 
 1. **Scope:** what you were asked to check, else the changed screens, else the five main routes. Name each screen's
    job in one line, marked "assumed" if nobody said.
-2. **Two reviewers, kept apart** (below): one looks, one measures, neither sees the other's notes until both are done.
+2. **Two reviewers, kept apart** (below) for a component, flow or release: one looks, one measures, neither sees the
+   other's notes until both are done. A small change gets one careful pass.
 3. **Stress:** antheo-stress's states and stress pass.
 4. **Merge and rank:** severity, causes merged, taste dropped, at most 15 findings; say where the two disagreed.
 5. **Answer first:** the ship line, the findings, then what was not checked.
@@ -51,7 +68,7 @@ Setup: `references/gate.md`.
 Open them at 100%; never judge from the score alone. **First, five seconds on the 1280px one:** is it calm, and
 does the main task fit the first screen? Then count six things in light and dark: text sizes (at most 4 in an app, 5
 in a marketing section), weights (2), corner sizes (3), accent things (4), tags (2), hairlines (only between
-repeating rows). A count over its limit is a finding. Then, for each screenshot, one line: where the eye lands first, whether the header and
+repeating rows). In the Quiet preset, a count over its limit is a finding. Then, for each screenshot, one line: where the eye lands first, whether the header and
 every block share one edge, whether siblings match, anything that almost lines up, anything nobody would miss if it
 were removed. Then the eight questions in `references/rubric.md`. A component or app screen is put beside the best
 one in the project: louder, larger, browner or busier anywhere is a finding.
@@ -64,9 +81,9 @@ one in the project: louder, larger, browner or busier anywhere is a finding.
 - A bar covering content or letting it show through; a unit floating away from its number; siblings that don't match.
 - Decoration nobody asked for (tilted notes, hand-drawn marks, colour bands); placeholder text; a different person
   or number between two states of one screen.
-- Styles invented outside the style block: an outlined card, a coloured edge, a corner over 12px, a headline over
-  36px, three weights, a divider inside a card, chrome the request never named (a site header on a section, a sidebar
-  of made-up destinations).
+- In the Quiet preset, styles invented outside the style block: an outlined card, a coloured edge, a corner over
+  12px, a headline over 36px, three weights, a divider inside a card. In any style: chrome the request never named (a
+  site header on a section, a sidebar of made-up destinations).
 - A leaked code value (`NaN`, `undefined`, `[object Object]`, `${…}`, lorem ipsum); an image that failed.
 - A submit that visibly does nothing; an error with no way to recover; a destructive action with no confirm or undo.
 - A change of state shown only by movement; a disclosure with no visible cue that it opens.
@@ -186,8 +203,8 @@ after a failed request; leftovers · a check that was quieted · only one browse
 ## Done
 
 - [ ] The ship line answers first and matches the findings
-- [ ] Two reviews kept apart (visual first, then measured), merged with disagreements listed; or `Degraded:` said
-- [ ] Page check, access probe and copy linter run; latency probe where there are buttons or drags
+- [ ] The level said (small change, component or flow, release); for a component, flow or release, two reviews kept apart (visual first, then measured), merged with disagreements listed, or `Degraded:` said
+- [ ] The checks for that level run (the page check and the gate always; the access probe for a component, flow or release; the latency probe where there are buttons or drags), and what the level skipped listed as not checked
 - [ ] Six screenshots looked at; antheo-stress's pass done
 - [ ] Each finding: evidence, `file:line` or screenshot, width, cheapest fix; no unmeasured number in the verdict; at most 15; causes
   merged; taste dropped

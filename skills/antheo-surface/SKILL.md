@@ -134,6 +134,13 @@ Check each in `references/habits.md` before calling it done: the same big soft s
 and tint together · the "not generated" costumes · an icon in a tinted tile · text 2px from an edge · pill corners
 on things that aren't controls · fake product chrome drawn in boxes · two or three icon sets in one build.
 
+## Other surface languages
+
+The edges and drops above are the Quiet preset. A project or a requested direction may speak another surface
+language (outlined cards, flat colour blocks, deep shadows, glass over moving content) and it is not a defect.
+Then keep that language consistent across the product, keep every control's edge visible (3:1), and keep depth
+meaning the same thing everywhere: higher is closer.
+
 ## Done
 
 - [ ] Every surface's ground named; most things flat; raised and sunk only where it means something
