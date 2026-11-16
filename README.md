@@ -53,8 +53,10 @@ npx github:antheo-design/skills help                                   # all of 
 ### One file, for tools without skills
 
 [`ANTHEO-CORE.md`](ANTHEO-CORE.md) is the core in a single file: the style block, the build rules, the traps that
-matter most and the gate. Paste it into Cursor rules, Aider or a local model's system prompt. It is generated from the
-skills, so it always says the same thing they do.
+matter most and the gate. Paste it into Cursor rules, Aider or a local model's system prompt. For a small local model,
+[`ANTHEO-CORE-MINI.md`](ANTHEO-CORE-MINI.md) is about half the size: the policy, each rule's first sentence and the
+same style block without comments, tested to render pixel for pixel like the full one. Both are generated from the
+skills, so they always say the same thing they do.
 
 ## Start
 

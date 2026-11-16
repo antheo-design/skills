@@ -12,7 +12,7 @@
  * fill, edge and shadow, filters, blend, masks, type), running animations with their keyframes and timing, and media
  * (canvas, svg, video, img, background images). Values marked "measured" were read from the browser.
  *
- * Needs Playwright (npm i -D playwright, then npx playwright install chromium) or an installed Chrome.
+ * Needs playwright-core (npm i -D playwright-core) and Chrome or Edge, or npx playwright install chromium.
  * Closes the browser when done, always.
  */
 import { createRequire } from 'node:module';
@@ -43,7 +43,7 @@ async function loadChromium() {
   for (const name of ['playwright', 'playwright-core']) {
     try { const mod = await import(name); const c = mod.chromium ?? mod.default?.chromium; if (c) return c; } catch {}
   }
-  console.error('Playwright is not installed here. Run: npm i -D playwright && npx playwright install chromium');
+  console.error('Playwright is not installed in this project. Run: npm i -D playwright-core (it uses your Chrome or Edge; with neither, also run: npx playwright install chromium)');
   process.exit(2);
 }
 

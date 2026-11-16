@@ -39,6 +39,8 @@ rules (Cursor, Aider, a system prompt). It holds the style block, the rules ever
 matter most and the gate. The full set, with colour, type, motion, access, data and the rest, is at
 https://github.com/antheo-design/skills.
 
+${section('## What always holds, and what is the Quiet preset', '## 1. Paste the style block first')}
+
 ${section('## 1. Paste the style block first', '## 3. Then the screen')}
 
 ## The traps that look finished and break in use
@@ -69,11 +71,59 @@ ${css}
 `;
 }
 
+// The mini core, for small local models: the policy, each rule's first sentence, and the style block without comments
+// or extra spacing (the same CSS, just smaller).
+export function buildCoreMini(skillsDir) {
+  const read = (p) => fs.readFileSync(path.join(skillsDir, p), 'utf8').replace(/\r\n/g, '\n');
+  const build = read('antheo-build/SKILL.md');
+  const between = (from, to) => {
+    const a = build.indexOf(from);
+    const b = build.indexOf(to, a + from.length);
+    if (a < 0 || b < 0) throw new Error(`antheo-build/SKILL.md has no section between "${from}" and "${to}"`);
+    return build.slice(a + from.length, b).trim();
+  };
+  const always = between('## What always holds, and what is the Quiet preset', '## Match the person');
+  // each numbered rule, joined onto one line, cut after its first sentence
+  const rules = between('## 2. The usage rules', '## 3. Then the screen')
+    .split(/\n(?=\d+\. \*\*)/)
+    .map((r) => r.replace(/\s*\n\s*/g, ' ').trim())
+    .map((r) => { const m = r.match(/^(\d+\. \*\*[^*]+\*\*\s*[^.]*?\.)(\s|$)/); return m ? m[1] : r; });
+  const css = read('antheo-build/references/quiet.css')
+    .replace(/\/\*[\s\S]*?\*\//g, '')
+    .replace(/\s+/g, ' ')
+    .replace(/\s*([{};:,>])\s*/g, '$1')
+    .replace(/;}/g, '}')
+    .trim();
+  return `<!-- Generated from the Antheo skills by scripts/build-core.mjs. Don't edit: change the skills and rebuild. -->
+# Antheo core, mini
+
+The smallest form of the Antheo design skills, for a small or local model. Paste the style block as the first CSS,
+follow the rules, and check the page at 390 and 1280px, light and dark. The full rules are in ANTHEO-CORE.md and the
+skills: https://github.com/antheo-design/skills
+
+## What always holds, and the Quiet preset
+
+${always}
+
+## The rules (first sentences; ANTHEO-CORE.md has them whole)
+
+${rules.join('\n')}
+
+## The style block (references/quiet.css, comments removed)
+
+\`\`\`css
+${css}
+\`\`\`
+`;
+}
+
 if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href) {
   const here = path.dirname(fileURLToPath(import.meta.url));
   // the public repo keeps skills/ beside scripts/; the source repo keeps them two levels up
   const skills = [path.resolve(here, '..', 'skills'), path.resolve(here, '..', '..', 'skills')].find((d) => fs.existsSync(path.join(d, 'antheo-build')));
   const out = path.resolve(process.argv[2] ?? path.join(skills, '..', 'ANTHEO-CORE.md'));
   fs.writeFileSync(out, buildCore(skills));
-  console.log(`wrote ${out}`);
+  const mini = out.replace(/\.md$/, '-MINI.md');
+  fs.writeFileSync(mini, buildCoreMini(skills));
+  console.log(`wrote ${out} and ${mini}`);
 }

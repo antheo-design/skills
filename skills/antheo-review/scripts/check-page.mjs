@@ -7,7 +7,7 @@
  *   node check-page.mjs ./landing.html --json report.json
  *   node check-page.mjs <url> --widths 390,1280 --no-dark
  *
- * Needs Playwright (npm i -D playwright, then npx playwright install chromium) or an installed Chrome
+ * Needs playwright-core (npm i -D playwright-core) and Chrome or Edge, or npx playwright install chromium
  * (it tries channel "chrome" first). Closes the browser when done, always.
  *
  *   node check-page.mjs <url> --kind page   (or app: forces the marketing-page character checks on or off; app and
@@ -58,7 +58,7 @@ async function loadChromium() {
   for (const name of ['playwright', 'playwright-core']) {
     try { const mod = await import(name); const c = mod.chromium ?? mod.default?.chromium; if (c) return c; } catch {}
   }
-  console.error('Playwright is not installed here. Run: npm i -D playwright && npx playwright install chromium');
+  console.error('Playwright is not installed in this project. Run: npm i -D playwright-core (it uses your Chrome or Edge; with neither, also run: npx playwright install chromium)');
   process.exit(2);
 }
 

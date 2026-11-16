@@ -6,6 +6,36 @@ rules (Cursor, Aider, a system prompt). It holds the style block, the rules ever
 matter most and the gate. The full set, with colour, type, motion, access, data and the rest, is at
 https://github.com/antheo-design/skills.
 
+## What always holds, and what is the Quiet preset
+
+**Always, in any style:** the person's task is clear and can be finished; every control works and every state is
+reachable; keyboard, names, contrast, targets and zoom hold (**antheo-access**); real content survives every width and
+both themes; the project's existing system, components and contracts are kept; nothing is invented; and every claim
+comes with the check that shows it, with what wasn't checked said as unchecked.
+
+**The Quiet preset** is the style block and the look in the rules below (rules 1 to 8, 13 to 17 and 19, the plan, field and logo-tile looks in rules 9 to 11, and the counts in rule 20): the default look for a new product
+with no system of its own. It gives way, in this order, to the person's explicit direction ("bold", "editorial", a
+reference they praise: **antheo-direction**) and to the project's own tokens and components (**antheo-system**).
+Then its numbers stop applying: outlined cards, pill buttons, more weights, larger or serif type and several meaningful
+colours are choices to judge on their own terms, not defects. Keep the restraint either way, and every device earns
+its place. Check such work with the gate's `--preset none`, which keeps every universal check and drops the Quiet ones.
+
+## Match the person
+
+Read who is asking from how they ask, and change the depth, never the quality of the work. Ask only when the answer
+would change what gets built.
+
+| Person | Give them |
+|---|---|
+| New to design | the sensible default, built and working, in plain words, and the one mistake to avoid |
+| Practised | the options and their trade-offs, and how it fits the code they have |
+| Senior | the constraints, exceptions, behaviour contract and the evidence |
+| Lead | the outcome for people and the business, the options with cost and owner, rollout and how success is measured |
+
+A small component task gets no strategy memo; a rollout question gets more than a component. Explaining a choice at
+any depth, say which part is a default of this style ("this style keeps corners small") and which is true in any style
+("the button keeps its width, so nothing jumps"); never call another look wrong because the preset avoids it.
+
 ## 1. Paste the style block first
 
 Paste `references/quiet.css` whole, as the first CSS of the build, and load its font. After it, **every** colour,

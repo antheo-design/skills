@@ -8,7 +8,7 @@
  *   node a11y-probe.mjs ./signup.html --json out.json
  *   node a11y-probe.mjs <url> --max-tabs 150 --no-triggers --quiet
  *
- * Needs Playwright (npm i -D playwright) or playwright-core with an installed Chrome (tries channel "chrome" first).
+ * Needs playwright-core (npm i -D playwright-core) and Chrome or Edge (tries channel "chrome" first).
  * Run it from the project folder so `playwright` resolves. Closes the browser when done, always.
  *
  * Checks:  1 Tab order (names, roles, positions, backwards jumps, invisible/hidden focus, obscured focus, traps)
@@ -48,7 +48,7 @@ async function loadChromium() {
   for (const name of ['playwright', 'playwright-core']) {
     try { const mod = await import(name); const c = mod.chromium ?? mod.default?.chromium; if (c) return c; } catch {}
   }
-  console.error('Playwright is not installed here. Run: npm i -D playwright && npx playwright install chromium');
+  console.error('Playwright is not installed in this project. Run: npm i -D playwright-core (it uses your Chrome or Edge; with neither, also run: npx playwright install chromium)');
   process.exit(2);
 }
 

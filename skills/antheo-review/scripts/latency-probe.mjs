@@ -59,7 +59,7 @@ async function loadChromium() {
   for (const name of ['playwright', 'playwright-core']) {
     try { const mod = await import(name); const c = mod.chromium ?? mod.default?.chromium; if (c) return c; } catch {}
   }
-  console.error('Playwright is not installed here. Run: npm i -D playwright && npx playwright install chromium');
+  console.error('Playwright is not installed in this project. Run: npm i -D playwright-core (it uses your Chrome or Edge; with neither, also run: npx playwright install chromium)');
   process.exit(2);
 }
 

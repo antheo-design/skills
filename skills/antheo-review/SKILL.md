@@ -63,8 +63,9 @@ touches, it keeps the work open while a blocker or high finding stands, for up t
 for a stated reason. As a Claude Code Stop hook it runs by itself; in Codex or Cursor the agent runs `gate.mjs check`.
 Setup: `references/gate.md`.
 
-## Look at six screenshots
+## Look at the screenshots
 
+Four for a small change (390 and 1280px, light and dark), six for a component, flow or release (adding 1920px).
 Open them at 100%; never judge from the score alone. **First, five seconds on the 1280px one:** is it calm, and
 does the main task fit the first screen? Then count six things in light and dark: text sizes (at most 4 in an app, 5
 in a marketing section), weights (2), corner sizes (3), accent things (4), tags (2), hairlines (only between
@@ -205,7 +206,8 @@ after a failed request; leftovers · a check that was quieted · only one browse
 - [ ] The ship line answers first and matches the findings
 - [ ] The level said (small change, component or flow, release); for a component, flow or release, two reviews kept apart (visual first, then measured), merged with disagreements listed, or `Degraded:` said
 - [ ] The checks for that level run (the page check and the gate always; the access probe for a component, flow or release; the latency probe where there are buttons or drags), and what the level skipped listed as not checked
-- [ ] Six screenshots looked at; antheo-stress's pass done
+- [ ] The screenshots for the level looked at (four for a small change, six otherwise); antheo-stress's pass for a
+      component, flow or release, and on what a small change touched
 - [ ] Each finding: evidence, `file:line` or screenshot, width, cheapest fix; no unmeasured number in the verdict; at most 15; causes
   merged; taste dropped
 - [ ] For a change: removed signals checked; findings classified

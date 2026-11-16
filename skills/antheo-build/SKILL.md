@@ -36,7 +36,9 @@ would change what gets built.
 | Senior | the constraints, exceptions, behaviour contract and the evidence |
 | Lead | the outcome for people and the business, the options with cost and owner, rollout and how success is measured |
 
-A small component task gets no strategy memo; a rollout question gets more than a component.
+A small component task gets no strategy memo; a rollout question gets more than a component. Explaining a choice at
+any depth, say which part is a default of this style ("this style keeps corners small") and which is true in any style
+("the button keeps its width, so nothing jumps"); never call another look wrong because the preset avoids it.
 
 ## 1. Paste the style block first
 
@@ -172,7 +174,7 @@ Style:    Antheo Quiet pasted; pattern card read
 
 A display typeface, a colour field, an illustration or a signature moment only when the person asks ("landing
 page", "campaign", "bold", "playful") or praises a reference: **antheo-direction**, and **antheo-moment**. The
-block and the rules still hold; one expressive device per page.
+"always" list still holds, and the page carries one expressive idea, with as many devices as serve it.
 
 ## From a design: measure, don't guess
 

@@ -27,7 +27,7 @@ let chromium;
 for (const name of ['playwright-core', 'playwright']) {
   try { const m = await import(pathToFileURL(require.resolve(name)).href); chromium = m.chromium ?? m.default.chromium; break; } catch { /* try the next */ }
 }
-if (!chromium) { console.log('playwright-core is not installed in this project: npm i -D playwright-core'); process.exit(1); }
+if (!chromium) { console.error('Playwright is not installed in this project. Run: npm i -D playwright-core (it uses your Chrome or Edge; with neither, also run: npx playwright install chromium)'); process.exit(2); }
 
 const face = file
   ? `<style>@font-face { font-family: "${family}"; src: url(data:font/woff2;base64,${readFileSync(resolve(file)).toString('base64')}); }</style>`

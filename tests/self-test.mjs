@@ -131,9 +131,25 @@ test('no numbers from before the style block (13px 500, weight 600, 0.5px hairli
 const corePath = path.resolve(SKILLS, '..', 'ANTHEO-CORE.md');
 const builder = path.resolve(SKILLS, '..', 'scripts', 'build-core.mjs');
 if (fs.existsSync(corePath) && fs.existsSync(builder)) {
-  const { buildCore } = await import(new URL(`file:///${builder.replace(/\\/g, '/')}`).href);
-  test('ANTHEO-CORE.md matches the skills (rebuild it with node scripts/build-core.mjs)', () =>
-    read(corePath).replace(/\r\n/g, '\n') === buildCore(SKILLS) ? [] : ['ANTHEO-CORE.md is out of date']);
+  const { buildCore, buildCoreMini } = await import(new URL(`file:///${builder.replace(/\\/g, '/')}`).href);
+  test('ANTHEO-CORE.md and ANTHEO-CORE-MINI.md match the skills (rebuild with node scripts/build-core.mjs)', () => {
+    const out = [];
+    if (read(corePath).replace(/\r\n/g, '\n') !== buildCore(SKILLS)) out.push('ANTHEO-CORE.md is out of date');
+    const miniPath = corePath.replace(/\.md$/, '-MINI.md');
+    if (!fs.existsSync(miniPath) || read(miniPath).replace(/\r\n/g, '\n') !== buildCoreMini(SKILLS)) out.push('ANTHEO-CORE-MINI.md is missing or out of date');
+    return out;
+  });
+}
+// wherever the core can be built: it must carry the policy, not only the rules (users without skills get the same)
+{
+  const builderHere = [builder, path.resolve(here, '..', 'build-core.mjs')].find((f) => fs.existsSync(f));
+  if (builderHere) {
+    const { buildCore } = await import(new URL(`file:///${builderHere.replace(/\\/g, '/')}`).href);
+    test('the one-file core carries the policy: what always holds, the Quiet preset, matching the person', () => {
+      const core = buildCore(SKILLS);
+      return ['What always holds', 'The Quiet preset', 'Match the person', '## 2. The usage rules'].filter((s) => !core.includes(s)).map((s) => `the core lacks "${s}"`);
+    });
+  }
 }
 
 /* ---------------- the tools, without a browser ---------------- */
@@ -313,7 +329,17 @@ ${Array.from({ length: 10 }, (_, i) => `<p class="hue">Accent ${i + 1}</p>`).joi
 <p class="err">An error, which is status, not accent</p>
 </main></body></html>`;
 
-if (BROWSER) {
+// the browser checks need Playwright where they run (the tools resolve it from the current folder); without it they
+// are skipped and said to be skipped, never counted as passed
+const { createRequire } = await import('node:module');
+const hasPlaywright = ['playwright-core', 'playwright'].some((name) => { try { createRequire(path.join(process.cwd(), 'package.json')).resolve(name); return true; } catch { return false; } });
+let skippedBrowser = false;
+if (BROWSER && !hasPlaywright) {
+  skippedBrowser = true;
+  console.log('SKIPPED: the browser checks. Playwright is not installed here. Run: npm i -D playwright-core (it uses your Chrome or Edge; with neither, also run: npx playwright install chromium)\n');
+}
+
+if (BROWSER && hasPlaywright) {
   const checkPage = path.join(SKILLS, 'antheo-review', 'scripts', 'check-page.mjs');
   const probe = path.join(SKILLS, 'antheo-access', 'scripts', 'a11y-probe.mjs');
   const quiet = read(path.join(SKILLS, 'antheo-build', 'references', 'quiet.css'));
@@ -408,6 +434,37 @@ if (BROWSER) {
     return out;
   });
 
+  // the mini core's style block is the same CSS with comments and spacing removed: prove it renders identically
+  const coreBuilder = [path.resolve(SKILLS, '..', 'scripts', 'build-core.mjs'), path.resolve(here, '..', 'build-core.mjs')].find((f) => fs.existsSync(f));
+  if (examples && coreBuilder) {
+    const { buildCoreMini } = await import(new URL(`file:///${coreBuilder.replace(/\\/g, '/')}`).href);
+    const miniCss = buildCoreMini(SKILLS).match(/```css\n([\s\S]*?)\n```/)[1];
+    const req = createRequire(path.join(process.cwd(), 'package.json'));
+    const pw = await import(new URL(`file:///${req.resolve('playwright-core').replace(/\\/g, '/')}`).href).then((m) => m.default ?? m);
+    const shots = [];
+    const browser = await (async () => { for (const o of [{ channel: 'chrome' }, { channel: 'msedge' }, {}]) { try { return await pw.chromium.launch(o); } catch { /* next */ } } return null; })();
+    try {
+      for (const f of ['settings.html', 'dashboard.html', 'phone.html']) {
+        for (const scheme of ['light', 'dark']) {
+          const pair = [];
+          for (const css of [quiet, miniCss]) {
+            const file = path.join(tmp, `mini-${scheme}-${pair.length}-${f}`);
+            fs.writeFileSync(file, read(path.join(examples, f)).replace(/<link rel="stylesheet" href="[^"]*quiet\.css">/, () => `<style>${css}</style>`).replace(/<link rel="stylesheet" href="https:\/\/fonts[^>]*>/g, ''));
+            const p = await browser.newPage({ viewport: { width: 1280, height: 800 }, colorScheme: scheme });
+            await p.goto(`file:///${file.replace(/\\/g, '/')}`);
+            pair.push(await p.screenshot({ fullPage: true }));
+            await p.close();
+          }
+          shots.push([`${f} ${scheme}`, pair[0].equals(pair[1])]);
+        }
+      }
+    } finally {
+      await browser?.close();
+    }
+    test('the mini core\'s style block renders pixel for pixel like the full one (3 golden pages, light and dark)', () =>
+      shots.filter(([, same]) => !same).map(([name]) => `${name} renders differently with the mini CSS`));
+  }
+
   test('a page that does not load (a stopped server) is a tool error, exit 4, not a measured page', () => {
     const r = spawnSync(process.execPath, [checkPage, 'http://127.0.0.1:59999/', '--widths', '1280'], { encoding: 'utf8', timeout: 240000 });
     return r.status === 4 ? [] : [`check-page on a dead server exited ${r.status}, expected 4`];
@@ -429,5 +486,5 @@ for (const [state, name, problems] of results) {
   for (const p of problems.slice(0, 12)) console.log(`        ${p}`);
   if (problems.length > 12) console.log(`        … ${problems.length - 12} more`);
 }
-console.log(`\n${results.length - failed} of ${results.length} passed${BROWSER ? '' : ' (add --browser to test the tools on real pages)'}`);
-process.exit(failed ? 1 : 0);
+console.log(`\n${results.length - failed} of ${results.length} passed${skippedBrowser ? '; the browser checks were SKIPPED (see above), so this is not a full run' : BROWSER ? '' : ' (add --browser to test the tools on real pages)'}`);
+process.exit(failed ? 1 : skippedBrowser ? 2 : 0);
