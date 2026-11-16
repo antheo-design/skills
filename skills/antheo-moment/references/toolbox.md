@@ -24,6 +24,8 @@ red smoothly.
 
 ```css
 @property --c1 { syntax: '<color>'; inherits: true; initial-value: oklch(0.7 0.16 250); }
+@property --c2 { syntax: '<color>'; inherits: true; initial-value: oklch(0.78 0.12 190); }  /* one per blob, */
+@property --c3 { syntax: '<color>'; inherits: true; initial-value: oklch(0.74 0.14 300); }  /* each from the meaning */
 .blob { position: absolute; width: 60%; aspect-ratio: 1; border-radius: 50%; filter: blur(28px);
         background: radial-gradient(closest-side, var(--c1), transparent); animation: drift 7.2s ease-in-out infinite alternate; }
 @keyframes drift { to { translate: 18% -12%; } }

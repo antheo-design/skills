@@ -299,7 +299,7 @@ function answerChecks(file, ev) {
 }
 
 /* ---------- run ---------- */
-const browser = await chromium.launch({ channel: 'chrome' }).catch(() => chromium.launch());
+const browser = await launchBrowser(chromium);
 const results = {};
 try {
   for (const ev of EVALS) {
@@ -341,4 +341,14 @@ if (opt('html')) {
   const esc = (s) => String(s).replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[c]);
   const rows = Object.entries(results).flatMap(([id, r]) => { const keys = [...new Set(runs.flatMap((x) => Object.keys(r[x.name]?.checks ?? {})))]; return keys.map((k, i) => `<tr>${i === 0 ? `<th rowspan="${keys.length}">${id}</th>` : ''}<td>${esc(k)}</td>${runs.map((x) => { const c = r[x.name]?.checks?.[k]; return `<td class="${c ? (c.pass === true ? 'ok' : c.pass === false ? 'no' : 'nv') : 'nv'}">${c ? esc(c.detail) : 'none'}</td>`; }).join('')}</tr>`); }).join('');
   writeFileSync(opt('html'), `<!doctype html><meta charset="utf-8"><title>Antheo evals</title><style>body{font:13px system-ui;margin:24px}table{border-collapse:collapse}td,th{border:1px solid #ddd;padding:4px 8px;text-align:left;vertical-align:top}.ok{background:#e6f6ec}.no{background:#fde8e8}.nv{background:#f4f4f4;color:#777}</style><h1>Antheo evals</h1><p>${runs.map((r) => { const t = total(r.name); return `${r.name}: ${t.p}/${t.n}`; }).join(' · ')}</p><table><tr><th>eval</th><th>check</th>${runs.map((r) => `<th>${r.name}</th>`).join('')}</tr>${rows}</table>`);
+}
+
+// Chrome, then Edge, then Playwright's own Chromium; one clear line if none is installed. (The same function is in every
+// Antheo tool that opens a browser; tests/self-test.mjs keeps the copies identical.)
+async function launchBrowser(chromium) {
+  for (const options of [{ channel: 'chrome' }, { channel: 'msedge' }, {}]) {
+    try { return await chromium.launch(options); } catch { /* try the next one */ }
+  }
+  console.error('No browser found. Install Chrome or Edge, or run: npx playwright install chromium');
+  process.exit(2);
 }

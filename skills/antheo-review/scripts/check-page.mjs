@@ -874,7 +874,7 @@ function darkAudit() {
 /* ── run ─────────────────────────────────────────────────────────────────────────────────────────────────────── */
 const chromium = await loadChromium();
 let browser;
-try { browser = await chromium.launch({ channel: 'chrome' }); } catch { browser = await chromium.launch(); }
+browser = await launchBrowser(chromium);
 const findings = [];
 const add = (area, severity, rule, items, fix) => { if (items && (items.length ?? items)) findings.push({ area, severity, rule, items: Array.isArray(items) ? [...new Set(items)] : [], fix }); };
 const results = {};
@@ -1023,8 +1023,8 @@ try {
       if (theme === 'dark' && width === main) {
         const m = await page.evaluate(measure, kind); add('access', 'high', 'text below contrast minimum in dark mode', m.contrast, 'tune the dark palette separately; it is not an inversion');
         const d = await page.evaluate(darkAudit);
-        add('craft', 'medium', 'dark mode: raised surfaces melt into the page', d.melt, 'step each surface up 0.03+ in lightness (--color-surface, --color-surface-2) and give raised things the ring: box-shadow: 0 0 0 1px var(--color-ring)');
-        if (d.glare) add('craft', 'low', `dark mode: main text glares at ${d.glare}:1`, ['body text'], 'keep dark-mode text at 10 to 16.5:1 (the generator sets --color-text to about L 0.925)');
+        add('craft', 'medium', 'dark mode: raised surfaces melt into the page', d.melt, 'step each surface up 0.03+ in lightness (--surface, --raised) and give raised things the faint edge: box-shadow: var(--edge)');
+        if (d.glare) add('craft', 'low', `dark mode: main text glares at ${d.glare}:1`, ['body text'], 'keep dark-mode text at 10 to 16.5:1 (the style block sets --text to L 0.95)');
         if (d.tiers) add('craft', 'low', `dark mode: the two most-used text colors are almost equally bright (${d.tiers[0]}:1 and ${d.tiers[1]}:1)`, ['text tiers'], 'muted text 4.5 to 8:1 so the hierarchy survives in dark');
       }
       if (shots && [phone, main, widest].includes(width)) {
@@ -1091,7 +1091,7 @@ try {
       if (!r.visible) invisible.push(r.label);
     }
     if (!reached) add('access', 'high', 'keyboard cannot reach anything', ['Tab reaches no control'], 'use real <button>, <a href>, <input>; never remove them from the tab order');
-    add('access', 'high', 'no visible focus', invisible, ':focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px }');
+    add('access', 'high', 'no visible focus', invisible, ':focus-visible { outline: 2px solid var(--focus); outline-offset: 2px } (or the ring on the wrapper that draws the field, with :focus-within)');
     await page.close();
   }
 
@@ -1146,3 +1146,13 @@ if (!flag('quiet')) {
 const json = flag('json');
 if (json && json !== true) writeFileSync(json, JSON.stringify({ url, overall, verdict, scores, findings, dark: results.dark, motion: results.motion }, null, 2));
 if (flag('quiet')) console.log(JSON.stringify({ overall, verdict, highs, mediums, scores }));
+
+// Chrome, then Edge, then Playwright's own Chromium; one clear line if none is installed. (The same function is in every
+// Antheo tool that opens a browser; tests/self-test.mjs keeps the copies identical.)
+async function launchBrowser(chromium) {
+  for (const options of [{ channel: 'chrome' }, { channel: 'msedge' }, {}]) {
+    try { return await chromium.launch(options); } catch { /* try the next one */ }
+  }
+  console.error('No browser found. Install Chrome or Edge, or run: npx playwright install chromium');
+  process.exit(2);
+}

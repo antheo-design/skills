@@ -92,9 +92,9 @@ not like a web page squeezed narrow. On an iPhone (393 × 852pt, the size to che
 - **Save goes in one place.** A short edit of existing data puts Save at the end of the navigation bar. A screen whose
   job is to create or send something puts its primary action in the bottom action bar (below), and the navigation
   bar holds only Cancel and the title.
-- **Content:** a `16px` gutter; fields `48px` tall at 16px text, a label above each, `16px` apart; related fields
+- **Content:** a `16px` gutter; fields `--h-control` (44px on a phone) at 16px text, a label above each, `16px` apart; related fields
   grouped, one group per idea.
-- **The action:** one primary button, full width inside the gutter, `50px` tall, in an action bar at the bottom of
+- **The action:** one primary button, full width inside the gutter, `--h-cta` (44px on a phone) tall, in an action bar at the bottom of
   the grid, above the home indicator (`padding-bottom: max(16px, env(safe-area-inset-bottom))`). When the keyboard
   opens it rides up above it: by itself on Android, and by the `visualViewport` script on iPhone. On a web page (not a
   full app screen) a short form keeps the button in the flow instead.
@@ -126,7 +126,8 @@ not like a web page squeezed narrow. On an iPhone (393 × 852pt, the size to che
 - **A grab handle instead of a close ×:** a `36×5` pill floating `12px` over the sheet's upper edge, inside an `88×44` button
   labelled "Close". Tapping it, or pressing Enter or Space, closes the sheet.
 - **Inside:** no title band; the title is a `20px` heading on the sheet. Facts that belong together share one raised
-  card, in `48px` rows. Actions stay outside it, underneath: full-width `44px` buttons with `8px` between.
+  card, in `--h-row` rows (52px on a phone). Actions stay outside it, underneath: full-width `--h-control` buttons
+  (44px on a phone) with `8px` between.
 - **Moving:** drag from anywhere on the sheet once the press has moved more than `4px` (anything less counts as a tap);
   a body that scrolls drags the sheet only from its top. Timing, closing distance, flick speed and the spring are
   antheo-motion's. Never draggable while it can't close (saving, paying).

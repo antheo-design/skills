@@ -49,7 +49,9 @@ svg { max-width: 100%; }
 .hero-visual { min-height: clamp(16rem, 38vw, 40rem); position: relative; }
 @media (max-width: 56rem) { .hero-grid { grid-template-columns: minmax(0, 1fr); } }
 .scene.airy { padding-block: calc(var(--section) * 1.5); }
-.scene.on-field { background: var(--color-field); color: var(--color-on-field); }
+/* a colour field: the brand field when antheo-tokens generated one (expressive register), else an ink field from the
+   style block, so the class works on either */
+.scene.on-field { background: var(--color-field, var(--text)); color: var(--color-on-field, var(--bg)); }
 
 /* 4. AUTO GRID. As many equal columns as fit; one column on a phone, no breakpoints. Set --col-min per use. */
 .auto-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(var(--col-min, 16rem), 100%), 1fr)); gap: var(--gap-field); }

@@ -157,7 +157,7 @@ const r1 = (v) => (v === null ? null : Math.round(v * 10) / 10);
 
 const chromium = await loadChromium();
 let browser;
-try { browser = await chromium.launch({ channel: 'chrome' }); } catch { browser = await chromium.launch(); }
+browser = await launchBrowser(chromium);
 const report = { url, width: WIDTH, controls: [], drags: [], skipped: [], verdict: 'PASS' };
 try {
   const page = await (await browser.newContext({ viewport: { width: WIDTH, height: HEIGHT } })).newPage();
@@ -267,3 +267,13 @@ console.log(`\nVerdict: ${report.verdict}`);
 const json = flag('json');
 if (json) writeFileSync(json, JSON.stringify(report, null, 2));
 process.exit(report.verdict === 'FAIL' ? 1 : 0);
+
+// Chrome, then Edge, then Playwright's own Chromium; one clear line if none is installed. (The same function is in every
+// Antheo tool that opens a browser; tests/self-test.mjs keeps the copies identical.)
+async function launchBrowser(chromium) {
+  for (const options of [{ channel: 'chrome' }, { channel: 'msedge' }, {}]) {
+    try { return await chromium.launch(options); } catch { /* try the next one */ }
+  }
+  console.error('No browser found. Install Chrome or Edge, or run: npx playwright install chromium');
+  process.exit(2);
+}

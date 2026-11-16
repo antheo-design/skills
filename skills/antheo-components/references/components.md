@@ -166,13 +166,13 @@ The style block has it as `.seg`: `<div class="seg" role="radiogroup" aria-label
 - Phones: becomes a list of rows showing the 2 to 3 key fields, or scrolls inside a labeled region with the first column sticky.
 
 ### List
-- The list row in `look.md`: a 28 to 32px avatar or tile → name (13/500) over one fact (12px text-2) → trailing value. No dividers; space and a hover fill in place group the rows.
+- The list row in `look.md`: a 28 to 32px avatar or tile → name (`--t-body` at `--w-strong`) over one fact (`--t-meta` in `--text-2`) → trailing value. No dividers; space and a hover fill in place group the rows.
 
 ### Card
 - See antheo-layout `references/cards.md`.
 
 ### Badge / status
-- Prefer a word or a dot in the status ink. When it must be a pill: the status tint fill with its own text colour, 12px 500, 20px tall, 8px padding both sides; flat and smaller than the controls beside it, so nobody tries to press it. Always words ("Paid", "Failed"), never colour alone. One badge per row at most.
+- Prefer a word or a dot in the status ink. When it must be a pill: the status tint fill with its own text colour, `--t-meta` at `--w-strong`, `--h-tag` (20px) tall, 8px padding both sides; flat and smaller than the controls beside it, so nobody tries to press it. Always words ("Paid", "Failed"), never colour alone. One badge per row at most.
 
 ### Avatar
 - Circle, sizes 24 / 32 / 40 / 64; image with `alt` = person's name (or `alt=""` when the name is right next to it); fallback initials on a tint picked from the name (stable per person); a group overlaps by 25% with a 2px ring in the background color and "+3" at the end.

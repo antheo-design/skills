@@ -36,7 +36,25 @@ Or copy `skills/antheo-*` into your agent's skills folder by hand. Each skill is
 it works in any agent that reads [Agent Skills](https://agentskills.io).
 
 The tools need Node 18 or later. The browser checks also need Playwright in your project (`npm i -D playwright-core`)
-and Chrome, or `npx playwright install chromium`.
+and Chrome or Edge, or `npx playwright install chromium`.
+
+### One command for every tool
+
+Every checking tool also runs straight from GitHub, with nothing to install:
+
+```sh
+npx github:antheo-design/skills check http://localhost:3000/settings   # the page check
+npx github:antheo-design/skills gate arm http://localhost:3000 --copy src
+npx github:antheo-design/skills gate check                             # PASS, or what to fix
+npx github:antheo-design/skills init --agents                          # the style block, and the gate rule in AGENTS.md
+npx github:antheo-design/skills help                                   # all of them
+```
+
+### One file, for tools without skills
+
+[`ANTHEO-CORE.md`](ANTHEO-CORE.md) is the core in a single file: the style block, the build rules, the traps that
+matter most and the gate. Paste it into Cursor rules, Aider or a local model's system prompt. It is generated from the
+skills, so it always says the same thing they do.
 
 ## Start
 
@@ -221,3 +239,13 @@ full text is in [LICENSE](LICENSE).
 
 Issues and pull requests are welcome. A change to a skill should come with an eval brief, or a change to one, that
 shows the difference.
+
+Before sending a change, run the self-test. It checks that every skill's front matter installs, every file a skill
+points to exists, every token name is one the style block defines, no old values have crept back, and the tools still
+pass a good page and catch a broken one:
+
+```sh
+node tests/self-test.mjs --browser
+```
+
+After changing a rule, rebuild the one-file core with `node scripts/build-core.mjs`.

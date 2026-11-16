@@ -1,0 +1,19 @@
+{
+  "name": "antheo-skills",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Twenty design skills for coding agents, with the tools that check the work.",
+  "type": "module",
+  "bin": {
+    "antheo": "bin/antheo.mjs"
+  },
+  "scripts": {
+    "test": "node tests/self-test.mjs"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "license": "SEE LICENSE IN LICENSE",
+  "author": "Antheo",
+  "repository": "github:antheo-design/skills"
+}

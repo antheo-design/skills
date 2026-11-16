@@ -24,8 +24,8 @@ question needs two views, it is two questions.
 | Cell padding | 16px inline (12px dense); the row height sets the rest; the first column is the human-readable name |
 | Text | starts at the start edge |
 | Numbers | at the end edge, `tabular-nums`, the same decimal places down a column, units in the header ("Amount, USD"), not in each cell |
-| Header | 12px, weight 500, muted; sticky once the body scrolls; sortable headers are buttons with `aria-sort` |
-| Lines | 0.5px hairlines at ink 9% between rows; no vertical lines; no zebra stripes on short tables |
+| Header | `--t-meta` at `--w-strong` in `--text-2`; sticky once the body scrolls; sortable headers are buttons with `aria-sort` |
+| Lines | a 1px `--line` hairline between rows; no vertical lines; no zebra stripes on short tables |
 | IDs | mono; long ones truncate in the middle (`inv_8f2…91c`) with the full value on focus and hover |
 | Row actions | at the row end, shown on hover **and** keyboard focus, always visible on touch |
 | Selection | a checkbox column first; the header box shows "some" as indeterminate |

@@ -117,7 +117,7 @@ Reserve space so images don't jump in: `aspect-ratio: 16 / 9` on the frame, `obj
 - Hairline borders (1px, `--color-border`) for structure: inputs, table rows, dividers, card edges.
 - Shadows for elevation only: things floating above the page.
 - One light source: shadows fall down, slightly more down than sideways.
-- In dark mode use surface lightness for elevation; popovers and dialogs get the ring (`box-shadow: 0 0 0 1px var(--color-ring)`), not a border.
+- In dark mode use surface lightness for elevation; popovers and dialogs get the faint edge (`box-shadow: var(--edge)`, part of `--sh-dialog`), not a border.
 
 ## Sources
 

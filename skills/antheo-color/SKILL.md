@@ -77,7 +77,8 @@ change too (WCAG 1.4.1). Links in running text are underlined.
 
 ## One accent, and status stays status
 
-One accent hue per product, on the main action, the selection and focus. Status hues sit at least 15° from the
+One accent hue per product, only for "on" and "look here": a switch that is on, a checked box, the chosen item, one
+highlight. The main action is filled with the ink, and focus is the neutral `--focus`. Status hues sit at least 15° from the
 accent in OKLCH hue. A red brand still shows errors in the danger red, with an icon and words. A filled button gets
 the colour on its background, never on its label alone; one filled button per view.
 

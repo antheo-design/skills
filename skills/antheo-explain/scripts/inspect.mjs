@@ -106,7 +106,7 @@ function read(selector) {
 
 const chromium = await loadChromium();
 let browser;
-try { browser = await chromium.launch({ channel: 'chrome' }); } catch { browser = await chromium.launch(); }
+browser = await launchBrowser(chromium);
 try {
   const page = await browser.newPage({ viewport: { width, height: 900 }, colorScheme: dark ? 'dark' : 'light', deviceScaleFactor: 2 });
   await page.goto(url, { waitUntil: 'networkidle', timeout: 45000 }).catch(() => page.goto(url, { waitUntil: 'load' }));
@@ -130,4 +130,14 @@ try {
   }
 } finally {
   await browser.close();
+}
+
+// Chrome, then Edge, then Playwright's own Chromium; one clear line if none is installed. (The same function is in every
+// Antheo tool that opens a browser; tests/self-test.mjs keeps the copies identical.)
+async function launchBrowser(chromium) {
+  for (const options of [{ channel: 'chrome' }, { channel: 'msedge' }, {}]) {
+    try { return await chromium.launch(options); } catch { /* try the next one */ }
+  }
+  console.error('No browser found. Install Chrome or Edge, or run: npx playwright install chromium');
+  process.exit(2);
 }

@@ -33,7 +33,7 @@ const face = file
   ? `<style>@font-face { font-family: "${family}"; src: url(data:font/woff2;base64,${readFileSync(resolve(file)).toString('base64')}); }</style>`
   : system ? '' : `<link href="https://fonts.googleapis.com/css2?family=${encodeURIComponent(family).replace(/%20/g, '+')}&display=swap" rel="stylesheet">`;
 
-const browser = await chromium.launch({ channel: 'chrome' }).catch(() => chromium.launch());
+const browser = await launchBrowser(chromium);
 try {
   const page = await browser.newPage();
   await page.setContent(`<!doctype html>${face}<body></body>`, { waitUntil: 'networkidle' });
@@ -77,4 +77,14 @@ try {
   process.exitCode = 1;
 } finally {
   await browser.close();
+}
+
+// Chrome, then Edge, then Playwright's own Chromium; one clear line if none is installed. (The same function is in every
+// Antheo tool that opens a browser; tests/self-test.mjs keeps the copies identical.)
+async function launchBrowser(chromium) {
+  for (const options of [{ channel: 'chrome' }, { channel: 'msedge' }, {}]) {
+    try { return await chromium.launch(options); } catch { /* try the next one */ }
+  }
+  console.error('No browser found. Install Chrome or Edge, or run: npx playwright install chromium');
+  process.exit(2);
 }
