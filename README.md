@@ -157,8 +157,9 @@ layout at seven widths, the words on a screen, every hardcoded value in a codeba
 
 | Tool | Skill | What it does |
 |---|---|---|
+| `beside.mjs` | review | Puts what you built next to its reference, same height, with 3× close-ups of both |
 | `check-page.mjs` | review | Opens a page at seven widths in light and dark and reports what is broken, with a score |
-| `gate.mjs` | review | Keeps the agent working until the page check and the copy check pass |
+| `gate.mjs` | review | Keeps the agent working until the page check, the access probe and the copy check pass, and, when built from references, until it has compared and filmed |
 | `a11y-probe.mjs` | access | Walks a page by keyboard: focus order, traps, dialogs, zoom, forced colours |
 | `copy-lint.mjs` | writing | Finds weak words, vague buttons and broken plurals in JSX, Vue, Svelte, Angular and server templates |
 | `contrast.mjs` | color | WCAG 2.2 contrast and APCA for any two colours |

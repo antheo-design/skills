@@ -199,6 +199,25 @@ test('copy-lint catches weak words in JSX', () => {
   return out;
 });
 
+test('copy-lint asks for locale formatting on a price, never on numbers drawn into an SVG path or a transform', () => {
+  const dir = path.join(tmp, 'lint-money');
+  fs.mkdirSync(dir, { recursive: true });
+  fs.writeFileSync(path.join(dir, 'Price.jsx'), [
+    'export function Price({ price }) {',
+    '  return <p>Total: {price.toFixed(2)}</p>;',
+    '}',
+    'export function Line({ x, y, dx }) {',
+    '  return <svg><path d={`M${x.toFixed(1)},${y.toFixed(1)} L10,10`} /><g transform={`translate(${dx.toFixed(2)} 0)`} /></svg>;',
+    '}',
+  ].join('\n'));
+  const rep = runLint(dir);
+  const hits = (rep.findings ?? rep).filter((f) => f.rule === 'format-number').map((f) => f.line);
+  const out = [];
+  if (!hits.includes(2)) out.push('toFixed on a price was not flagged');
+  if (hits.includes(5)) out.push('toFixed inside an SVG path or a transform was flagged as money');
+  return out;
+});
+
 test("copy-lint skips the gate's own .antheo folder", () => {
   const dir = path.join(tmp, 'state');
   fs.mkdirSync(path.join(dir, '.antheo'), { recursive: true });
@@ -520,6 +539,44 @@ if (BROWSER && hasPlaywright) {
     if (dead.some((d) => d.includes('Open report'))) out.push('the working "Open report" button was called dead');
     if (dead.some((d) => /Q4|Q3/.test(d))) out.push('a period option was called dead');
     return out;
+  });
+
+  test('beside puts a build next to its reference, and the gate armed with --ref asks for that evidence until it exists', () => {
+    const out = [];
+    const besideTool = path.join(SKILLS, 'antheo-review', 'scripts', 'beside.mjs');
+    const gate = path.join(SKILLS, 'antheo-review', 'scripts', 'gate.mjs');
+    const dir = path.join(tmp, 'evidence-gate');
+    fs.mkdirSync(dir, { recursive: true });
+    fs.copyFileSync(good, path.join(dir, 'index.html'));
+    // a 1×1 PNG is enough to stand for a reference
+    fs.writeFileSync(path.join(dir, 'ref.png'), Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==', 'base64'));
+    const b = spawnSync(process.execPath, [besideTool, 'index.html', '--clip', 'main', '--ref', 'ref.png', '--out', 'sheet.png'], { cwd: dir, encoding: 'utf8', timeout: 240000 });
+    if (b.status !== 0 || !fs.existsSync(path.join(dir, 'sheet.png'))) out.push(`beside wrote no sheet (exit ${b.status}): ${(b.stderr || '').trim().split('\n').pop()}`);
+    const g = (...a) => spawnSync(process.execPath, [gate, ...a], { cwd: dir, encoding: 'utf8', timeout: 480000 });
+    g('arm', 'index.html', '--ref', 'ref.png', '--no-probe');
+    const first = g('check');
+    if (!/EVIDENCE beside ref/.test(first.stdout) || !/EVIDENCE motion/.test(first.stdout)) out.push('the gate did not ask for the comparisons and the filmstrip');
+    if (first.status === 0) out.push('the gate passed with no evidence');
+    const ev = path.join(dir, '.antheo', 'evidence');
+    fs.mkdirSync(ev, { recursive: true });
+    const now = Date.now() / 1000;
+    for (const [f, t] of [['beside-ref-a.png', now + 5], ['beside-ref-b.png', now + 95], ['film-a.png', now + 5]]) { fs.copyFileSync(path.join(dir, 'ref.png'), path.join(ev, f)); fs.utimesSync(path.join(ev, f), t, t); }
+    const second = g('check');
+    if (second.status !== 0) out.push(`with the evidence in place the gate still did not pass: ${second.stdout.split('\n').slice(0, 6).join(' | ')}`);
+    return out;
+  });
+
+  test('the gate runs the access probe by default and keeps a dead button open', () => {
+    const gate = path.join(SKILLS, 'antheo-review', 'scripts', 'gate.mjs');
+    const dir = path.join(tmp, 'probe-gate');
+    fs.mkdirSync(dir, { recursive: true });
+    const file = labPage('probe-gate', '<p id="said">Nothing yet</p><button type="button" class="btn" id="dead">See more</button>');
+    fs.appendFileSync(file, '<script>/* the page has a script, so its buttons are expected to do something */</script>');
+    fs.copyFileSync(file, path.join(dir, 'index.html'));
+    const g = (...a) => spawnSync(process.execPath, [gate, ...a], { cwd: dir, encoding: 'utf8', timeout: 480000 });
+    g('arm', 'index.html');
+    const r = g('check');
+    return /dead-control/.test(r.stdout) && r.status !== 0 ? [] : [`the gate did not hold on the dead button (exit ${r.status}): ${r.stdout.split('\n').slice(0, 5).join(' | ')}`];
   });
 
   test('the filmstrip films a motion into a sheet, and a missing element is a tool error', () => {

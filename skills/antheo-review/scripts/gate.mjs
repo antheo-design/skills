@@ -3,8 +3,13 @@
  * The gate: a UI change isn't "done" until its page and its words pass, checked by machine, not by the agent's word.
  *
  *   node gate.mjs arm <url-or-html-file>... [--copy <file-or-folder>...] [--widths 390,1280] [--max 3] [--preset none]
+ *                              [--ref <image>...] [--no-probe]
  *                              (--preset none: the project has its own design system or a requested direction, so the
  *                              Antheo Quiet look is not judged; every universal check still runs)
+ *                              (--ref: the work is built from these references, so it needs evidence of comparing:
+ *                              for each, two beside.mjs sheets made at least a minute apart, and at least one
+ *                              filmstrip.mjs sheet, in .antheo/evidence/)
+ *                              (--no-probe: skip the access probe; by default it runs on every page)
  *   node gate.mjs check        run the checks now (for agents without hooks: Codex, Cursor, and CI). Exit codes:
  *                                0 PASS (or not armed)        1 OPEN: findings to fix, another round
  *                                3 DONE, UNRESOLVED: the rounds ran out with work still open; not a pass
@@ -16,8 +21,11 @@
  *   node gate.mjs disarm       stop gating (after the work is done, or to abandon it)
  *
  * What it checks, on every armed target: antheo-review's check-page.mjs at the armed widths, light and dark (a
- * blocker or a high finding fails it), and antheo-writing's copy-lint.mjs on the --copy paths (a high finding fails
- * it). It works on any stack: the page is checked as rendered (a dev-server URL or a built HTML file), and copy-lint
+ * blocker or a high finding fails it), antheo-access's a11y-probe.mjs (a blocker or serious finding fails it: keyboard,
+ * focus, forced colours, text spacing, reflow, buttons wired to nothing), antheo-writing's copy-lint.mjs on the --copy
+ * paths (a high finding fails it), antheo-motion-audit's scan-motion.mjs on the same paths (a high finding fails it:
+ * transition on all, growing from scale(0), animating layout, no reduced-motion handling), and with --ref, the
+ * evidence of comparing with the references. It works on any stack: the page is checked as rendered (a dev-server URL or a built HTML file), and copy-lint
  * reads HTML, JSX/TSX, Vue, Svelte, Astro, Angular and server templates.
  *
  * Rounds: each failed check is one round; after --max rounds (3) it stops blocking and reports GATE: DONE with what is
@@ -29,13 +37,16 @@
  * State lives in .antheo/gate.json in the working directory. No dependencies beyond what check-page needs.
  */
 import { spawnSync } from 'node:child_process';
-import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
-import { dirname, join, relative, resolve } from 'node:path';
+import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { basename, dirname, extname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const CHECK_PAGE = join(here, 'check-page.mjs');
 const COPY_LINT = join(here, '..', '..', 'antheo-writing', 'scripts', 'copy-lint.mjs');
+const PROBE = join(here, '..', '..', 'antheo-access', 'scripts', 'a11y-probe.mjs');
+const MOTION = join(here, '..', '..', 'antheo-motion-audit', 'scripts', 'scan-motion.mjs');
+const EVIDENCE = join(resolve('.antheo'), 'evidence');
 const DIR = resolve('.antheo');
 const STATE = join(DIR, 'gate.json');
 const WAIVERS = join(DIR, 'waivers.json');
@@ -83,6 +94,74 @@ function checkPage(target, widths, list, preset) {
   }
   return { target, score: rep.overall, open, skipped };
 }
+function probe(target, list) {
+  const out = join(DIR, `probe-${Buffer.from(target).toString('base64url').slice(-24)}.json`);
+  rmSync(out, { force: true });
+  const r = spawnSync(process.execPath, [PROBE, target, '--json', out, '--quiet'], { encoding: 'utf8', timeout: 480000 });
+  const { rep, error } = fresh(r, out, 'a11y-probe');
+  if (error) return { target, error };
+  if (!Array.isArray(rep.findings)) return { target, error: 'a11y-probe wrote a report with no findings list' };
+  const open = [];
+  const skipped = [];
+  for (const f of rep.findings) {
+    if (!['blocker', 'serious'].includes(f.severity)) continue;
+    const rule = `${f.area}: ${f.message}`;
+    const w = waived(list, rule, target);
+    if (w) skipped.push(`${f.area} (waived: ${w.reason})`);
+    else open.push(`${f.severity.toUpperCase()} ${rule}${f.element ? ` (${f.element})` : ''}${f.fix ? `\n    fix: ${f.fix}` : ''}`);
+  }
+  return { target, open, skipped };
+}
+
+/* with --ref: the build was put beside each reference twice, a minute or more apart (compared, changed, compared
+   again), and its motion was filmed at least once, all since the gate was first armed */
+function evidence(state) {
+  if (!state.refs?.length) return [];
+  const since = Date.parse(state.firstAt ?? state.at ?? 0) - 1000;
+  const files = existsSync(EVIDENCE) ? readdirSync(EVIDENCE).map((f) => ({ f, t: statSync(join(EVIDENCE, f)).mtimeMs })).filter((x) => x.t >= since) : [];
+  const open = [];
+  for (const ref of state.refs) {
+    const name = basename(ref, extname(ref));
+    const times = files.filter((x) => x.f.startsWith(`beside-${name}-`) && x.f.endsWith('.png')).map((x) => x.t).sort((a, b) => a - b);
+    if (times.length < 2 || times[times.length - 1] - times[0] < 60000) {
+      open.push(`EVIDENCE beside ${name}: ${times.length} comparison sheet(s); it needs two, a minute or more apart\n    fix: node <antheo-review>/scripts/beside.mjs <page> --clip <selector> --ref ${short(ref)}; open it, fix what differs, run it again`);
+    }
+  }
+  if (!files.some((x) => x.f.startsWith('film-') && x.f.endsWith('.png'))) {
+    open.push('EVIDENCE motion: no filmstrip since the gate was armed\n    fix: node <antheo-motion>/scripts/filmstrip.mjs <page> --clip <selector> --click <selector>; read every frame');
+  }
+  return open;
+}
+
+/* the motion in the same source folders the copy check reads: a high finding (transition on all, growing from
+   scale(0), animating width or top, no reduced-motion handling anywhere) keeps the work open */
+function motionScan(paths, list) {
+  if (!paths.length) return null;
+  const open = [];
+  const skipped = [];
+  for (const p of paths) {
+    const out = join(DIR, `motion-${Buffer.from(p).toString('base64url').slice(-24)}.json`);
+    rmSync(out, { force: true });
+    const r = spawnSync(process.execPath, [MOTION, p, '--json', out], { encoding: 'utf8', timeout: 120000 });
+    const { rep, error } = fresh(r, out, 'scan-motion');
+    if (error) return { error };
+    if (rep.filesWithMotion > 0 && rep.guardAnywhere === false) {
+      const w = waived(list, 'no reduced-motion handling', p);
+      if (w) skipped.push(`no reduced-motion handling (waived: ${w.reason})`);
+      else open.push(`HIGH no reduced-motion handling anywhere in ${short(p)}\n    fix: travel, scale and blur become a short fade under @media (prefers-reduced-motion: reduce)`);
+    }
+    for (const item of rep.items ?? []) {
+      for (const f of item.flags ?? []) {
+        if (f.sev !== 'high') continue;
+        const w = waived(list, f.msg, item.file);
+        if (w) skipped.push(`${f.msg} (waived: ${w.reason})`);
+        else open.push(`HIGH ${f.msg} ${item.file}:${item.line} "${String(item.code).slice(0, 60)}"`);
+      }
+    }
+  }
+  return { open, skipped };
+}
+
 function copyLint(paths, list) {
   if (!paths.length) return null;
   const out = join(DIR, 'copy.json');
@@ -107,16 +186,26 @@ function copyLint(paths, list) {
 function run(state) {
   const list = waivers();
   const pages = state.targets.map((t) => checkPage(t, state.widths, list, state.preset));
+  const probes = state.probe ? state.targets.map((t) => probe(t, list)) : [];
   const copy = copyLint(state.copy, list);
-  const errors = [...pages.filter((p) => p.error).map((p) => `${short(p.target)}: ${p.error}`), ...(copy?.error ? [`copy: ${copy.error}`] : [])];
-  const open = [...pages.flatMap((p) => (p.open ?? []).map((o) => `${short(p.target)}\n  ${o}`)), ...(copy?.open ?? []).map((o) => `copy\n  ${o}`)];
-  const skipped = [...pages.flatMap((p) => p.skipped ?? []), ...(copy?.skipped ?? [])];
+  const motion = motionScan(state.copy, list);
+  const errors = [...(motion?.error ? [`motion: ${motion.error}`] : []), ...pages.filter((p) => p.error).map((p) => `${short(p.target)}: ${p.error}`), ...probes.filter((p) => p.error).map((p) => `${short(p.target)}: ${p.error}`), ...(copy?.error ? [`copy: ${copy.error}`] : [])];
+  const open = [
+    ...pages.flatMap((p) => (p.open ?? []).map((o) => `${short(p.target)}\n  ${o}`)),
+    ...probes.flatMap((p) => (p.open ?? []).map((o) => `${short(p.target)} (access probe)\n  ${o}`)),
+    ...(copy?.open ?? []).map((o) => `copy\n  ${o}`),
+    ...(motion?.open ?? []).map((o) => `motion\n  ${o}`),
+    ...evidence(state).map((o) => `evidence\n  ${o}`),
+  ];
+  const skipped = [...pages.flatMap((p) => p.skipped ?? []), ...probes.flatMap((p) => p.skipped ?? []), ...(copy?.skipped ?? []), ...(motion?.skipped ?? [])];
   return { pages, errors, open, skipped };
 }
 
 function report(state, r) {
   const lines = [];
   for (const p of r.pages) if (!p.error) lines.push(`  ${short(p.target)}: score ${p.score}/100, ${p.open.length} blocking`);
+  if (state.probe) lines.push(`  access probe: ${r.open.filter((o) => o.includes('(access probe)')).length} blocking`);
+  if (state.refs?.length) lines.push(`  evidence: ${r.open.some((o) => o.startsWith('evidence')) ? 'missing' : 'present'} for ${state.refs.length} reference(s)`);
   if (r.skipped.length) lines.push(`  waived: ${r.skipped.join('; ')}`);
   if (r.errors.length) lines.push('', 'Could not check:', ...r.errors.map((e) => `  ${e}`));
   if (r.open.length) lines.push('', 'Still failing:', ...r.open.map((o) => `  ${o}`));
@@ -129,16 +218,23 @@ if (cmd === 'arm') {
   let widths = '390,1280';
   let max = 3;
   let preset = 'quiet';
+  let probeOn = true;
+  const refs = [];
   for (let i = 0; i < rest.length; i++) {
     if (rest[i] === '--copy') { while (rest[i + 1] && !rest[i + 1].startsWith('--')) copy.push(resolve(rest[++i])); }
     else if (rest[i] === '--widths') widths = rest[++i];
     else if (rest[i] === '--preset') preset = rest[++i] === 'none' ? 'none' : 'quiet';
     else if (rest[i] === '--max') max = Number(rest[++i]) || 3;
+    else if (rest[i] === '--no-probe') probeOn = false;
+    else if (rest[i] === '--ref') { while (rest[i + 1] && !rest[i + 1].startsWith('--')) refs.push(resolve(rest[++i])); }
     else if (!rest[i].startsWith('--')) targets.push(/^https?:/.test(rest[i]) ? rest[i] : resolve(rest[i]));
   }
   if (!targets.length) { say('arm needs at least one page: a dev-server URL or an HTML file.'); process.exit(2); }
-  save({ armed: true, targets, copy, widths, max, preset, round: 0, at: new Date().toISOString() });
-  say(`GATE: ARMED for ${targets.length} page(s)${copy.length ? ` and ${copy.length} copy path(s)` : ''}, up to ${max} rounds.`, 'Run `node gate.mjs check` before saying the work is done (a Claude Code Stop hook runs it for you).');
+  const missingRef = refs.find((r) => !existsSync(r));
+  if (missingRef) { say(`No reference image at ${missingRef}.`); process.exit(2); }
+  const now = new Date().toISOString();
+  save({ armed: true, targets, copy, widths, max, preset, probe: probeOn, refs, round: 0, at: now, firstAt: now });
+  say(`GATE: ARMED for ${targets.length} page(s)${copy.length ? ` and ${copy.length} copy path(s)` : ''}${refs.length ? `, ${refs.length} reference(s)` : ''}, up to ${max} rounds${probeOn ? '' : ', without the access probe'}.`, 'Run `node gate.mjs check` before saying the work is done (a Claude Code Stop hook runs it for you).');
   process.exit(0);
 }
 // after a PASS (or DONE) the gate disarms itself; rearm checks the same pages again after more changes
@@ -211,5 +307,5 @@ if (cmd === 'check' || cmd === 'hook') {
   say(msg);
   process.exit(1);
 }
-say('usage: node gate.mjs arm <page>... [--copy <paths>] [--widths 390,1280] [--max 3] [--preset none] | check | hook | status | rearm | disarm');
+say('usage: node gate.mjs arm <page>... [--copy <paths>] [--widths 390,1280] [--max 3] [--preset none] [--ref <images>] [--no-probe] | check | hook | status | rearm | disarm');
 process.exit(cmd === 'help' ? 0 : 2);

@@ -59,8 +59,10 @@ layout is never a finding. Never pass `--no-dark`.
 The score is a floor, not a verdict: **when the screenshots and the score disagree, the screenshots win.**
 
 **The gate** (`scripts/gate.mjs`) makes these checks a condition for finishing: armed on the pages a change
-touches, it keeps the work open while a blocker or high finding stands, for up to three rounds, with waivers only
-for a stated reason. As a Claude Code Stop hook it runs by itself; in Codex or Cursor the agent runs `gate.mjs check`.
+touches, it keeps the work open while a blocker or high finding from the page check, a blocker or serious finding
+from the access probe (which also presses every button), or a high copy finding stands, for up to three rounds, with
+waivers only for a stated reason. Armed with `--ref`, it also asks for the evidence of comparing with each reference
+(`scripts/beside.mjs`, twice) and of filming the motion. As a Claude Code Stop hook it runs by itself; in Codex or Cursor the agent runs `gate.mjs check`.
 Setup: `references/gate.md`.
 
 ## Look at the screenshots
@@ -226,6 +228,8 @@ after a failed request; leftovers · a check that was quieted · only one browse
   `--stress`; `--shots`
 - `scripts/latency-probe.mjs`: real presses and drags; time to the first visible change, swallowed second presses,
   drag drift
+- `scripts/beside.mjs`: puts a build next to its reference at the same height, with 3× close-ups of both; the
+  sheets go to `.antheo/evidence/`, where the gate armed with `--ref` looks for them
 - `scripts/pixdiff.mjs`: compares two screenshots or folders; changed pixels, the changed box, a diff image
 - `references/report.md`: the one report format every checking skill uses: verdict, finding, severity, cap, close
 - `references/rubric.md`: eight design-quality questions, scored 1 to 5 with anchors

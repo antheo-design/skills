@@ -8,6 +8,8 @@ file) and reads copy in HTML, JSX/TSX, Vue, Svelte, Astro, Angular and server te
 
 ```bash
 node <antheo-review>/scripts/gate.mjs arm http://localhost:5173/settings --copy src/pages/settings
+# built from references? name them, and the gate asks for the evidence of comparing:
+node <antheo-review>/scripts/gate.mjs arm http://localhost:5173/ --copy src --ref refs/radio.jpg refs/cards.png
 # …build…
 node <antheo-review>/scripts/gate.mjs check     # see the four outcomes below
 node <antheo-review>/scripts/gate.mjs rearm     # after a PASS, when the page changes again: the same pages, round 1
@@ -19,8 +21,13 @@ node <antheo-review>/scripts/gate.mjs disarm    # when the work is abandoned
 
 - **Arm it at the start** of a UI build or fix, with every page the work touches and the source folders whose words
   changed. `--widths 390,1280` by default.
-- **Check before saying done.** A blocker or a high finding from `check-page.mjs` (at each width, light and dark), or
-  a high finding from `copy-lint.mjs`, keeps it open.
+- **Check before saying done.** A blocker or a high finding from `check-page.mjs` (at each width, light and dark), a
+  blocker or serious finding from antheo-access's `a11y-probe.mjs` (keyboard, focus, forced colours, text spacing,
+  reflow, and buttons wired to nothing; `--no-probe` skips it), or a high finding from `copy-lint.mjs` keeps it open.
+- **Built from references: show the comparing.** Armed with `--ref <image>...`, it also needs, in `.antheo/evidence/`,
+  two `beside.mjs` sheets per reference made at least a minute apart (compared, changed, compared again) and at least
+  one `filmstrip.mjs` sheet. Both tools write there by default. The gate can't judge taste; it can make sure the
+  looking happened.
 - **Four outcomes, never confused:**
 
   | Says | Exit (`check`) | Means |

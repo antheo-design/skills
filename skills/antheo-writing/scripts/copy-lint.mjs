@@ -530,7 +530,10 @@ function scanMarkup(src, ctx, mode) {
 /* ------------------------------ code scanner (JS in .tsx/.vue/.svelte/<script>) ------------------------------ */
 const NOISE = /className|classList|class=|style|href|src=|url|path|querySelector|getElementById|console\.|\bimport\b|require\(|fetch\(|\.css|rgba?\(|var\(|translate|cubic-bezier|sql|`select |aria-(?:live|hidden)|data-/i;
 const NOISE_PCT = /width|height|left|top|right|bottom|translate|flex|inset|transform|--|style|scale|opacity|size|clip|gradient|stop/i;
-const MONEYISH = /[€£¥]|$(?!{)|price|cost|amount|total|usd|eur|currency|fee|balance|revenue|salary|tax/i;
+const MONEYISH = /[€£¥]|\$(?!\{)|\bprice|\bcost|\bamount|\btotal|\busd\b|\beur\b|currency|\bfee|balance|revenue|salary|\btax/i;
+// numbers written into geometry, not text: SVG path data, transforms, CSS lengths, style objects, attributes. A locale's
+// decimal comma would break them, so they keep toFixed
+const GEOMETRY = /\b(translate|rotate|scale|matrix|skew)[XYZ3d]*\(|setAttribute\(|\b(d|points|viewBox|transform|style|left|top|right|bottom|width|height|x|y|cx|cy|r)\s*[=:]|[MLCQSTAHVZ]\$\{|calc\(|var\(--|'--[a-z]|"--[a-z]|\bpx\b|\bem\b|%`/;
 
 function scanCode(ctx, code, baseLine) {
   const lines = code.split('\n');
@@ -585,7 +588,7 @@ function scanCode(ctx, code, baseLine) {
     }
 
     // numbers and money by hand
-    if (/\.toFixed\(\d\)/.test(l) && MONEYISH.test(l) && !/toFixed\(\d\)\s*[,)]?\s*\+\s*["']\s*(px|ms|s|em|rem|%)\b/.test(l)) ctx.add(line, 'format-number', trimmed, 'toFixed on money. Use Intl.NumberFormat(locale, {style:"currency", currency}).');
+    if (/\.toFixed\(\d\)/.test(l) && MONEYISH.test(l) && !GEOMETRY.test(l) && !/toFixed\(\d\)\s*[,)]?\s*\+\s*["']\s*(px|ms|s|em|rem|%)\b/.test(l)) ctx.add(line, 'format-number', trimmed, 'toFixed on money. Use Intl.NumberFormat(locale, {style:"currency", currency}).');
     if (/\(\?=\(\\d\{3\}\)\+/.test(l)) ctx.add(line, 'format-number', trimmed, 'Thousands separator inserted with a regex. Use Intl.NumberFormat(locale).');
     if ((/\+\s*["']%["']/.test(l) || /\$\{[^}]*\}%/.test(l) || /\)\s*\+\s*["']\s?%/.test(l)) && !NOISE_PCT.test(l)) ctx.add(line, 'format-number', trimmed, 'Percent sign glued on. Use Intl.NumberFormat(locale, {style:"percent"}).');
     if (/`\$\$\{|["'][$€£¥]["']\s*\+|\+\s*["'][$€£¥]["']/.test(l)) ctx.add(line, 'format-number', trimmed, 'Currency symbol glued to a number. Use Intl.NumberFormat(locale, {style:"currency", currency}).');

@@ -47,7 +47,7 @@ product screen, anything creative), also:
    states. On a component's page it comes first, alone; the states sheet comes after it.
 5. **Watch it move.** Film every motion (antheo-motion, "Watch it") and read the frames; a still screenshot can't
    judge motion.
-6. **Put it beside the reference, zoomed,** and name what is missing (light, a detail, proportion, how it moves).
+6. **Put it beside the reference, zoomed** (antheo-review `scripts/beside.mjs`), and name what is missing (light, a detail, proportion, how it moves).
    Measure a few ratios in both (an icon to its button, a figure to its card) and match them; copy its one or two
    signature details exactly (drawn edges on 3D type, the gloss strip on candy). Fix, and look again. Two or three of
    these rounds is where quality comes from.
@@ -172,7 +172,8 @@ it goes in React, Vue, Svelte, Angular, Astro, Django, Rails, Laravel and the re
     accent things, tags, hairlines. Each within the limits above, and the main task on the first screen. A
     checker's score is not a look.
 21. **Arm the gate, and pass it.** At the start, arm antheo-review's gate on every page the work touches
-    (`gate.mjs arm <url-or-file> --copy <source folder>`, plus `--preset none` when the project has its own system);
+    (`gate.mjs arm <url-or-file> --copy <source folder>`, plus `--preset none` when the project has its own system,
+    and `--ref <images>` when the work is built from references, so it asks for the comparisons and a filmstrip);
     before saying done, `gate.mjs check` must say PASS, or after three rounds DONE, UNRESOLVED with what is left, told
     to the person. How much to check beyond the gate depends on the size of the change (antheo-review, "How much to
     check"). Setup for each agent: antheo-review `references/gate.md`. A PASS is the floor, not the finish: it says

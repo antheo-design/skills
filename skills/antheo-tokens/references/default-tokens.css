@@ -378,7 +378,7 @@ a { color: inherit; text-decoration: underline; text-decoration-thickness: 1px; 
 .seg > button {
   height: calc(var(--h-control) - 4px); padding: 0 var(--s-4); border: 0; border-radius: var(--r-full); background: transparent;
   color: var(--text-2); font-weight: var(--w-strong); white-space: nowrap; cursor: pointer;
-  transition: background-color var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+  transition: background-color var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out), scale var(--dur-instant) var(--ease-out);
 }
 .seg > button[aria-checked="true"] { background: var(--raised); color: var(--text); box-shadow: var(--sh-control); }
 @media (hover: hover) and (pointer: fine) { .seg > button:hover { color: var(--text); } }

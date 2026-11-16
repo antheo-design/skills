@@ -15,7 +15,8 @@
  *   --drag <sel> --by dx,dy · --focus <sel> --key <Key> · --load. Without one, it films whatever is already moving.
  * Options: --frames 12 (how many) · --duration 600 (ms of the motion to cover, at normal speed) · --rate 0.1 (how
  *   slow) · --width 1280 --height 800 · --dark · --reduce (prefers-reduced-motion: reduce) · --out filmstrip.png ·
- *   --pad 16 (px around the clip).
+ *   --pad 16 (px around the clip). Without --out, the sheet goes to .antheo/evidence/film-<time>.png when the folder
+ *   has an .antheo folder (the gate counts it as evidence), otherwise to ./filmstrip.png.
  *
  * Reading the sheet (antheo-motion, "Watch it"): every frame should look composed on its own. Look for a hard edge
  * sliding through, a flash of the wrong colour, text that jumps or reflows, a box that scales its contents, something
@@ -28,7 +29,8 @@
  */
 import { createRequire } from 'node:module';
 import { pathToFileURL } from 'node:url';
-import { resolve } from 'node:path';
+import { dirname, resolve } from 'node:path';
+import { existsSync, mkdirSync } from 'node:fs';
 
 const argv = process.argv.slice(2);
 const VALUE_FLAGS = ['--clip', '--click', '--hover', '--press', '--drag', '--by', '--focus', '--key', '--frames', '--duration', '--rate', '--width', '--height', '--out', '--pad'];
@@ -44,7 +46,8 @@ const DURATION = Math.max(50, Number(flag('duration') ?? 600));
 const RATE = Math.max(0.02, Math.min(1, Number(flag('rate') ?? 0.1)));
 const WIDTH = Number(flag('width') ?? 1280), HEIGHT = Number(flag('height') ?? 800);
 const PAD = Number(flag('pad') ?? 16);
-const OUT = resolve(flag('out') ?? 'filmstrip.png');
+// in a project the gate watches (it has an .antheo folder), the sheet goes with the other evidence
+const OUT = resolve(flag('out') ?? (existsSync('.antheo') ? `.antheo/evidence/film-${new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19)}.png` : 'filmstrip.png'));
 const [, filePart, tail = ''] = /^https?:|^file:/.test(target) ? [null, target] : target.match(/^([^?#]*)(.*)$/);
 const url = /^https?:|^file:/.test(target) ? target : pathToFileURL(resolve(filePart)).href + tail;
 const by = (flag('by') ?? '0,0').split(',').map(Number);
@@ -174,6 +177,7 @@ try {
         <div style="display:grid;grid-template-columns:repeat(${cols},${region.width}px);gap:12px">
         ${frames.map((f) => `<figure style="margin:0"><img src="${f.src}" style="display:block;width:${region.width}px;outline:1px solid #0003"><figcaption>${f.at === null ? 'settled' : `${Math.round(f.at)}ms`}</figcaption></figure>`).join('')}
         </div></body>`);
+      mkdirSync(dirname(OUT), { recursive: true });
       await sheet.screenshot({ path: OUT, fullPage: true });
       console.log(`Filmstrip: ${OUT}`);
       console.log(`  ${what} · ${frames.length - 1} frames over ${DURATION}ms (slowed to ${RATE}×) + the settled frame`);
