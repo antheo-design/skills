@@ -19,17 +19,17 @@
 ## Install
 
 ```sh
-npx skills add antheo-design/skills
+npx skills@latest add antheo-design/skills
 ```
 
 The [skills installer](https://skills.sh) finds the agents on your machine and puts the skills where each one looks:
 `.claude/skills` for Claude Code, and `.agents/skills` for Codex, Cursor, OpenCode and the others that share it.
 
 ```sh
-npx skills add antheo-design/skills -g                # every project, not just this one
-npx skills add antheo-design/skills -a claude-code    # one agent
-npx skills add antheo-design/skills -s antheo-build   # one skill
-npx skills add antheo-design/skills -l                # list them first
+npx skills@latest add antheo-design/skills --global                 # every project, not just this one
+npx skills@latest add antheo-design/skills --agent claude-code       # one agent
+npx skills@latest add antheo-design/skills --skill antheo-build      # one skill
+npx skills@latest add antheo-design/skills --list                    # list them first
 ```
 
 Or copy `skills/antheo-*` into your agent's skills folder by hand. Each skill is a plain folder with a `SKILL.md`, so
@@ -174,7 +174,7 @@ Codex, Cursor and OpenCode have no stop hook, so add one line to `AGENTS.md`:
 > Before saying a UI change is done, run `node .agents/skills/antheo-review/scripts/gate.mjs check` and fix what it
 > lists.
 
-For skills installed with `-g`, use the folders the installer printed; they sit in your home directory.
+For skills installed with `--global`, use the folders the installer printed; they sit in your home directory.
 
 </details>
 

@@ -41,7 +41,7 @@ gate is open (`exit 2`). It does nothing when no gate is armed. In `.claude/sett
 }
 ```
 
-That path is for skills installed in the project (`npx skills add` without `-g`). Installed for every project, it is
+That path is for skills installed in the project (`npx skills@latest add` without `--global`). Installed for every project, it is
 `~/.claude/skills/antheo-review/scripts/gate.mjs`; elsewhere, use the folder the installer printed.
 
 **Codex, Cursor, OpenCode and agents without a stop hook:** put this line in `AGENTS.md` or a project rule:
