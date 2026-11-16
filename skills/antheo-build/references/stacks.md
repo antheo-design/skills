@@ -99,8 +99,8 @@ They catch the static half while you type; `a11y-probe.mjs` and the page check c
 The skills own what people see and use: values, layout, words, motion, states and access. They don't teach a
 framework or how to structure code. Pair them with:
 
-- **A performance guide for your framework** (waterfalls, bundle size, re-renders).
-- **A testing and debugging practice** for test-first work and for tracking a bug to its cause.
+- **Vercel's react-best-practices** for React and Next.js performance (waterfalls, bundle size, re-renders).
+- **Matt Pocock's `tdd` and `diagnosing-bugs`** for test-first work and for tracking a bug to its cause.
 - **The framework's own guides** for Vue, Svelte, Angular, Django, Rails and Laravel conventions.
 
 When two skills touch the same thing, the framework skill owns code structure, data flow and performance, and the
