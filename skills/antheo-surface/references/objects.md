@@ -146,6 +146,19 @@ tilt follows the pointer with a short spring, returns on leave, and is off for t
 motion. A stack (cards, records, tickets) keeps each item's own small offset and rotation (1 to 3 degrees), so it
 looks placed, not generated.
 
+## The play is the point
+
+Every object has one thing people do with it just for the pleasure of it: tuning across the static between stations,
+squashing a candy button, flicking a card stack, turning a knob past its clicks. Find that thing first and make it
+rich, because it is why the component exists. A radio that jumps from station to station is correct; a radio whose
+screen fills with static and clears as a station comes in is the one people play with.
+
+The real thing's feedback is part of it: a screen's static or grain while it searches, a needle that wobbles and
+settles, a hiss, a click at each detent (sound only after a press, off by default), a light that warms. None of this is
+decoration or a costume; it is the object behaving. The app-chrome timing rules (300ms, "the more often, the less it
+moves") are for menus and fields, not for the play: it may run as long as the hand keeps going, as long as it answers
+at once, can be interrupted, and becomes a short fade under reduced motion.
+
 ## How it behaves
 
 The drawing makes people want to touch it; the behaviour makes it feel real. From antheo-motion's gestures and
@@ -157,7 +170,7 @@ springs:
 | A switch or lever | it resists, then snaps past the middle; it never stops half way |
 | A card or ticket | it lifts on press (a larger, softer shadow), tilts with the pointer, slides out of its stack and back |
 | A slider with a body (a fader) | the thumb stays under the finger, the track fills behind it, the ends rubber-band |
-| A display | values roll rather than swap (antheo-motion recipe 11); the light changes with the state |
+| A display | values roll rather than swap (antheo-motion recipe 11); the light changes with the state; while it searches it shows it (static, a sweep, "Tuning…") |
 
 Every object is still a control: a name, a role (a knob is a `slider`, a switch is a `switch`, a card in a picker
 is a `radio`), keyboard steps, a visible focus ring outside the object's edge, and a plain alternative for anything
@@ -187,5 +200,6 @@ done by drag (antheo-access).
   object.
 - **The icon too big, or off centre.** About 40% of the button, centred by its ink.
 - **Everything soft.** Highlights with no edge; a rim lost in a blur.
+- **The play cut out.** The fun part (the static, the squash, the flick) trimmed to fit an app timing table. Keep it.
 - **Fake detail.** Screws, stitching, stickers and scratches added to look rich. Only what the real thing has, and
   only the three details that make it read.

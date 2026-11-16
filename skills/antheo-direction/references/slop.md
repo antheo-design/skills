@@ -150,7 +150,7 @@ builds.
 | O6 | A split screen with a placeholder half ("Shown here", "Pick a time") | One column |
 | O7 | Spec tables full of "Not included" inside plan cards | A short checklist per plan; the full comparison below |
 | O8 | Invented metadata, "ticket" cards and panels the request never named | Only what was asked |
-| O9 | Grain, paper and noise textures on the page, panels or controls | Flat surfaces (a drawn object's own material is not this tell) |
+| O9 | Grain, paper and noise textures on the page, panels or controls | Flat surfaces (a drawn object's own material, or a screen's static while it searches, is not this tell) |
 | O10 | An error said three ways (summary, helper, inline) in different words | One inline message; a summary only for several fields, in the same words |
 | O11 | Text beside every switch saying "On" or "Off" | The switch shows its state; its label says what it controls |
 

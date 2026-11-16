@@ -16,6 +16,8 @@ node <antheo-review>/scripts/gate.mjs rearm     # after a PASS, when the page ch
 node <antheo-review>/scripts/gate.mjs disarm    # when the work is abandoned
 ```
 
+- **Run it from the project's own folder.** It keeps its state and the evidence in `.antheo/` of the folder it runs
+  in, so arm, check and the evidence tools (`beside.mjs`, `filmstrip.mjs`) all run from the same place.
 - **A PASS disarms the gate.** Any change after it (a fix, a polish, a stress pass) needs `rearm` and a fresh
   `check` before saying done; the last check must be on the last version of the page.
 

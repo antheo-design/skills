@@ -402,7 +402,7 @@ function measure(kind) {
 // found at several sizes is reported once.
 function craft() {
   const vw = innerWidth;
-  const out = { overflow: [], broken: [], dead: [], vgap: [], nearMiss: [], lopsided: [], edges3: [], edges2: [], spill: [], clipped: [], gaps: [],
+  const out = { overflow: [], broken: [], dead: [], vgap: [], nearMiss: [], lopsided: [], edges3: [], edges2: [], spill: [], boxSpill: [], clipped: [], gaps: [],
     brokenWord: [], covered: [], seeThrough: [], stuckShort: [], headerEdge: [], unitGap: [], rotated: [], placeholderText: [], bands: [], outlined: [], hued: [] };
   const styleOf = (el) => getComputedStyle(el);
   const visible = (el) => { const r = el.getBoundingClientRect(); const s = styleOf(el); return r.width > 0 && r.height > 0 && s.visibility !== 'hidden' && s.display !== 'none' && +s.opacity > 0.05; };
@@ -603,6 +603,24 @@ function craft() {
       const over = Math.max(t.right - b.right, b.left - t.left, t.bottom - b.bottom);
       if (t.width > 2 && over > 3) { out.spill.push(item(el, `its text runs ${Math.round(over)}px past ${sel(box).split(' ')[0]}`)); break; }
     }
+  }
+
+  // a painted box (a button, a chip, a candy) that sticks out of the painted shape holding it: a row that wrapped out of
+  // its pill, a control pushed past its card. Popovers, menus, tooltips and anything positioned on purpose are left out.
+  const floating = (el) => el.closest('[role=menu], [role=listbox], [role=tooltip], [role=dialog], dialog, [popover]') || [...(function* up(n) { for (; n && n !== document.body; n = n.parentElement) yield n; })(el)].some((n) => /absolute|fixed|sticky/.test(styleOf(n).position));
+  for (const el of document.querySelectorAll('button, a, [role=button], [role=switch], [role=radio], [role=tab], [role=checkbox], input, select')) {
+    if (out.boxSpill.length >= 5) break;
+    if (!visible(el) || !boxed(styleOf(el)) || floating(el)) continue;
+    const r = el.getBoundingClientRect();
+    if (r.width < 12 || r.height < 12) continue;
+    let holder = el.parentElement;
+    while (holder && holder !== document.body && !(boxed(styleOf(holder)) && parseFloat(styleOf(holder).borderTopLeftRadius) > 0)) holder = holder.parentElement;
+    if (!holder || holder === document.body) continue;
+    const hs = styleOf(holder);
+    if (hs.overflowX !== 'visible' || hs.overflowY !== 'visible') continue;
+    const h = holder.getBoundingClientRect();
+    const over = Math.max(h.left - r.left, r.right - h.right, h.top - r.top, r.bottom - h.bottom);
+    if (over > 4) out.boxSpill.push(item(el, `it sticks out ${Math.round(over)}px past ${sel(holder).split(' ')[0]}, the shape holding it`));
   }
 
   /* ── the fundamentals (antheo-build): what an eye catches at once ── */
@@ -1005,6 +1023,7 @@ const CRAFT = {
   lopsided: ['craft', 'high', 'lopsided padding inside a control', 'equal inline padding on both sides, with gap between a label and its icon; a badge sits beside or above a control, never inside one of its segments'],
   edges3: ['craft', 'medium', 'section headings start on three or more left edges', 'one container, one grid: every scene\'s heading starts on the same column line (or is centred); indent only by whole grid columns'],
   edges2: ['craft', 'low', 'section headings start on two left edges', 'check the second edge is a deliberate grid column; if it is just a different max-width or margin, align it to the first'],
+  boxSpill: ['craft', 'high', 'a control spilling out of the shape that holds it', 'the row wrapped or overflowed: let the holder grow with its contents, or shrink the parts; render it with 1, 2 and many items (antheo-stress)'],
   spill: ['craft', 'high', 'text spilling out of its box', 'let the box grow (no fixed height or width), allow wrapping, or shorten the text; test with long words and translations'],
   clipped: ['craft', 'medium', 'text cut off with no ellipsis', 'text-overflow: ellipsis with a title/tooltip, or let it wrap'],
   gaps: ['craft', 'low', 'section spacing follows no rhythm', 'two or three section paddings (dense, regular, airy) from the scale, used on purpose'],

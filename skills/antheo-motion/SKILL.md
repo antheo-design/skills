@@ -161,6 +161,11 @@ things that aren't clickable · a transition reading a name nobody defined.
 
 ## When more motion is right
 
+Play is not chrome. An object people fiddle with (a dial, a toy, candy buttons, a card stack) or a brand piece the
+person asked for keeps its play: the static while a radio tunes, the squash and wobble, the flick. The frequency rule
+and the 300ms cap are for menus, fields and pages; they never justify cutting the fun out of an object
+(antheo-surface `references/objects.md`, "The play is the point").
+
 The purpose and frequency rules decide; the numbers are defaults. A game, a creative tool, a learning product or a
 brand moment the person asked for may move more and longer. It still answers input at once, never blocks the next
 action, can be interrupted mid-way, respects reduced motion, and shows its cost: a slow frame on a mid-range phone

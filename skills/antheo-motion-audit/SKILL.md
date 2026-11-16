@@ -67,6 +67,11 @@ it to antheo-moment.
 
 ## Remove
 
+Never remove an object's play or a requested brand moment (a radio's static while it tunes, a candy's wobble, an
+extruded headline's sway): inside a drawn object (`data-object`) or a piece the person asked to be playful, flag only
+what breaks the "always" list (no reduced-motion fade, blocking input, layout animation).
+
+
 Cut motion on keyboard actions, high-frequency surfaces, functional data (a number someone reads, a table being
 sorted) and pure decoration. Shorten what stays to its job. Each removal is a small diff; then list what was kept and
 why, so the next person doesn't add it back.

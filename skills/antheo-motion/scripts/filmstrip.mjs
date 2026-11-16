@@ -160,15 +160,19 @@ try {
         const wait = due - (Date.now() - start);
         if (wait > 0) await page.waitForTimeout(wait);
         const at = (Date.now() - start) * RATE;
-        const png = await page.screenshot({ clip: region, animations: 'allow' });
-        frames.push({ at, src: `data:image/png;base64,${png.toString('base64')}` });
+        // a busy page can keep a screenshot from settling: give each frame a few seconds, and skip one that can't be taken
+        const png = await page.screenshot({ clip: region, animations: 'allow', timeout: 5000 }).catch(() => null);
+        if (png) frames.push({ at, src: `data:image/png;base64,${png.toString('base64')}` });
       }
       await acting.catch(() => {});
       if (flag('press')) await page.mouse.up().catch(() => {});
       await slow(false);
       await page.waitForTimeout(300);
-      frames.push({ at: null, src: `data:image/png;base64,${(await page.screenshot({ clip: region, animations: 'allow' })).toString('base64')}` });
+      const last = await page.screenshot({ clip: region, animations: 'allow', timeout: 5000 }).catch(() => null);
+      if (last) frames.push({ at: null, src: `data:image/png;base64,${last.toString('base64')}` });
+      if (frames.length < 2) { console.error('The page never settled enough to take its frames; film a smaller --clip, or a page with less moving at once.'); code = 4; }
 
+      if (!code) {
       const cols = Math.min(FRAMES + 1, Math.max(2, Math.floor(1600 / (region.width + 12))));
       const sheet = await browser.newPage({ viewport: { width: cols * (region.width + 12) + 12, height: 400 }, deviceScaleFactor: 1 });
       const what = flag('click') ? `click ${flag('click')}` : flag('hover') ? `hover ${flag('hover')}` : flag('press') ? `press ${flag('press')}` : flag('drag') ? `drag ${flag('drag')} by ${by.join(',')}` : flag('key') ? `${flag('key')} on ${flag('focus')}` : has('load') ? 'page load' : 'already moving';
@@ -183,6 +187,7 @@ try {
       console.log(`  ${what} · ${frames.length - 1} frames over ${DURATION}ms (slowed to ${RATE}×) + the settled frame`);
       console.log(`  frame times (ms): ${frames.filter((f) => f.at !== null).map((f) => Math.round(f.at)).join(', ')}`);
       console.log('  Open it and look at every frame: each should look composed on its own (antheo-motion, "Watch it").');
+      }
     }
   }
 } finally {

@@ -415,6 +415,8 @@ if (BROWSER && hasPlaywright) {
     // a resting shadow is not a focus ring: the button looks the same focused and not
     'shadow-not-focus': ['page', 'no visible focus', '<button type="button" style="height:32px;padding:0 12px;border:0;border-radius:6px;background:#fff;box-shadow:0 0 0 1px rgba(0,0,0,.15),0 1px 1px rgba(0,0,0,.1);outline:none">Save</button><style>button:focus{outline:none}</style>'],
     'unnamed': ['probe', 'names', '<button type="button" style="width:32px;height:32px"><svg width="16" height="16" aria-hidden="true"><circle cx="8" cy="8" r="6"/></svg></button>'],
+    // a row that wrapped out of the pill holding it: the second button sits below the red shape
+    'box-spill': ['page', 'a control spilling out of the shape that holds it', '<div style="display:flex;flex-wrap:wrap;gap:4px;width:200px;height:40px;padding:4px;border-radius:20px;background:#d33"><button type="button" style="width:120px;height:32px;border:0;border-radius:16px;background:#25f;color:#fff">One</button><button type="button" style="width:120px;height:32px;border:0;border-radius:16px;background:#25f;color:#fff">Two</button></div>'],
     'tiny-targets': ['probe', 'target-size', '<div style="display:flex;gap:2px">' + ['A', 'B', 'C', 'D'].map((l) => `<button type="button" style="width:16px;height:16px;padding:0;font-size:10px">${l}</button>`).join('') + '</div>'],
   };
   test(`${Object.keys(BAD).length} more pages broken on purpose are each caught on what was planted`, () => {

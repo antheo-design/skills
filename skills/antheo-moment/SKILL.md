@@ -17,6 +17,10 @@ the person asks for it; otherwise say "none" and stop. A moment is motion on wha
 panels, cards, colours or content the request didn't name. Ask:
 would someone who uses this every day want to skip it? Then it goes, or plays only the first time.
 
+An object's play is not a moment and is never cut by this rule: the static as a radio tunes, the squash of a candy
+button, a dial's clicks are how the thing behaves every time (antheo-surface `references/objects.md`, "The play is
+the point").
+
 ## It must pass three tests
 
 1. **The screen-record test.** Would a designer record their screen to show someone? A bar that fills, a fade or a
