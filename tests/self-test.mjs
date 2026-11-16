@@ -506,6 +506,22 @@ if (BROWSER && hasPlaywright) {
     if (!fs.existsSync(json)) return ["the access probe didn't run"];
     return (JSON.parse(read(json)).findings ?? []).filter((x) => x.area === 'focus-order').map((x) => `false alarm: ${x.msg ?? x.area}`);
   });
+  test('the access probe presses every button and names the ones wired to nothing, never the chosen option', () => {
+    const file = labPage('dead', '<div class="seg" role="radiogroup" aria-label="Period"><button type="button" role="radio" aria-checked="true" class="q">Q4</button><button type="button" role="radio" aria-checked="false" class="q">Q3</button></div>'
+      + '<p id="said">Nothing yet</p><button type="button" class="btn" id="live">Open report</button> <button type="button" class="btn" id="dead">See more</button>');
+    fs.appendFileSync(file, '<script>document.getElementById("live").onclick=()=>{document.getElementById("said").textContent="Opened the report"};'
+      + 'document.querySelectorAll(".q").forEach((b)=>b.onclick=()=>document.querySelectorAll(".q").forEach((o)=>o.setAttribute("aria-checked",String(o===b))))</script>');
+    const json = file.replace(/\.html$/, '.probe.json');
+    spawnSync(process.execPath, [probe, file, '--json', json], { encoding: 'utf8', timeout: 240000 });
+    if (!fs.existsSync(json)) return ["the access probe didn't run"];
+    const dead = (JSON.parse(read(json)).findings ?? []).filter((f) => f.area === 'dead-control').map((f) => f.element);
+    const out = [];
+    if (!dead.some((d) => d.includes('See more'))) out.push('the dead "See more" button was not named');
+    if (dead.some((d) => d.includes('Open report'))) out.push('the working "Open report" button was called dead');
+    if (dead.some((d) => /Q4|Q3/.test(d))) out.push('a period option was called dead');
+    return out;
+  });
+
   test('the filmstrip films a motion into a sheet, and a missing element is a tool error', () => {
     const film = path.join(SKILLS, 'antheo-motion', 'scripts', 'filmstrip.mjs');
     const file = labPage('film', '<button type="button" class="btn" id="go">Move</button><div id="box" style="width:120px;height:60px;margin-top:16px;border-radius:6px;background:var(--primary);transition:translate 400ms var(--ease-out)"></div>',

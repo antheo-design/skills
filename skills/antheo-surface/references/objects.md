@@ -117,6 +117,27 @@ first is too strong.
 - **Embossed text.** Two `text-shadow`s, light on the side facing the light and shade on the other, each 1px:
   `text-shadow: 0 1px 0 oklch(1 0 0 / 0.25), 0 -1px 0 oklch(0 0 0 / 0.3)`.
 
+## Icons and marks on an object
+
+An icon on a button-like object (a candy toggle, a key, a dial's face) fills about **40% of the object's shorter
+side** (35 to 50%). Bigger reads cramped and childish; the reference's ratio, measured, wins over this number.
+Centre it by its **ink**, not its box: a heart, a play triangle or a bolt has its weight off the box's middle, so
+zoom a screenshot to 3× and move it until it sits in the middle to the eye. On and off must differ in more than
+colour: a small dot or check under the icon, a lit rim, or the icon's own fill.
+
+## Crisp, not soft
+
+Gloss on candy, gel, enamel or glass-like plastic is a **shape with an edge**: a strip of white at 40 to 60% across
+the upper part, or a sharp-edged ellipse, plus a 1 to 2px rim one tint lighter than the fill. A soft radial blur
+everywhere reads as out of focus. Keep the blur for shadows and glows; keep the highlights sharp.
+
+## 3D lettering
+
+Type that stands as an object (an extruded headline, a sign) is extruded **letter by letter**, and its side planes
+are drawn: the side colour, with the ink line along the edges where a plane turns, not only around the back. Its
+depth points one way for every letter. To make it turn, animate the direction of the depth, not the letters, and
+swing it as far as the reference does: a timid sway reads as a wobble.
+
 ## Depth that moves
 
 An object in a hand moves in three dimensions. Give its root a perspective (`perspective: 900px` on the parent) and
@@ -144,8 +165,9 @@ done by drag (antheo-access).
 
 ## Check it
 
-1. **Beside the reference.** Put a screenshot of the object next to the photo it came from. Name what is missing:
-   usually the light, a detail or the proportions.
+1. **Beside the reference, zoomed.** Put a screenshot of the object next to the photo it came from, both at 2 to 3×.
+   Measure three ratios in each (an icon to its button, the main text to the body, a rim or gap to the whole) and
+   match them within 10%. Name what is missing: usually the light, a detail or the proportions.
 2. **Squint, and shrink it.** At 25% size, blurred, it still reads as the thing.
 3. **Both grounds.** Light and dark, side by side: the light comes from the same place and the object belongs on
    each.
@@ -163,5 +185,7 @@ done by drag (antheo-access).
   edge.
 - **A drawing that doesn't move like the thing.** A knob that slides, a card that fades. The behaviour is half the
   object.
+- **The icon too big, or off centre.** About 40% of the button, centred by its ink.
+- **Everything soft.** Highlights with no edge; a rim lost in a blur.
 - **Fake detail.** Screws, stitching, stickers and scratches added to look rich. Only what the real thing has, and
   only the three details that make it read.

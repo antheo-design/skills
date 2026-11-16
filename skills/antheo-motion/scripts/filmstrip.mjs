@@ -103,6 +103,8 @@ try {
   if (!code && has('load')) await slow(true);
 
   const clip = page.locator(flag('clip')).first();
+  // a page that renders with a script (React, Vue) has no element yet at the first byte: wait a little for it
+  if (!code) await clip.waitFor({ state: 'attached', timeout: has('load') ? 10000 : 2000 }).catch(() => {});
   if (!code && !(await clip.count().catch(() => 0))) { console.error(`No element matches --clip "${flag('clip')}"`); code = 4; }
 
   if (!code) {

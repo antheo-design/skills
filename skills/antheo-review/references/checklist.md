@@ -16,6 +16,7 @@
 **Operable**
 - [✓] Everything reachable by keyboard; visible focus (2.4.7) that isn't hidden under sticky headers (2.4.11)
 - [ ] No keyboard traps; Esc closes overlays; focus returns to the trigger
+- [ ] Every button answers its press with something visible: nothing wired to nothing (the access probe's check 7)
 - [ ] Logical focus order; skip link to main content on pages with long navigation
 - [✓] Targets at least 24×24px (2.5.8); 44×44 for primary touch controls
 - [ ] Dragging has a single-pointer alternative (2.5.7): buttons, menus, keyboard

@@ -67,6 +67,15 @@ async function loadChromium() {
 /* ── what runs inside the page ───────────────────────────────────────────────────────────────────────────────── */
 function measure(kind) {
   const vw = innerWidth;
+  const srOnly = (el) => {
+    for (let n = el; n && n !== document.body; n = n.parentElement) {
+      const c = getComputedStyle(n);
+      const r = n.getBoundingClientRect();
+      if (/inset\(50%|circle\(0/.test(c.clipPath) || (c.clip && c.clip !== 'auto' && /rect\(0/.test(c.clip))) return true;
+      if (r.width <= 1 && r.height <= 1 && c.overflow !== 'visible') return true;
+    }
+    return false;
+  };
   const out = { overflow: [], contrast: [], unmeasured: [], onImage: [], targets: [], unnamed: [], unlabeled: [], alt: [], headings: [], placeholderLabels: [] };
   const visible = (el) => { const r = el.getBoundingClientRect(); const s = getComputedStyle(el); return r.width > 0 && r.height > 0 && s.visibility !== 'hidden' && s.display !== 'none' && +s.opacity > 0.05; };
   const sel = (el) => { const id = el.id ? `#${el.id}` : ''; const cls = typeof el.className === 'string' && el.className.trim() ? `.${el.className.trim().split(/\s+/).slice(0, 2).join('.')}` : ''; const t = (el.innerText || el.getAttribute('aria-label') || '').trim().replace(/\s+/g, ' ').slice(0, 30); return `${el.tagName.toLowerCase()}${id}${cls}${t ? ` "${t}"` : ''}`; };
@@ -140,7 +149,8 @@ function measure(kind) {
       const v = parseFloat(s[p]);
       if (v > 2 && v < 200) { if (v % 4 === 0 || v % 4 === 2 && v < 16) spacing.on++; else { spacing.off++; if (offSamples.length < 5) offSamples.push(`${p} ${v}px on ${sel(el)}`); } }
     }
-    if (!own) continue;
+    // text for screen readers only (clipped to nothing or a 1px box) is never seen: no size, no contrast to judge
+    if (!own || srOnly(el)) continue;
     const px = parseFloat(s.fontSize);
     sizes[px] = (sizes[px] || 0) + 1;
     const len = [...el.childNodes].filter((n) => n.nodeType === 3).reduce((n, t) => n + t.textContent.trim().length, 0);
@@ -427,7 +437,8 @@ function craft() {
         // a skip link or screen-reader-only text: parked off screen, clipped away or 1px; it fills no space
         if ((s.position === 'absolute' || s.position === 'fixed') && (r.right <= 0 || r.bottom <= 0 || r.left >= innerWidth || (r.width <= 2 && r.height <= 2) || (s.clip && s.clip !== 'auto') || /inset\(50%|circle\(0/.test(s.clipPath))) continue;
         if (MEDIA.test(n.tagName)) { if (r.width > 2 && r.height > 2) rects.push(r); continue; }
-        if (boxed(s) && r.width * r.height > 64 && r.width < limit) rects.push(r);
+        // a small filled shape (a 6px dot, an icon) is content too, not empty room
+        if (boxed(s) && r.width * r.height >= 16 && r.width < limit) rects.push(r);
         walk(n);
       }
     };

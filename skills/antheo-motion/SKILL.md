@@ -20,6 +20,13 @@ whole app is **antheo-motion-audit**'s.
 4. **Hand the one rare, meaningful event**, if there is one, to antheo-moment.
 5. **Check it** fast, twice, and with reduced motion, then **film it** and read the frames (below).
 
+## A still reference: design the motion it implies
+
+A screenshot or a still design shows only the resting state. Before building, write down how the real thing moves:
+what each press does, how each value changes, what it does while nothing happens. Then give every control its press
+answer, every state change its transition, and the main action one bigger beat, all with the timing below. Matching
+the still exactly and leaving it motionless is not matching it.
+
 ## Name why it moves, or don't move it
 
 "This moves so the person understands ___." Can't finish the sentence: no animation.

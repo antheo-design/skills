@@ -113,7 +113,7 @@ node <this-skill>/scripts/a11y-probe.mjs <url or file> --json a11y.json
 ```
 
 It walks the page by keyboard: focus order, traps, dialogs returning focus, forced colours, text spacing, reflow at
-320px. Fix every BLOCKER and SERIOUS finding. Then the 15-minute manual pass in `references/screen-readers.md`
+320px; then it presses every button once and reports the ones wired to nothing. Fix every BLOCKER and SERIOUS finding. Then the 15-minute manual pass in `references/screen-readers.md`
 (keyboard only, a screen-reader tour, 200% zoom, forced colours, reduced motion). Automated tools catch about a third
 of real problems; never call something accessible from a green scan alone. In a framework, also keep its linter on
 (jsx-a11y, vuejs-accessibility, Svelte's a11y warnings, angular-eslint's template rules; the list is in

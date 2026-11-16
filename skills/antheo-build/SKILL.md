@@ -47,9 +47,17 @@ product screen, anything creative), also:
    states. On a component's page it comes first, alone; the states sheet comes after it.
 5. **Watch it move.** Film every motion (antheo-motion, "Watch it") and read the frames; a still screenshot can't
    judge motion.
-6. **Put it beside the reference** and name what is missing (light, a detail, proportion, how it moves). Fix that,
-   and look again. Two or three of these rounds is where quality comes from.
-7. **Say honestly where it stands:** what passed, what was compared, and what still falls short of the reference.
+6. **Put it beside the reference, zoomed,** and name what is missing (light, a detail, proportion, how it moves).
+   Measure a few ratios in both (an icon to its button, a figure to its card) and match them; copy its one or two
+   signature details exactly (drawn edges on 3D type, the gloss strip on candy). Fix, and look again. Two or three of
+   these rounds is where quality comes from.
+7. **Go past a still.** A still reference shows the thing at rest, never its life. Design what it implies, from how
+   the real thing behaves: every control answers its press, every change of state moves (values roll, panels slide,
+   a needle settles), the object has an idle life if the real one does, and the main action gets one bigger beat.
+   Then film it.
+8. **Every control does something,** in a demo too: a button with nothing behind it at least shows its result
+   ("Opened the readers report"). The access probe presses each one and reports those that answer with nothing.
+9. **Say honestly where it stands:** what passed, what was compared, and what still falls short of the reference.
 
 ## Match the person
 
@@ -237,6 +245,7 @@ promised · drift · quieting a check instead of fixing it · a fix loop · anot
 - [ ] The main task fits 1280×800; every state on the same layout, one person throughout
 - [ ] The screenshots opened and the six counts made, light and dark, at 390px and 1280px
 - [ ] Every control pressed; the console clean; no "TODO", sample name or leftover text; nothing jumps
-- [ ] Anything meant to be kept: built one at a time, from a reference, put beside it, every motion filmed and read
+- [ ] Anything meant to be kept: built one at a time, from a reference, put beside it zoomed, every motion filmed and read
+- [ ] Every control answers its press (nothing wired to nothing); a still reference given its motion
 - [ ] An object drawn as the thing, not a box with a label; its root marked `data-object`
 - [ ] Checked against every habit in `references/habits.md`

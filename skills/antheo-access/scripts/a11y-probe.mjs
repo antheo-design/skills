@@ -17,6 +17,8 @@
  *          4 WCAG 1.4.12 text-spacing override (clipped or overlapping text)
  *          5 Reflow at 320px, 320x256 (400% zoom) and 640px (200%), horizontal scroll, zoom lock
  *          6 Landmarks, headings, live regions, lang, title, skip link, reduced-motion loops
+ *          7 Controls that do nothing: each enabled button is pressed once; no change, focus move, navigation or
+ *            request means it is wired to nothing (links and submits are cancelled; skip with --no-triggers)
  * Verdict:  BROKEN (any blocker) · NOT READY (any serious or moderate finding) · CLEAN
  */
 import { createRequire } from 'node:module';
@@ -274,6 +276,10 @@ function clipScan() {
     if (['SCRIPT', 'STYLE', 'NOSCRIPT', 'SVG', 'PATH', 'TEMPLATE'].includes(n.tagName.toUpperCase())) continue;
     const own = [...n.childNodes].some((c) => c.nodeType === 3 && c.nodeValue.trim());
     if (!own || !P.visible(n)) continue;
+    // text for screen readers only, itself or inside a visually hidden box, is never seen, so it can't be clipped or overlap
+    let hidden = false;
+    for (let a = n; a && a !== document.body; a = a.parentElement) if (P.clipped(a)) { hidden = true; break; }
+    if (hidden) continue;
     n.setAttribute('data-a11y-t', String(els.length)); els.push(n);
   }
   const clippedSet = [], rects = [];
@@ -287,7 +293,15 @@ function clipScan() {
     // text-only rect: union of the element's own text nodes
     const rg = document.createRange(); let u = null;
     for (const c of el.childNodes) if (c.nodeType === 3 && c.nodeValue.trim()) { rg.selectNodeContents(c); for (const q of rg.getClientRects()) { if (q.width < 1 || q.height < 1) continue; u = u ? { l: Math.min(u.l, q.left), t: Math.min(u.t, q.top + scrollY), r: Math.max(u.r, q.right), b: Math.max(u.b, q.bottom + scrollY) } : { l: q.left, t: q.top + scrollY, r: q.right, b: q.bottom + scrollY }; } }
-    rects.push(u || { l: r.left, t: r.top + scrollY, r: r.right, b: r.bottom + scrollY });
+    let box = u || { l: r.left, t: r.top + scrollY, r: r.right, b: r.bottom + scrollY };
+    // only the part an ancestor doesn't clip away can overlap anything: a counter's off-window digits, a scroller's hidden rows
+    for (let a = el.parentElement; a && a !== document.body; a = a.parentElement) {
+      const c = P.cs(a);
+      if (c.overflowX === 'visible' && c.overflowY === 'visible' && c.clipPath === 'none') continue;
+      const q = a.getBoundingClientRect();
+      box = { l: Math.max(box.l, q.left), t: Math.max(box.t, q.top + scrollY), r: Math.min(box.r, q.right), b: Math.min(box.b, q.bottom + scrollY) };
+    }
+    rects.push(box.r - box.l > 1 && box.b - box.t > 1 ? box : { l: 0, t: 0, r: 0, b: 0 });
   });
   const overlaps = [];
   for (let a = 0; a < els.length; a++) for (let b = a + 1; b < els.length; b++) {
@@ -368,6 +382,50 @@ function inventory() {
 
 function motionScan() {
   return document.getAnimations().filter((a) => a.playState === 'running' && (a.effect?.getComputedTiming().iterations === Infinity || a.effect?.getComputedTiming().duration > 5000)).map((a) => { const t = a.effect?.target; return `${t?.tagName?.toLowerCase() || '?'}${t?.id ? '#' + t.id : ''}${t?.className && typeof t.className === 'string' ? '.' + t.className.trim().split(/\s+/)[0] : ''} ${a.animationName || a.transitionProperty || ''}`.trim(); }).slice(0, 8);
+}
+
+/* Presses every visible, enabled button once and reports the ones that answer with nothing: no change in the page, no
+   focus move, no navigation, no request, no new window, nothing copied. What changes by itself (an animation loop, a
+   clock) is watched first for a moment and doesn't count as an answer. Links and form submits are cancelled. */
+async function deadScan() {
+  const P = window.__p;
+  // a page with no script at all is a static mock-up: nothing can be wired yet, so there is nothing to press
+  if (!document.scripts.length) return { checked: 0, dead: [], static: true };
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+  let signal = false;
+  const mark = () => { signal = true; };
+  const f = window.fetch; window.fetch = function (...a) { mark(); return f.apply(this, a); };
+  const xs = XMLHttpRequest.prototype.send; XMLHttpRequest.prototype.send = function (...a) { mark(); return xs.apply(this, a); };
+  window.open = () => { mark(); return null; };
+  // going back or forward is an answer too, and must not leave the page mid-check
+  for (const k of ['back', 'forward', 'go', 'pushState', 'replaceState']) { try { history[k] = () => mark(); } catch { /* read-only here */ } }
+  try { const c = navigator.clipboard; if (c) { const w = c.writeText?.bind(c); c.writeText = (t) => { mark(); return w ? w(t).catch(() => {}) : Promise.resolve(); }; } } catch { /* no clipboard here */ }
+  document.addEventListener('click', (e) => { const a = e.target instanceof Element && e.target.closest('a[href]'); if (a) { e.preventDefault(); mark(); } }, true);
+  document.addEventListener('submit', (e) => { e.preventDefault(); mark(); }, true);
+  const watch = (onM) => { const mo = new MutationObserver((ms) => ms.forEach(onM)); mo.observe(document.documentElement, { subtree: true, childList: true, attributes: true, characterData: true }); return mo; };
+  const noisy = new Set();
+  let mo = watch((m) => noisy.add(m.target));
+  await sleep(700); mo.disconnect();
+  const sel = 'button, [role=button], [role=switch], [role=tab], [role=menuitem], [role=menuitemcheckbox], [role=option], input[type=button], input[type=submit], input[type=reset]';
+  // the option already chosen in a pick-one group (a tab, a segment, a preset) rightly does nothing when pressed again
+  const chosen = (el) => el.getAttribute('aria-selected') === 'true' || el.hasAttribute('aria-current')
+    || (el.getAttribute('role') === 'radio' && el.getAttribute('aria-checked') === 'true')
+    || (el.getAttribute('aria-pressed') === 'true' && [...(el.parentElement?.children ?? [])].filter((c) => c.hasAttribute('aria-pressed')).length > 1 && !el.closest('[aria-multiselectable="true"]') && [...(el.parentElement?.children ?? [])].filter((c) => c.getAttribute('aria-pressed') === 'true').length === 1);
+  const list = [...document.querySelectorAll(sel)].filter((el) => P.visible(el) && !el.disabled && el.getAttribute('aria-disabled') !== 'true' && !el.closest('[inert]') && !chosen(el)).slice(0, 60);
+  const dead = [];
+  const href = location.href;
+  for (const el of list) {
+    // an earlier press may have chosen this one already (two switches bound to the same state)
+    if (!el.isConnected || chosen(el) || el.disabled || el.getAttribute('aria-disabled') === 'true') continue;
+    signal = false; let changed = false;
+    const before = document.activeElement;
+    mo = watch((m) => { if (!noisy.has(m.target)) changed = true; });
+    el.click();
+    await sleep(450);
+    mo.disconnect();
+    if (!changed && !signal && location.href === href && document.activeElement === before) dead.push(P.sel(el));
+  }
+  return { checked: list.length, dead: dead.slice(0, 12) };
 }
 
 /* ── the run ─────────────────────────────────────────────────────────────────────────────────────────────────── */
@@ -612,6 +670,17 @@ try {
   const loops = await page.evaluate(motionScan);
   for (const l of loops) add('moderate', 'motion', l, 'Animation keeps running under prefers-reduced-motion: reduce (infinite or longer than 5s).', 'Wrap it in @media (prefers-reduced-motion: no-preference) and give long loops a visible pause button (WCAG 2.2.2).');
   report.liveAfter = inv.live.length;
+
+  /* 7 controls that do nothing: press each button and watch for any answer at all */
+  const dead = flag('no-triggers') ? { checked: 0, dead: [] } : await (async () => {
+    await page.emulateMedia({ reducedMotion: 'no-preference' });
+    await open();
+    // a press that still navigates (a script setting location) ends the check early: said, never a crash
+    return page.evaluate(deadScan).catch((e) => ({ checked: 0, dead: [], stopped: String(e.message || e).split('\n')[0] }));
+  })();
+  if (dead.stopped) add('info', 'dead-control', 'page', `The press check stopped early: a press left the page (${dead.stopped}).`, 'Nothing to fix for this; check the remaining buttons by hand.');
+  report.deadChecked = dead.checked;
+  for (const d of dead.dead) add('serious', 'dead-control', d, 'Pressing it changed nothing: no change on the page, no focus move, no navigation, no request, nothing copied.', 'Wire it to what it says, or remove it. In a demo, a button that only shows its result (a line saying "Opened the readers report") still answers the press.');
 } catch (e) {
   // a crash or a page that didn't load: say so and exit 4, so it is never read as "not ready" (exit 1)
   await browser?.close();

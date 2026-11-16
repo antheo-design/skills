@@ -11,7 +11,7 @@ From 2025 to 26 write-ups of agent-built UI: each of these shipped with green ch
 - **A style reading a variable nobody defined:** the declaration is dropped silently, so a transition doesn't run
   (`check-page.mjs` lists them; `check-block-names.mjs` checks a file).
 - **Controls wired to nothing; a success shown after a failed request; leftovers** ("TODO", "Coming soon", a
-  template's title). Press every control; search the text.
+  template's title). Press every control (the access probe does it: check 7); search the text.
 - **A check that was quieted:** `eslint-disable`, `as any`, a deleted or weakened test, `overflow: hidden` over an
   overflow. Each is a finding in a change review.
 - **Only one browser, only the happy path.** Say which browser and which states were not checked.
