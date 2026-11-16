@@ -17,8 +17,8 @@ These are the patterns that make a UI read as "an AI made this": the lazy defaul
 
 | # | Tell | Instead |
 |---|---|---|
-| C1 | The subject drawn into the UI: a postal route, a calendar page curl, stamps, tickets, perforations, tape | The subject in the content (real places, times, people) and in one moment from the job |
-| C2 | Paper, kraft, cream or parchment grounds; grain, dots or halftone on a control | The block's `--surface` on `--bg`, flat |
+| C1 | The subject drawn into the UI: a postal route, a calendar page curl, stamps, tickets, perforations, tape | The subject in the content (real places, times, people) and in one moment from the job. Not a tell when the component is that object (a ticket you tear, a card in a wallet): then draw it well, inside its edge (antheo-surface `references/objects.md`) |
+| C2 | Paper, kraft, cream or parchment grounds; grain, dots or halftone on a control | The block's `--surface` on `--bg`, flat; a drawn object keeps its own material inside its edge |
 | C3 | A serif or display face inside a component; a title over 15px | One grotesk; a 15px title at weight 550; size only for the one value that matters |
 | C4 | Brown, olive or cream neutrals; the brand hue on borders, headings and panels | Warm grey at chroma ≤ 0.01; the ink as the accent; colour only from content |
 | C5 | Dashed or dotted borders and dividers | Solid hairlines between repeating rows only; space between sections |
@@ -150,7 +150,7 @@ builds.
 | O6 | A split screen with a placeholder half ("Shown here", "Pick a time") | One column |
 | O7 | Spec tables full of "Not included" inside plan cards | A short checklist per plan; the full comparison below |
 | O8 | Invented metadata, "ticket" cards and panels the request never named | Only what was asked |
-| O9 | Grain, paper and noise textures | Flat surfaces |
+| O9 | Grain, paper and noise textures on the page, panels or controls | Flat surfaces (a drawn object's own material is not this tell) |
 | O10 | An error said three ways (summary, helper, inline) in different words | One inline message; a summary only for several fields, in the same words |
 | O11 | Text beside every switch saying "On" or "Off" | The switch shows its state; its label says what it controls |
 

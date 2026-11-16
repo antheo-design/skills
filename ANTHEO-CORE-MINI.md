@@ -19,6 +19,33 @@ Then its numbers stop applying: outlined cards, pill buttons, more weights, larg
 colours are choices to judge on their own terms, not defects. Keep the restraint either way, and every device earns
 its place. Check such work with the gate's `--preset none`, which keeps every universal check and drops the Quiet ones.
 
+**Parts and objects.** The preset is for **parts**: fields, menus, filters, lists, tables, tabs. An **object** is a
+component that stands for a physical thing people know and use as one: a bank card, a dial, a knob, a radio tuner, a
+thermostat, a ticket, a record player. Naming one asks for it, so it is drawn as the thing, with its own material,
+light, depth and colours inside its edge (antheo-surface `references/objects.md`), while everything around it (labels,
+buttons, lists, the page) stays a part in the preset. A grey box with a label where the thing should be is the
+object's commonest failure.
+
+## Correct is the floor; aim higher
+
+Every rule and check in these skills proves that nothing is broken. None of them proves the work is good: a page can
+pass the gate at 100 and still be forgettable. So, for anything meant to be kept (a component for a library, a
+product screen, anything creative), also:
+
+1. **One thing at a time.** Several components in one pass each get a fraction of the attention. Build one, finish
+   it, then the next.
+2. **Start from a reference.** The person's, if they have one; otherwise name one or two real things it should feel
+   like (a product, an object, a photo) and say so. With no target, the result drifts to the average.
+3. **Directions before detail, when the look is open.** For an object or a creative piece, three quick directions on
+   the real page (Variants, below); the person picks; then build that one fully.
+4. **The main thing first, and big.** Make the component itself excellent at its real size before drawing its other
+   states. On a component's page it comes first, alone; the states sheet comes after it.
+5. **Watch it move.** Film every motion (antheo-motion, "Watch it") and read the frames; a still screenshot can't
+   judge motion.
+6. **Put it beside the reference** and name what is missing (light, a detail, proportion, how it moves). Fix that,
+   and look again. Two or three of these rounds is where quality comes from.
+7. **Say honestly where it stands:** what passed, what was compared, and what still falls short of the reference.
+
 ## The rules (first sentences; ANTHEO-CORE.md has them whole)
 
 1. **Few sizes.** An app screen uses at most four text sizes (meta, body, title, page); a data screen may add `--t-num` for its key figures and nothing else; a marketing section at most five (adds num and display).
@@ -41,7 +68,7 @@ its place. Check such work with the gate's `--preset none`, which keeps every un
 18. **Every state on the same layout,** with one made-up person throughout and no placeholder text.
 19. **Icons are few and grey.** 16px, 1.5 stroke, `--text-3`: navigation, an icon-only button (with a name), a tick in a list. No decorative icon inside a primary button; a spinner while it works and a check when it's done are states, not decoration (antheo-components).
 20. **Count before done.** Open the 1280px screenshots, light and dark, and count: text sizes, weights, corner sizes, accent things, tags, hairlines.
-21. **Arm the gate, and pass it.** At the start, arm antheo-review's gate on every page the work touches (`gate.mjs arm <url-or-file> --copy <source folder>`, plus `--preset none` when the project has its own system); before saying done, `gate.mjs check` must say PASS, or after three rounds DONE, UNRESOLVED with what is left, told to the person. How much to check beyond the gate depends on the size of the change (antheo-review, "How much to check"). Setup for each agent: antheo-review `references/gate.md`.
+21. **Arm the gate, and pass it.** At the start, arm antheo-review's gate on every page the work touches (`gate.mjs arm <url-or-file> --copy <source folder>`, plus `--preset none` when the project has its own system); before saying done, `gate.mjs check` must say PASS, or after three rounds DONE, UNRESOLVED with what is left, told to the person. How much to check beyond the gate depends on the size of the change (antheo-review, "How much to check"). Setup for each agent: antheo-review `references/gate.md`. A PASS is the floor, not the finish: it says nothing measured is broken, never that the work is good ("Correct is the floor; aim higher").
 
 ## The style block (references/quiet.css, comments removed)
 

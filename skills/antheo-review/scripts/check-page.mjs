@@ -11,7 +11,9 @@
  * (it tries channel "chrome" first). Closes the browser when done, always.
  *
  *   node check-page.mjs <url> --kind page   (or app: forces the marketing-page character checks on or off; app and
- *                                          component pages also get the costume checks of the product look)
+ *                                          component pages also get the costume checks of the product look; anything
+ *                                          inside [data-object], a drawn object such as a bank card or a dial, is
+ *                                          exempt from them, and still measured for contrast and everything else)
  *
  * Scores 0 to 100 per area and overall (higher is better):
  *   access 25 · layout 15 · craft 30 · consistency 10 · motion 10 · robustness 10
@@ -323,6 +325,9 @@ function measure(kind) {
     const costume = { serif: [], dashed: [], tracked: [], tinted: [], texture: [] };
     for (const el of document.querySelectorAll('body *')) {
       if (!visible(el)) continue;
+      // a drawn object (a bank card, a dial, a radio: antheo-surface references/objects.md) is the thing itself, so its
+      // material, print and texture are the job, not a costume; its text is still measured for contrast elsewhere
+      if (el.closest('[data-object]')) continue;
       const st = getComputedStyle(el);
       const r = el.getBoundingClientRect();
       const own = [...el.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim());
@@ -555,7 +560,11 @@ function craft() {
     if (!boxed(s) || !visible(el) || !(el.innerText || '').trim()) continue;
     const rects = content(el);
     if (!rects.length) continue;
-    const l = Math.min(...rects.map((x) => x.left)) - r.left, rr = r.right - Math.max(...rects.map((x) => x.right));
+    // wrapped text ends its lines wherever a word ends, so the room after the longest line says nothing about the
+    // padding: judge a wrapped box by its own inline padding instead
+    const wrapped = new Set(rects.map((x) => Math.round(x.top))).size > 1 && rects.every((x) => x.height < r.height * 0.75);
+    const l = wrapped ? parseFloat(s.paddingLeft) + parseFloat(s.borderLeftWidth) : Math.min(...rects.map((x) => x.left)) - r.left;
+    const rr = wrapped ? parseFloat(s.paddingRight) + parseFloat(s.borderRightWidth) : r.right - Math.max(...rects.map((x) => x.right));
     if (l < -1 || rr < -1 || l + rr > r.width * 0.4) continue; // spilling, or set to one side on purpose
     if (Math.abs(l - rr) > 6 && Math.max(l, rr) > 1.8 * Math.max(3, Math.min(l, rr))) out.lopsided.push(item(el, `${Math.round(l)}px of room on the left, ${Math.round(rr)}px on the right`));
   }
@@ -1163,8 +1172,9 @@ try {
         const el = document.activeElement;
         if (!el || el === document.body) return null;
         // the ring can be on the element, on a wrapper that reacts to :focus-within (a field's well around an input
-        // and its prefix), or on the drawn box beside a visually hidden native checkbox or radio
-        const near = [el, el.parentElement, el.parentElement?.parentElement, el.nextElementSibling].filter((n) => n && n !== document.body);
+        // and its prefix), on the drawn box beside a visually hidden native checkbox or radio, or on the row a tree
+        // item or grid cell draws as its first child
+        const near = [el, el.parentElement, el.parentElement?.parentElement, el.nextElementSibling, el.firstElementChild].filter((n) => n && n !== document.body);
         // snapshot as strings while focused: getComputedStyle is live, so reading it again after blur would compare
         // the blurred style with itself
         const snap = (n) => { const c = getComputedStyle(n); return [c.outlineStyle, c.outlineWidth, c.outlineColor, c.boxShadow, c.backgroundColor, c.borderTopColor].join('|'); };

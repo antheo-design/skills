@@ -24,6 +24,33 @@ Then its numbers stop applying: outlined cards, pill buttons, more weights, larg
 colours are choices to judge on their own terms, not defects. Keep the restraint either way, and every device earns
 its place. Check such work with the gate's `--preset none`, which keeps every universal check and drops the Quiet ones.
 
+**Parts and objects.** The preset is for **parts**: fields, menus, filters, lists, tables, tabs. An **object** is a
+component that stands for a physical thing people know and use as one: a bank card, a dial, a knob, a radio tuner, a
+thermostat, a ticket, a record player. Naming one asks for it, so it is drawn as the thing, with its own material,
+light, depth and colours inside its edge (antheo-surface `references/objects.md`), while everything around it (labels,
+buttons, lists, the page) stays a part in the preset. A grey box with a label where the thing should be is the
+object's commonest failure.
+
+## Correct is the floor; aim higher
+
+Every rule and check in these skills proves that nothing is broken. None of them proves the work is good: a page can
+pass the gate at 100 and still be forgettable. So, for anything meant to be kept (a component for a library, a
+product screen, anything creative), also:
+
+1. **One thing at a time.** Several components in one pass each get a fraction of the attention. Build one, finish
+   it, then the next.
+2. **Start from a reference.** The person's, if they have one; otherwise name one or two real things it should feel
+   like (a product, an object, a photo) and say so. With no target, the result drifts to the average.
+3. **Directions before detail, when the look is open.** For an object or a creative piece, three quick directions on
+   the real page (Variants, below); the person picks; then build that one fully.
+4. **The main thing first, and big.** Make the component itself excellent at its real size before drawing its other
+   states. On a component's page it comes first, alone; the states sheet comes after it.
+5. **Watch it move.** Film every motion (antheo-motion, "Watch it") and read the frames; a still screenshot can't
+   judge motion.
+6. **Put it beside the reference** and name what is missing (light, a detail, proportion, how it moves). Fix that,
+   and look again. Two or three of these rounds is where quality comes from.
+7. **Say honestly where it stands:** what passed, what was compared, and what still falls short of the reference.
+
 ## Match the person
 
 Read who is asking from how they ask, and change the depth, never the quality of the work. Ask only when the answer
@@ -44,7 +71,8 @@ any depth, say which part is a default of this style ("this style keeps corners 
 
 Paste `references/quiet.css` whole, as the first CSS of the build, and load its font. After it, **every** colour,
 font size, line height, weight, radius, shadow and control height is a `var(--…)` from the block: no hex, no `px`
-font size, no new radius. (Allowed literals: `0`, `1px`, `2px`, `100%`, and widths.) If the project already has its
+font size, no new radius. (Allowed literals: `0`, `1px`, `2px`, `100%`, and widths; and inside a drawn object, its own
+material colours, defined once on its root for light and dark.) If the project already has its
 own tokens, those are the block (**antheo-system**). In a framework or a server-rendered app, load it once,
 globally, first, and read its names from components, Tailwind or a theme object: `references/stacks.md` has where
 it goes in React, Vue, Svelte, Angular, Astro, Django, Rails, Laravel and the rest.
@@ -97,7 +125,8 @@ it goes in React, Vue, Svelte, Angular, Astro, Django, Rails, Laravel and the re
     line only for a constraint or a consequence ("JPG or PNG, up to 2 MB"; "At least 8 characters"), in `--t-meta`
     `--text-2`, 4px under. An error is the red inner edge and a short message under the field naming the fix (antheo-writing).
 11. **Chrome only as named.** A "section", a "component" or a page that shows components gets no site header, footer
-    or navigation. An app page
+    or navigation. A page that shows a component puts the live component first, at its real size, then its states.
+    An app page
     gets one `--h-bar` bar: a neutral logo tile (20px, the `--primary` fill, `--r-tag` corners, a simple one-shape mark inside in `--on-primary`; never an
     empty square), the product name (`--t-body`, `--w-strong`), and the one
     context the request names (a workspace name, as plain text). No sidebar unless the request lists destinations;
@@ -138,7 +167,8 @@ it goes in React, Vue, Svelte, Angular, Astro, Django, Rails, Laravel and the re
     (`gate.mjs arm <url-or-file> --copy <source folder>`, plus `--preset none` when the project has its own system);
     before saying done, `gate.mjs check` must say PASS, or after three rounds DONE, UNRESOLVED with what is left, told
     to the person. How much to check beyond the gate depends on the size of the change (antheo-review, "How much to
-    check"). Setup for each agent: antheo-review `references/gate.md`.
+    check"). Setup for each agent: antheo-review `references/gate.md`. A PASS is the floor, not the finish: it says
+    nothing measured is broken, never that the work is good ("Correct is the floor; aim higher").
 
 ## 3. Then the screen's pattern card
 
@@ -151,6 +181,7 @@ same block and rules.
 | When | Read |
 |---|---|
 | A single component for a library; a table or chart | **antheo-components**, **antheo-data** |
+| A component that is a physical thing (a card, a dial, a knob) | **antheo-surface** `references/objects.md` |
 | It will be used on a phone | **antheo-mobile** |
 | Wording errors, confirms, empty states | **antheo-writing** |
 | Something opens, closes or moves | **antheo-motion** |
@@ -206,4 +237,6 @@ promised · drift · quieting a check instead of fixing it · a fix loop · anot
 - [ ] The main task fits 1280×800; every state on the same layout, one person throughout
 - [ ] The screenshots opened and the six counts made, light and dark, at 390px and 1280px
 - [ ] Every control pressed; the console clean; no "TODO", sample name or leftover text; nothing jumps
+- [ ] Anything meant to be kept: built one at a time, from a reference, put beside it, every motion filmed and read
+- [ ] An object drawn as the thing, not a box with a label; its root marked `data-object`
 - [ ] Checked against every habit in `references/habits.md`

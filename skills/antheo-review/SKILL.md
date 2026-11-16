@@ -72,7 +72,10 @@ in a marketing section), weights (2), corner sizes (3), accent things (4), tags 
 repeating rows). In the Quiet preset, a count over its limit is a finding. Then, for each screenshot, one line: where the eye lands first, whether the header and
 every block share one edge, whether siblings match, anything that almost lines up, anything nobody would miss if it
 were removed. Then the eight questions in `references/rubric.md`. A component or app screen is put beside the best
-one in the project: louder, larger, browner or busier anywhere is a finding.
+one in the project: louder, larger, browner or busier anywhere is a finding. A drawn object (a card, a dial) is put
+beside its reference instead: flatter, lifeless, lit from two sides or wrong in proportion is a finding
+(antheo-surface `references/objects.md`). Anything that animates is filmed (antheo-motion `scripts/filmstrip.mjs`)
+and its frames read, because these screenshots are all at rest.
 
 ## High on sight, without weighing
 

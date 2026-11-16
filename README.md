@@ -164,6 +164,7 @@ layout at seven widths, the words on a screen, every hardcoded value in a codeba
 | `contrast.mjs` | color | WCAG 2.2 contrast and APCA for any two colours |
 | `block.mjs`, `tokens.mjs` | tokens | The style block in your brand, or a full token set, with every pair measured |
 | `variant-bar.js` | build | Three versions on the real page, switched with the keys 1, 2 and 3 |
+| `filmstrip.mjs` | motion | Films one motion at a tenth of its speed into a sheet of frames, so it can be judged, not guessed |
 | `scan-motion.mjs` | motion audit | Every animation in a codebase, with drift in durations and curves |
 | `audit-values.mjs` | system | Every hardcoded value in a codebase, grouped and mapped to tokens |
 | `inspect.mjs` | explain | One element's layers, styles and animations |

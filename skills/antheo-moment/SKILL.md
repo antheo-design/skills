@@ -61,7 +61,9 @@ finish still shows (the tick appears, the colour changes), because it carries me
 ## Never draw the subject into the UI
 
 The moment lives in the job, not in the subject's world: no postal routes, paper, stamps or chalkboards
-(antheo-direction).
+(antheo-direction). The exception is a component that **is** a physical thing (a bank card, a dial, a ticket): it is
+drawn as that thing (antheo-surface `references/objects.md`), and its moment is what the real thing does (the card
+slides home, the dial settles, the ticket tears off), still only on the rare event.
 
 ## Done
 
@@ -69,7 +71,7 @@ The moment lives in the job, not in the subject's world: no postal routes, paper
 - [ ] Only the beats it needs, following the real work; touches only where they help; the failure designed
 - [ ] The screen-record, frame and meaning tests pass
 - [ ] The finish under 1s, once, skippable, with no added delay; reduced motion keeps the finish as a crossfade
-- [ ] Checked at 0.1× speed and repeated twenty times
+- [ ] Filmed at 0.1× (antheo-motion `scripts/filmstrip.mjs`), every frame read, and repeated twenty times
 
 ## Files
 

@@ -51,7 +51,7 @@
 
 ## The look (components and app screens, in the Quiet preset; with the project's own system, check it against that system instead)
 
-- [ ] No costume: no serif or display face inside, no paper or texture, no stamps, no dashed borders, no uppercase tracked labels, no brown or brand-tinted neutrals (antheo-direction `references/slop.md` C1 to C7)
+- [ ] No costume: no serif or display face inside, no paper or texture, no stamps, no dashed borders, no uppercase tracked labels, no brown or brand-tinted neutrals (antheo-direction `references/slop.md` C1 to C7); a drawn object (`data-object`) keeps its own material inside its edge, and is judged beside its reference instead (antheo-surface `references/objects.md`)
 - [ ] Chrome chroma ≤ 0.01; the accent is the ink or one brand signal; colour comes from content
 - [ ] 13px body, 12px meta, a 15px title at weight 550, two text tones; 32px controls; corners 10/6/4; cards with no outline, hairlines only between repeating rows; at most 2 tags and 4 accent things
 - [ ] The side-by-side test: next to the project's best component (or a reference piece) at 100%, light and dark, nothing is louder, larger, browner or busier

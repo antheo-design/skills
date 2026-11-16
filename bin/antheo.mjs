@@ -25,6 +25,7 @@ const TOOLS = {
   block: ['antheo-tokens/scripts/block.mjs', 'the style block in your brand: antheo block --brand "#5d6b2f"'],
   tokens: ['antheo-tokens/scripts/tokens.mjs', 'a full token set for a design system, every pair measured'],
   inspect: ['antheo-explain/scripts/inspect.mjs', "one element's layers, styles and animations"],
+  film: ['antheo-motion/scripts/filmstrip.mjs', 'film one motion, slowed, into a sheet of frames: antheo film <url> --clip ".card" --click ".card"'],
   motion: ['antheo-motion-audit/scripts/scan-motion.mjs', 'every animation in a codebase, with drift in durations and curves'],
   values: ['antheo-system/scripts/audit-values.mjs', 'every hardcoded value in a codebase, grouped and mapped to tokens'],
 };

@@ -465,6 +465,63 @@ if (BROWSER && hasPlaywright) {
       shots.filter(([, same]) => !same).map(([name]) => `${name} renders differently with the mini CSS`));
   }
 
+  // false alarms the lab's round of 25 components ran into: each stays quiet on the right page, and the real defect
+  // next to it is still caught
+  const labPage = (name, body, style = '') => {
+    const file = path.join(tmp, `lab-${name}.html`);
+    fs.writeFileSync(file, `${PAGE_HEAD(name)}<style>${quiet}${style}</style></head><body><main style="max-width:720px;margin:0 auto;padding:24px 16px"><h1 class="t-page">Lab ${name}</h1>${body}</main></body></html>`);
+    return file;
+  };
+  const rulesOf = (file, extra = []) => {
+    const json = file.replace(/\.html$/, '.check.json');
+    spawnSync(process.execPath, [checkPage, file, '--widths', '390,1280', '--json', json, ...extra], { encoding: 'utf8', timeout: 240000 });
+    return fs.existsSync(json) ? JSON.parse(read(json)).findings : null;
+  };
+  test('a drawn object keeps its texture; the same texture on a panel is still a costume', () => {
+    const tex = 'background:repeating-linear-gradient(90deg,oklch(1 0 0/.06) 0 1px,transparent 1px 3px),oklch(0.35 0.03 260);width:320px;height:200px;border-radius:12px';
+    const file = labPage('object', `<div data-object class="obj-card" role="img" aria-label="Bank card ending 4242" style="${tex}"></div><div class="card panel-tex" style="margin-top:24px;${tex}"></div>`);
+    const f = rulesOf(file, ['--kind', 'app']);
+    if (!f) return ['the page check did not run'];
+    const flagged = JSON.stringify(f.filter((x) => /texture or pattern/.test(x.rule)).flatMap((x) => x.items));
+    const out = [];
+    if (!flagged.includes('panel-tex')) out.push('the textured panel outside the object was not flagged');
+    if (flagged.includes('obj-card')) out.push('the drawn object was flagged as a costume');
+    return out;
+  });
+  test('wrapped text is not lopsided padding, and a focus ring drawn on a tree row counts as focus', () => {
+    const file = labPage('wrap-tree',
+      '<div style="width:240px;padding:8px 12px;border-radius:6px;background:var(--well)">No one called "zoe" on this team, try another name</div>'
+      + '<ul role="tree" aria-label="Files" style="list-style:none;padding:0;margin-top:24px"><li role="treeitem" tabindex="0" aria-selected="false" class="ti"><div class="row">src</div></li></ul>',
+      '.ti{outline:none}.ti:focus-visible>.row{outline:2px solid var(--focus);outline-offset:-2px}.row{height:var(--h-row);display:flex;align-items:center;padding:0 var(--s-2)}');
+    const f = rulesOf(file);
+    if (!f) return ['the page check did not run'];
+    return f.filter((x) => /lopsided padding|no visible focus/.test(x.rule)).map((x) => `false alarm: ${x.rule}`);
+  });
+  test('Tab from the last card of one board column to the first of the next is not a backwards jump', () => {
+    const card = (t) => `<li tabindex="0" aria-label="${t}" style="position:relative;padding:12px 48px 12px 12px;background:var(--raised);border-radius:6px;margin-bottom:8px"><span>${t}</span><button type="button" class="btn" aria-label="Move ${t}" style="position:absolute;right:8px;top:8px">→</button></li>`;
+    const col = (name, a, b) => `<section aria-label="${name}" style="background:var(--well);padding:12px;border-radius:10px"><h2 class="t-title">${name}</h2><ul style="list-style:none;padding:0;margin:0">${card(a)}${card(b)}</ul></section>`;
+    const file = labPage('board', `<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">${col('To do', 'Write copy', 'Plan research')}${col('Done', 'Ship tokens', 'Fix focus')}</div>`);
+    const json = file.replace(/\.html$/, '.probe.json');
+    spawnSync(process.execPath, [probe, file, '--json', json], { encoding: 'utf8', timeout: 240000 });
+    if (!fs.existsSync(json)) return ["the access probe didn't run"];
+    return (JSON.parse(read(json)).findings ?? []).filter((x) => x.area === 'focus-order').map((x) => `false alarm: ${x.msg ?? x.area}`);
+  });
+  test('the filmstrip films a motion into a sheet, and a missing element is a tool error', () => {
+    const film = path.join(SKILLS, 'antheo-motion', 'scripts', 'filmstrip.mjs');
+    const file = labPage('film', '<button type="button" class="btn" id="go">Move</button><div id="box" style="width:120px;height:60px;margin-top:16px;border-radius:6px;background:var(--primary);transition:translate 400ms var(--ease-out)"></div>',
+      '#box.on{translate:200px 0}');
+    fs.appendFileSync(file, '<script>document.getElementById("go").onclick=()=>document.getElementById("box").classList.toggle("on")</script>');
+    const out = path.join(tmp, 'film.png');
+    const r = spawnSync(process.execPath, [film, file, '--clip', 'main', '--click', '#go', '--frames', '6', '--duration', '400', '--out', out], { encoding: 'utf8', timeout: 240000 });
+    const problems = [];
+    if (r.status !== 0 || !fs.existsSync(out) || fs.statSync(out).size < 2000) problems.push(`no sheet (exit ${r.status}): ${(r.stderr || '').trim().split('\n').pop()}`);
+    const times = (r.stdout.match(/frame times \(ms\): ([\d, ]+)/)?.[1] ?? '').split(',').map(Number);
+    if (times.length !== 6 || times.at(-1) < 300) problems.push(`frames should span the motion, got: ${times.join(', ')}`);
+    const miss = spawnSync(process.execPath, [film, file, '--clip', '#nothing-here', '--out', out], { encoding: 'utf8', timeout: 240000 });
+    if (miss.status !== 4) problems.push(`a missing --clip exited ${miss.status}, expected 4`);
+    return problems;
+  });
+
   test('a page that does not load (a stopped server) is a tool error, exit 4, not a measured page', () => {
     const r = spawnSync(process.execPath, [checkPage, 'http://127.0.0.1:59999/', '--widths', '1280'], { encoding: 'utf8', timeout: 240000 });
     return r.status === 4 ? [] : [`check-page on a dead server exited ${r.status}, expected 4`];

@@ -110,7 +110,7 @@ not like a web page squeezed narrow. On an iPhone (393 × 852pt, the size to che
 | Previous / Next | two equal halves on one line |
 | A grid of columns | one column |
 | A segmented control that doesn't fit | one button showing the current choice; tapping it lists the rest in a sheet |
-| A row of filters | one line that scrolls sideways past the gutter, faded `20px` at each end; it never wraps |
+| A row of filters | one line that scrolls sideways past the gutter, faded `20px` at each end; it never wraps. When each chip opens a menu, the chips wrap instead: a scrolling row clips the menu |
 | A tooltip | opens on tap |
 | A dialog | a bottom sheet |
 | A table | scrolls sideways inside its frame, the first column sticky while at least `88px` stays beside it; tapping anywhere on a row opens it |

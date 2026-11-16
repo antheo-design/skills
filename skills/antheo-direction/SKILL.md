@@ -26,6 +26,8 @@ Unsure which: Clean, and offer Brand as a variant.
 
 A parcel tracker does not draw a postal route; a booking picker does not wear a desk calendar; a pricing page for a
 feedback tool does not get sticky notes. The subject shows as real content: places, times, people, things, numbers.
+A component that **is** a physical thing (a bank card, a dial, a ticket) is not ornament: it is drawn as that thing,
+inside its own edge only (antheo-surface `references/objects.md`).
 
 ## Remove the tells, both kinds
 

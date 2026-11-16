@@ -446,12 +446,16 @@ try {
     && !e.closest('[role=tablist], [role=menu], [role=listbox], [role=radiogroup], [role=toolbar], [role=tree], [role=grid], [inert]')
     && !(e.matches('input[type=radio]') && e.name && [...document.querySelectorAll('input[type=radio][data-a11y-tab]')].some((o) => o.name === e.name && o.form === e.form))).map(window.__p.sel).slice(0, 5));
   if (!last?.repeat && wrapped) for (const m of missed) add('moderate', 'keyboard', m, 'Visible focusable element that Tab never reached.', 'Check for tabindex=-1 or a focus handler that skips it.');
+  const rtl = await page.evaluate(() => getComputedStyle(document.body).direction === 'rtl').catch(() => false);
   stops.forEach((s, i) => {
     const prev = stops[i - 1];
     if (prev && !s.repeat) {
       const dy = s.rect.y - prev.rect.y;
       const dx = Math.abs(s.rect.x - prev.rect.x); // a move of 150px+ sideways is a new column (sidebar to main), not a jump back
-      if (dy < -24 && dx <= 150 && !s.skip) add('serious', 'focus-order', s.sel, `Focus jumps backwards on screen (stop ${prev.order} at y=${prev.rect.y} to stop ${s.order} at y=${s.rect.y}).`, 'Make DOM order match visual order; do not reorder with CSS order, flex-direction: *-reverse, grid placement or absolute positioning.');
+      // so is a stop that starts to the right of where the last one ended: the last card of a board column (its button
+      // at the column's right edge) to the first card of the next column
+      const nextColumn = rtl ? s.rect.x + s.rect.w <= prev.rect.x + 4 : s.rect.x >= prev.rect.x + prev.rect.w - 4;
+      if (dy < -24 && dx <= 150 && !nextColumn && !s.skip) add('serious', 'focus-order', s.sel, `Focus jumps backwards on screen (stop ${prev.order} at y=${prev.rect.y} to stop ${s.order} at y=${s.rect.y}).`, 'Make DOM order match visual order; do not reorder with CSS order, flex-direction: *-reverse, grid placement or absolute positioning.');
     }
     if (!s.name && !['textbox', 'searchbox', 'combobox'].includes(s.role) || (!s.name && s.role)) add('blocker', 'names', s.sel, `No accessible name (${s.role}).`, 'Give it visible text, a <label>, or aria-label for icon-only controls.');
     else if (s.nameSrc === 'placeholder') add('serious', 'names', s.sel, 'Named only by its placeholder, which disappears on typing.', 'Add a real <label for>.');

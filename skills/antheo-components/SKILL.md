@@ -27,7 +27,8 @@ Most weak components start at step 5. Work down; each step limits the next.
    "View all". Leave out what is empty, finished or not relevant yet.
 3. **The component.** Use the project's own first. Plain rows for lists, a card for one thing and its details, a table
    for many records, a dialog only for a focused task or a confirm.
-4. **The surface.** What it sits on, then raised or sunk: decided with **antheo-surface**.
+4. **The surface.** What it sits on, then raised or sunk: decided with **antheo-surface**. A component that stands for
+   a physical thing (a card, a dial, a knob) is an object, drawn as the thing (antheo-surface `references/objects.md`).
 5. **Size and type.** From the tables in `references/look.md`.
 6. **Every state.** Drawn and seen, not assumed.
 7. **Whether it moves.** Ask antheo-motion's gate first; most things answer quickly and stop.
@@ -142,7 +143,8 @@ disabled is the well fill with its label in `--text-2`; done shows a check and t
 button as it was and adds the red message under it with an icon. Hover and pressed differ from rest by a visible
 step (a darker fill; the 97% squeeze).
 
-**Showing every state at once** (a states sheet, a story, a spec): one row per state in a single `.card`, the state's
+**Showing every state at once** (a states sheet, a story, a spec), after the live component, never instead of it: the
+component comes first at its real size, then one row per state in a single `.card`, the state's
 name in `--t-meta` on the left in a fixed column, the control in the middle, and one line on the right saying what
 triggers it. Hairlines between rows, no card per state. Force the pointer states with a class that copies the
 `:hover` and `:active` rules (`.is-hover`, `.is-pressed`), and focus with `.is-focus` copying `:focus-visible`. A

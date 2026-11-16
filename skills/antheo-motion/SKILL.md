@@ -18,7 +18,7 @@ whole app is **antheo-motion-audit**'s.
 2. **Mark how often** a person sees each: many times a day, daily, or rarely.
 3. **Give each its duration and easing** from the tables below.
 4. **Hand the one rare, meaningful event**, if there is one, to antheo-moment.
-5. **Check it** fast, twice, slowed down, and with reduced motion.
+5. **Check it** fast, twice, and with reduced motion, then **film it** and read the frames (below).
 
 ## Name why it moves, or don't move it
 
@@ -123,8 +123,28 @@ has a pause control (WCAG 2.2.2); nothing flashes more than 3 times a second (2.
 ## Check it
 
 Click everything fast, twice: it reverses, never jumps. Open the menu twenty times: still quick. Throttle the CPU
-4×: still smooth. Turn on reduced motion: nothing travels. Slow it down
-(`document.getAnimations().forEach((a) => (a.playbackRate = 0.1))`) and look at 10 to 14 frames.
+4×: still smooth. Turn on reduced motion: nothing travels.
+
+## Watch it: a still can't judge motion
+
+A screenshot of the resting state says nothing about how a thing moves, and every checker reads still frames. So
+film each motion you made and look at the frames before calling it done:
+
+```
+node <antheo-motion>/scripts/filmstrip.mjs <url> --clip ".tuner" --click ".preset" --duration 600
+node <antheo-motion>/scripts/filmstrip.mjs <url> --clip ".sheet" --drag ".handle" --by 0,240 --duration 900
+```
+
+It slows the page to 0.1× (CSS, Web Animations and the JavaScript clock), does the one thing, and lays 12 frames of
+the element on one sheet, each with its time. Open the sheet and read every frame:
+
+- each frame looks composed on its own: no hard edge sliding through, no flash of the wrong colour, no empty box
+- every value that changes is seen to change: a number that should roll doesn't snap while its needle still travels
+- nothing reflows or jumps mid-way; the first frame already answers the press
+- the end settles where it should: a spring overshoots a little and comes back, a control doesn't stop dead
+- film it again with `--reduce` and `--dark`: the story is still told, and dark has no flash of light
+
+Fix what a frame shows, film it again, and keep the last sheet as the evidence.
 
 ## What generated UI gets wrong here
 
@@ -146,10 +166,12 @@ is a finding whatever the style.
 - [ ] Only the allowed properties; origin at the trigger; nothing from scale(0)
 - [ ] Reduced motion becomes a crossfade; loops over 5s can pause
 - [ ] Clicked fast twice, at 4× slowdown and with reduced motion
+- [ ] Each motion filmed (`scripts/filmstrip.mjs`), every frame read, light, dark and reduced
 - [ ] Checked against every habit in `references/habits.md`
 
 ## Files
 
+- `scripts/filmstrip.mjs`: films one motion at 0.1× into a sheet of frames, with the time under each
 - `references/recipes.md`: the index of 36 copy-ready recipes, one file each in `references/recipes/`, from press and
   popover to number rolls and streaming text
 - `references/why.md`: the reason behind every rule, for when a value looks arbitrary or someone wants to break it

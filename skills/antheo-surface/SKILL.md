@@ -134,6 +134,15 @@ Check each in `references/habits.md` before calling it done: the same big soft s
 and tint together · the "not generated" costumes · an icon in a tinted tile · text 2px from an edge · pill corners
 on things that aren't controls · fake product chrome drawn in boxes · two or three icon sets in one build.
 
+## Objects: when the component is the thing
+
+The rules above are for **parts** (fields, menus, cards of content). An **object** is a component that stands for a
+physical thing people know and use as one: a bank card, a dial, a knob, a radio, a thermostat, a ticket, a record.
+Drawn as a grey box with a label, it is correct and lifeless. Drawn as the thing, it gets its own material, one
+light from above-left, a bevel, a cast and a contact shadow, faint surface texture, a highlight, and its own colours
+kept on its root, while the labels and buttons around it stay parts. Mark its root `data-object`. Recipes, the bar
+and the checks: `references/objects.md`.
+
 ## Other surface languages
 
 The edges and drops above are the Quiet preset. A project or a requested direction may speak another surface
@@ -151,11 +160,14 @@ meaning the same thing everywhere: higher is closer.
 - [ ] Hairlines only between repeating rows and under a scrolled sticky bar
 - [ ] Rows fill in place; picked options keep a check
 - [ ] Translucent chrome has a solid fallback; images outlined; icons sized and mirrored correctly
+- [ ] An object, if there is one, drawn as the thing (`references/objects.md`): one light, its material, put beside its reference
 - [ ] Checked against every habit in `references/habits.md`
 
 ## Files
 
 - `references/recipes.md`: the layer stack as CSS custom properties redeclared per surface, the dark mapping, a
   sticky header with its scrolled hairline and fade, translucent chrome with both fallbacks, image outlines
+- `references/objects.md`: drawing a component that is a physical thing: part or object, the bar, one light, its own
+  colours, materials (plastic, metal, knurling, paper, foil, a lit display, embossing), depth that moves, behaviour
 - uses `antheo-components/references/tokens.css` for the component custom properties
 - `references/habits.md`: what generated UI gets wrong here, each with its fix
