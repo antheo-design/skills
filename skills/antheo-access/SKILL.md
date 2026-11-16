@@ -149,6 +149,7 @@ catch only part of WCAG; a clean probe is never "accessible" on its own.
 
 ## Files
 
+- `references/examples.md`: what goes wrong and the fix, from the skills page and from real builds; when the default is wrong
 - `scripts/a11y-probe.mjs`: drives a page by keyboard and gives a verdict (exit 0 clean, 1 not ready, 3 broken, 4 could not run: nothing was checked)
 - `references/patterns.md`: key maps and markup for 20 widgets; roving tabindex and combobox code
 - `references/forms.md`: labels, groups, errors, the summary, autocomplete tokens, input types, timeouts

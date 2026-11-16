@@ -161,6 +161,7 @@ checked on one, or said as unverified.
 
 ## Files
 
+- `references/examples.md`: what goes wrong and the fix, from the skills page and from real builds; when the default is wrong
 - `references/recipes.md`: the native-feel base CSS, the viewport meta, hover gating for Tailwind and plain CSS, the
   44px hit area, a bottom bar that clears the keyboard, the sheet's markup and CSS, a table that scrolls sideways
 - uses antheo-motion `references/gestures.md` for the drag itself and antheo-review `scripts/check-page.mjs` at 360

@@ -116,6 +116,7 @@ physics layer come first; character and surprise make it memorable.
 
 ## Files
 
+- `references/examples.md`: what goes wrong and the fix, from the skills page and from real builds; when the default is wrong
 - `references/effects.md`: how to build each effect: squash and stretch, press ripples, springs with velocity,
   magnetic hover, tilt and glare, static and grain on a canvas, shimmer, rolling digits, particle bursts, a reacting
   character, a Web Audio click, all with reduced motion

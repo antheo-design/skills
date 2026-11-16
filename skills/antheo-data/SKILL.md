@@ -106,5 +106,6 @@ and a percentage change only on a base big enough to mean something (say "from 3
 
 ## Files
 
+- `references/examples.md`: what goes wrong and the fix, from the skills page and from real builds; when the default is wrong
 - `references/charts.md`: chart choice, axes, colour, KPI tiles, accessible charts, building simple charts in SVG
 - `references/habits.md`: what generated dashboards get wrong, each with its fix

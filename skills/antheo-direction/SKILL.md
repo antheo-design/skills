@@ -100,6 +100,7 @@ ground has a reason (the closing section, a quote). Plan the sections with `refe
 
 ## Files
 
+- `references/examples.md`: what goes wrong and the fix, from the skills page and from real builds; when the default is wrong
 - `references/slop.md`: the tells of generated and over-designed UI, each with what to do instead
 - `references/directions.md`: the directions for Brand pages, and the kinds of image made from the subject
 - `references/scenes.md`: planning a Brand page's sections, the hero, and the familiar parts done well

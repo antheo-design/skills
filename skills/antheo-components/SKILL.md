@@ -183,6 +183,7 @@ control wired to nothing.
 
 ## Files
 
+- `references/examples.md`: what goes wrong and the fix, from the skills page and from real builds; when the default is wrong
 - `references/look.md`: the look as tables: colour, type, size, the parts that recur
 - `references/tokens.css`: how a standalone component scopes the style block under its own prefix
 - `references/components.md`: 30 components, each with anatomy, states, keys and markup

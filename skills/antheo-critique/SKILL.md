@@ -99,3 +99,7 @@ the verdict. Record a correction or a praise in `design/taste.md` (antheo-system
 - [ ] Facts stated, questions asked, each tagged with its owner; estimates labelled
 - [ ] At most seven points and three experiments; something that works named, with why
 - [ ] Nothing redesigned before the person chose
+
+## Files
+
+- `references/examples.md`: what goes wrong and the fix, from the skills page and from real builds; when the default is wrong

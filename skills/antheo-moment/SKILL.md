@@ -79,5 +79,6 @@ slides home, the dial settles, the ticket tears off), still only on the rare eve
 
 ## Files
 
+- `references/examples.md`: what goes wrong and the fix, from the skills page and from real builds; when the default is wrong
 - `references/toolbox.md`: light from the press point, living colour, an anticipation halo, rolling text and digits,
   a drawn tick, a burst, a sheen, springs, vibration and sound, with code; moments by component; checking frames

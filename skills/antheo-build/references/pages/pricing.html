@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pricing · Northwind</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400..600&display=swap">
+<link rel="stylesheet" href="../quiet.css">
+<style>
+  /* a marketing section: up to five sizes (display and num join), one filled button, the recommended plan lifted */
+  main { width: min(var(--w-pricing), 100% - 2 * var(--gutter)); margin: var(--s-16) auto; display: grid; gap: var(--s-10); }
+  header { display: grid; gap: var(--s-3); justify-items: center; text-align: center; }
+  header p { color: var(--text-2); }
+  .plans { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s-4); align-items: stretch; }
+  .plan { display: grid; grid-template-rows: auto auto auto 1fr; gap: var(--s-4); }
+  .plan.recommended { box-shadow: var(--sh-lift); }
+  .name { display: flex; align-items: center; justify-content: space-between; gap: var(--s-2); }
+  .for { color: var(--text-2); }
+  .price { display: flex; align-items: baseline; gap: var(--s-2); }
+  .unit { color: var(--text-2); }
+  ul { margin: 0; padding: 0; list-style: none; display: grid; gap: var(--s-2); align-content: start; }
+  li { display: flex; gap: var(--s-2); }
+  li svg { flex: none; width: var(--s-4); height: var(--l-body); color: var(--text-3); }
+  .btn { width: 100%; height: var(--h-cta); }
+  @media (max-width: 60rem) { .plans { grid-template-columns: 1fr; max-width: var(--w-form); margin-inline: auto; width: 100%; } }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1 class="t-display">Plans that grow with your studio</h1>
+    <p>Every plan includes unlimited clients and invoices.</p>
+  </header>
+  <div class="plans">
+    <section class="card plan" aria-labelledby="solo">
+      <div><div class="name"><h2 class="t-title" id="solo">Solo</h2></div><p class="for">For one person</p></div>
+      <p class="price"><span class="t-num">€9</span><span class="unit">a month</span></p>
+      <button class="btn" type="button">Choose Solo</button>
+      <ul>
+        <li><svg viewBox="0 0 16 20" aria-hidden="true"><path d="M3.5 10.5 6.5 13.5 12.5 7" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>1 person</li>
+        <li><svg viewBox="0 0 16 20" aria-hidden="true"><path d="M3.5 10.5 6.5 13.5 12.5 7" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Time tracking</li>
+        <li><svg viewBox="0 0 16 20" aria-hidden="true"><path d="M3.5 10.5 6.5 13.5 12.5 7" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Invoices in 3 currencies</li>
+        <li><svg viewBox="0 0 16 20" aria-hidden="true"><path d="M3.5 10.5 6.5 13.5 12.5 7" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Email support</li>
+        <li><svg viewBox="0 0 16 20" aria-hidden="true"><path d="M3.5 10.5 6.5 13.5 12.5 7" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>5 GB of files</li>
+      </ul>
+    </section>
+    <section class="card plan recommended" aria-labelledby="studio">
+      <div><div class="name"><h2 class="t-title" id="studio">Studio</h2><span class="tag tag-accent">Recommended</span></div><p class="for">For teams up to 10</p></div>
+      <p class="price"><span class="t-num">€29</span><span class="unit">a month</span></p>
+      <button class="btn btn-primary" type="button">Choose Studio</button>
+      <ul>
+        <li><svg viewBox="0 0 16 20" aria-hidden="true"><path d="M3.5 10.5 6.5 13.5 12.5 7" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Up to 10 people</li>
+        <li><svg viewBox="0 0 16 20" aria-hidden="true"><path d="M3.5 10.5 6.5 13.5 12.5 7" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Time tracking and approvals</li>
+        <li><svg viewBox="0 0 16 20" aria-hidden="true"><path d="M3.5 10.5 6.5 13.5 12.5 7" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Invoices in any currency</li>
+        <li><svg viewBox="0 0 16 20" aria-hidden="true"><path d="M3.5 10.5 6.5 13.5 12.5 7" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Chat support</li>
+        <li><svg viewBox="0 0 16 20" aria-hidden="true"><path d="M3.5 10.5 6.5 13.5 12.5 7" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>100 GB of files</li>
+      </ul>
+    </section>
+    <section class="card plan" aria-labelledby="agency">
+      <div><div class="name"><h2 class="t-title" id="agency">Agency</h2></div><p class="for">For teams over 10</p></div>
+      <p class="price"><span class="t-num">€79</span><span class="unit">a month</span></p>
+      <button class="btn" type="button">Choose Agency</button>
+      <ul>
+        <li><svg viewBox="0 0 16 20" aria-hidden="true"><path d="M3.5 10.5 6.5 13.5 12.5 7" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Unlimited people</li>
+        <li><svg viewBox="0 0 16 20" aria-hidden="true"><path d="M3.5 10.5 6.5 13.5 12.5 7" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Approvals and budgets</li>
+        <li><svg viewBox="0 0 16 20" aria-hidden="true"><path d="M3.5 10.5 6.5 13.5 12.5 7" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Client portal</li>
+        <li><svg viewBox="0 0 16 20" aria-hidden="true"><path d="M3.5 10.5 6.5 13.5 12.5 7" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>A named support contact</li>
+        <li><svg viewBox="0 0 16 20" aria-hidden="true"><path d="M3.5 10.5 6.5 13.5 12.5 7" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>1 TB of files</li>
+      </ul>
+    </section>
+  </div>
+</main>
+</body>
+</html>

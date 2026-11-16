@@ -121,6 +121,7 @@ for everything · typewriter characters in rendered copy · figures that jiggle.
 
 ## Files
 
+- `references/examples.md`: what goes wrong and the fix, from the skills page and from real builds; when the default is wrong
 - `scripts/x-height.mjs`: a typeface's x-height ratio, for `font-size-adjust`
 - `references/type.md`: faces by mood, scale ratios, fluid display sizes, wrapping recipes, numbers, loading
 - `references/habits.md`: what generated UI gets wrong here, each with its fix

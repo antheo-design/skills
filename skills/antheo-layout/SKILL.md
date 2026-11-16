@@ -175,6 +175,7 @@ grid blown out by its content · one card alone on the last row · every panel o
 
 ## Files
 
+- `references/examples.md`: what goes wrong and the fix, from the skills page and from real builds; when the default is wrong
 - `references/screens.md`: the bar and the other screen patterns, each with its phone version
 - `references/screens/pricing.md`, `settings.md`, `sign-up.md`, `list.md`: one short card each, in style-block variables, with what is not there
 - `references/responsive.md`: intrinsic layouts, container queries, breakpoints, the traps, mobile details

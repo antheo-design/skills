@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
+<title>Log time · Northwind</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400..600&display=swap">
+<link rel="stylesheet" href="../quiet.css">
+<style>
+  /* a full screen in a phone app (antheo-mobile): a grid of the bar, content that scrolls, an action bar on the foot.
+     On a wide screen it stays a phone-width column. */
+  body { min-height: 100dvh; }
+  .screen { display: grid; grid-template-rows: auto 1fr auto; width: min(var(--w-form), 100%); min-height: 100dvh; margin-inline: auto; background: var(--surface); }
+  .nav { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; height: var(--h-bar); padding: env(safe-area-inset-top) var(--gutter) 0; }
+  .nav h1 { font-size: var(--t-body); line-height: var(--l-body); }
+  .content { display: grid; align-content: start; gap: var(--gap-field); padding: var(--s-4) var(--gutter); overflow-y: auto; overscroll-behavior: contain; }
+  label { display: block; margin-block-end: var(--gap-label); font-weight: var(--w-strong); }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-3); }
+  textarea.field { height: auto; min-height: calc(3 * var(--l-body) + 2 * var(--s-2)); padding-block: var(--s-2); resize: vertical; }
+  .seg { width: 100%; }
+  .action { padding: var(--s-3) var(--gutter) max(var(--s-4), env(safe-area-inset-bottom)); background: var(--surface); }
+  .action .btn { width: 100%; height: var(--h-cta); }
+  * { -webkit-tap-highlight-color: transparent; }
+  button, .seg > button { touch-action: manipulation; }
+</style>
+</head>
+<body>
+<main class="screen">
+  <header class="nav">
+    <button type="button" class="btn btn-quiet" style="justify-self: start; padding-inline: 0" onclick="history.back()">Cancel</button>
+    <h1>Log time</h1>
+    <span></span>
+  </header>
+  <form class="content" id="log" onsubmit="event.preventDefault(); document.getElementById('save').textContent = 'Logged'">
+    <div>
+      <label for="project">Project</label>
+      <select class="field" id="project"><option>Moonlight Hotels, booking flow</option><option>Lumen Health, patient intake</option><option>Ferro Bikes, shop</option></select>
+    </div>
+    <div class="row">
+      <div><label for="date">Date</label><input class="field" id="date" type="date" value="2026-11-16"></div>
+      <div><label for="hours">Hours</label><input class="field" id="hours" inputmode="decimal" value="2.5"></div>
+    </div>
+    <div>
+      <span id="kind" style="display: block; margin-block-end: var(--gap-label); font-weight: var(--w-strong)">Kind of work</span>
+      <div class="seg" role="radiogroup" aria-labelledby="kind">
+        <button type="button" role="radio" aria-checked="true">Design</button>
+        <button type="button" role="radio" aria-checked="false">Research</button>
+        <button type="button" role="radio" aria-checked="false">Meetings</button>
+      </div>
+    </div>
+    <div>
+      <label for="note">Note</label>
+      <textarea class="field" id="note">Checkout step: the summary before payment, two versions for Thursday's review.</textarea>
+    </div>
+  </form>
+  <div class="action"><button class="btn btn-primary" id="save" type="submit" form="log">Log 2.5 hours</button></div>
+</main>
+<script>
+  // the segmented control: one choice, arrows move it
+  const seg = document.querySelector('.seg');
+  const options = [...seg.querySelectorAll('[role=radio]')];
+  const pick = (b) => { options.forEach((o) => { o.setAttribute('aria-checked', o === b); o.tabIndex = o === b ? 0 : -1; }); b.focus(); };
+  options.forEach((o, i) => {
+    o.tabIndex = o.getAttribute('aria-checked') === 'true' ? 0 : -1;
+    o.addEventListener('click', () => pick(o));
+    o.addEventListener('keydown', (e) => {
+      const step = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[e.key];
+      if (step) { e.preventDefault(); pick(options[(i + step + options.length) % options.length]); }
+    });
+  });
+</script>
+</body>
+</html>

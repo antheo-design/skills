@@ -169,6 +169,7 @@ meaning the same thing everywhere: higher is closer.
 
 ## Files
 
+- `references/examples.md`: what goes wrong and the fix, from the skills page and from real builds; when the default is wrong
 - `references/recipes.md`: the layer stack as CSS custom properties redeclared per surface, the dark mapping, a
   sticky header with its scrolled hairline and fade, translucent chrome with both fallbacks, image outlines
 - `references/objects.md`: drawing a component that is a physical thing: part or object, the bar, one light, its own

@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Invoices · Northwind</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400..600&display=swap">
+<link rel="stylesheet" href="../quiet.css">
+<style>
+  .bar { display: flex; align-items: center; gap: var(--s-2); height: var(--h-bar); padding-inline: var(--gutter); }
+  .logo { display: grid; place-items: center; width: var(--s-5); height: var(--s-5); border-radius: var(--r-tag); background: var(--primary); color: var(--on-primary); }
+  .logo svg { width: var(--s-3); height: var(--s-3); }
+  .product { font-weight: var(--w-strong); }
+  .context { color: var(--text-2); }
+  main { width: min(var(--w-data), 100% - 2 * var(--gutter)); margin: var(--s-8) auto var(--s-16); display: grid; gap: var(--s-4); }
+  .head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--s-3) var(--s-4); }
+  /* a load that failed: the page keeps its layout, says what happened in plain words and offers the way out */
+  .failed { display: grid; justify-items: start; gap: var(--s-3); padding: var(--s-10) var(--pad-card); }
+  .failed p { max-width: var(--measure); color: var(--text-2); }
+  .what { display: flex; align-items: center; gap: var(--s-2); }
+  .what svg { width: var(--s-4); height: var(--s-4); color: var(--danger); flex: none; }
+  .actions { display: flex; flex-wrap: wrap; gap: var(--s-2); margin-block-start: var(--s-1); }
+</style>
+</head>
+<body>
+<header class="bar">
+  <span class="logo" aria-hidden="true"><svg viewBox="0 0 12 12"><path d="M2 10V2l8 8V2" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+  <span class="product">Northwind</span>
+  <span class="context">Maya Lindqvist</span>
+</header>
+<main>
+  <div class="head">
+    <h1 class="t-page">Invoices</h1>
+    <button class="btn btn-primary" type="button">New invoice</button>
+  </div>
+  <section class="card failed" role="alert" aria-labelledby="failed-title">
+    <h2 class="t-title what" id="failed-title"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.25" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 4.75v3.75" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="8" cy="11" r="0.9" fill="currentColor"/></svg>We couldn't load your invoices</h2>
+    <p>The connection to Northwind dropped while the list was loading. Your invoices are safe; nothing was changed.</p>
+    <div class="actions">
+      <button class="btn" type="button" onclick="location.reload()">Try again</button>
+      <a class="btn btn-quiet" href="https://status.example.com">Check service status</a>
+    </div>
+  </section>
+</main>
+</body>
+</html>

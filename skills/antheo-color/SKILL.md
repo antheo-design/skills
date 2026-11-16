@@ -132,6 +132,7 @@ on a coloured or dark panel · state by colour alone · a theme half applied · 
 
 ## Files
 
+- `references/examples.md`: what goes wrong and the fix, from the skills page and from real builds; when the default is wrong
 - `scripts/contrast.mjs`: the ratio (and APCA) for any two colours, hex or `oklch()`
 - `references/color.md`: how the generator builds the palette in OKLCH, contrast as hierarchy bands, dark mode in detail
 - `references/habits.md`: what generated UI gets wrong here, each with its fix

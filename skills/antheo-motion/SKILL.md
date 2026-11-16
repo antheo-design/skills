@@ -187,6 +187,7 @@ is a finding whatever the style.
 
 ## Files
 
+- `references/examples.md`: what goes wrong and the fix, from the skills page and from real builds; when the default is wrong
 - `scripts/filmstrip.mjs`: films one motion at 0.1× into a sheet of frames, with the time under each
 - `references/recipes.md`: the index of 36 copy-ready recipes, one file each in `references/recipes/`, from press and
   popover to number rolls and streaming text

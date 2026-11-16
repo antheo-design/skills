@@ -120,6 +120,7 @@ and is named by its role, and it still reads from the shared scale.
 
 ## Files
 
+- `references/examples.md`: what goes wrong and the fix, from the skills page and from real builds; when the default is wrong
 - `scripts/block.mjs`: the style block, rebranded and measured (no dependencies)
 - `scripts/tokens.mjs`: the full generator (no dependencies)
 - `references/default-tokens.css`: the product register's tokens, for when the generator can't run

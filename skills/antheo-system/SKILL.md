@@ -162,6 +162,7 @@ every change has an owner, and adoption is measured by the screens moved, not th
 
 ## Files
 
+- `references/examples.md`: what goes wrong and the fix, from the skills page and from real builds; when the default is wrong
 - `scripts/audit-values.mjs`: finds hard-coded values, merges colours under ΔE 2, maps values to tokens (exact,
   close, stray), `--baseline <audit.json> --fail-on-increase` for CI
 - `references/design-folder.md`: templates for `system.md`, `taste.md`, `migration.md` and the behaviour contract

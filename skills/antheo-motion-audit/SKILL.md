@@ -125,6 +125,7 @@ list is what a single change improves for the most people.
 
 ## Files
 
+- `references/examples.md`: what goes wrong and the fix, from the skills page and from real builds; when the default is wrong
 - `scripts/scan-motion.mjs`: inventories CSS transitions, keyframes, Tailwind motion classes, `element.animate()`
   and Motion props; flags `transition: all`, `scale(0)`, layout properties, long durations, `ease-in`, animated
   shadows, keyframes on hover, `will-change`, linear interface motion and delays; `--json`, `--all`, `--strict`

@@ -223,6 +223,7 @@ after a failed request; leftovers · a check that was quieted · only one browse
 
 ## Files
 
+- `references/examples.md`: what goes wrong and the fix, from the skills page and from real builds; when the default is wrong
 - `scripts/gate.mjs`: arms a gate on the pages a change touches; a Stop hook (or `check`) keeps the work open until they pass (`references/gate.md`)
 - `scripts/check-block-names.mjs`: every variable a file reads is defined by the style block or in the file; given
   a folder, anywhere in the project (any stack)

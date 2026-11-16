@@ -88,5 +88,6 @@ worked out or guessed. Stop at the depth the question asked for.
 
 ## Files
 
+- `references/examples.md`: what goes wrong and the fix, from the skills page and from real builds; when the default is wrong
 - `scripts/inspect.mjs`: opens a page in a real browser and reports one element's layers, computed styles,
   stacking contexts, running animations with keyframes, and media; `--width`, `--dark`, `--json`

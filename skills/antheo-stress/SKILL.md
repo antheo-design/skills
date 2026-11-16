@@ -93,6 +93,7 @@ people always does. Small changes stress only what they touched; a new component
 
 ## Files
 
+- `references/examples.md`: what goes wrong and the fix, from the skills page and from real builds; when the default is wrong
 - `references/harness.md`: the state switcher, the variant picker, scenario axes and the full fixtures list
 - `antheo-review/scripts/check-page.mjs --stress`: long and right-to-left text, multiplied lists, broken images,
   200% zoom

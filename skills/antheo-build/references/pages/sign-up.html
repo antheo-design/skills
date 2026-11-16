@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Create your account · Northwind</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400..600&display=swap">
+<link rel="stylesheet" href="../quiet.css">
+<style>
+  /* A sign-in or sign-up stands alone on the page, so it is the one block that stays narrow, centred (build rule 14). */
+  main { width: min(var(--w-form), 100% - 2 * var(--gutter)); margin: var(--s-16) auto; display: grid; gap: var(--s-6); }
+  .brand { display: flex; align-items: center; gap: var(--s-2); font-weight: var(--w-strong); }
+  .logo { display: grid; place-items: center; width: var(--s-5); height: var(--s-5); border-radius: var(--r-tag); background: var(--primary); color: var(--on-primary); }
+  .logo svg { width: var(--s-3); height: var(--s-3); }
+  form { display: grid; gap: var(--gap-field); }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--gap-field); }
+  label { display: block; margin-block-end: var(--gap-label); font-weight: var(--w-strong); }
+  .hint { margin-block-start: var(--s-1); font-size: var(--t-meta); line-height: var(--l-meta); color: var(--text-2); }
+  .check { display: flex; gap: var(--s-2); align-items: flex-start; font-weight: var(--w-text); margin: 0; }
+  .check input { margin: calc((var(--l-body) - var(--s-4)) / 2) 0 0; width: var(--s-4); height: var(--s-4); flex: none; }
+  .btn-primary { width: 100%; height: var(--h-cta); }
+  .alt { text-align: center; color: var(--text-2); }
+  @media (max-width: 47.99rem) { main { margin-block: var(--s-8); } .row { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<main>
+  <div class="brand"><span class="logo" aria-hidden="true"><svg viewBox="0 0 12 12"><path d="M2 10V2l8 8V2" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Northwind</div>
+  <h1 class="t-page">Create your account</h1>
+  <form class="card" onsubmit="event.preventDefault()">
+    <div class="row">
+      <div><label for="first">First name</label><input class="field" id="first" autocomplete="given-name" value="Maya"></div>
+      <div><label for="last">Last name</label><input class="field" id="last" autocomplete="family-name" value="Lindqvist"></div>
+    </div>
+    <div><label for="email">Work email</label><input class="field" id="email" type="email" autocomplete="email" value="maya@northwind.studio"></div>
+    <div>
+      <label for="password">Password</label>
+      <input class="field" id="password" type="password" autocomplete="new-password" aria-describedby="password-hint">
+      <p class="hint" id="password-hint">At least 8 characters, including a number</p>
+    </div>
+    <label class="check"><input type="checkbox"> Send me product news, about once a month</label>
+    <button class="btn btn-primary" type="submit">Create account</button>
+  </form>
+  <p class="alt">Already have an account? <a href="#sign-in">Sign in</a></p>
+</main>
+</body>
+</html>

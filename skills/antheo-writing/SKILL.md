@@ -144,6 +144,7 @@ nothing specific.
 
 ## Files
 
+- `references/examples.md`: what goes wrong and the fix, from the skills page and from real builds; when the default is wrong
 - `scripts/copy-lint.mjs`: the copy linter (no dependencies)
 - `references/strings.md`: every string type, with rules, limits and before-and-after pairs
 - `references/mechanics.md`: case, numbers, dates, contractions, plain and inclusive language, the hype list, characters

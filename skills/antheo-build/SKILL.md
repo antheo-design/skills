@@ -263,3 +263,10 @@ promised · drift · quieting a check instead of fixing it · a fix loop · anot
 - [ ] Every control answers its press (nothing wired to nothing); a still reference given its motion
 - [ ] An object drawn as the thing, not a box with a label; its root marked `data-object`
 - [ ] Checked against every habit in `references/habits.md`
+
+## Files
+
+- `references/examples.md`: what goes wrong and the fix, from the skills page and from real builds; when the default is wrong
+- `references/pages/`: ten finished pages built only from the style block (sign-up, settings, a list, a table, a
+  dashboard, pricing, an empty state, an error, a phone screen, right to left); open the nearest one when unsure how
+  the rules look together
