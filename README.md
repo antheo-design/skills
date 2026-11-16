@@ -3,12 +3,12 @@
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="assets/strip-dark.svg">
-    <img src="assets/strip-light.svg" width="100%" alt="The twenty Antheo design skills, each with its own painted icon">
+    <img src="assets/strip-light.svg" width="100%" alt="The twenty-one Antheo design skills, each with its own painted icon">
   </picture>
 </p>
 
 <p align="center">
-  Twenty design skills for coding agents. Exact values, firm rules and small checking tools,<br>
+  Twenty-one design skills for coding agents. Exact values, firm rules and small checking tools,<br>
   so the interfaces your agent builds look finished and work for everyone.
 </p>
 
@@ -82,8 +82,59 @@ the style block: sign-up, settings, a list, a table, a dashboard, pricing, an em
 a right-to-left page.
 
 Every build starts with **antheo-build**. It pastes one designed style block, follows its rules, and opens another
-skill only when the work needs it: a table brings in antheo-data, a dialog that opens brings in antheo-motion, "ready
-to ship?" brings in antheo-review.
+skill only when the work needs it: a table brings in antheo-data, a dialog that opens brings in antheo-motion, "make it
+fun" brings in antheo-creative, "ready to ship?" brings in antheo-review.
+
+## Get the best results
+
+**Set it up once.** Add these lines to your project's `AGENTS.md` (and `CLAUDE.md`), so every agent uses the skills
+without being reminded. Use the skills folder the installer printed in place of `<skills>`.
+
+```markdown
+## UI work
+- Before building or changing any UI, read <skills>/antheo-build/SKILL.md.
+- Start from the project's own tokens; with none, from antheo-build's style block.
+- Arm the gate at the start: node <skills>/antheo-review/scripts/gate.mjs arm <page url> --copy src
+  (add --preset none when the project has its own look, and --ref <images> when building from references).
+- Run every check from the project folder. Not done until `gate.mjs check` says GATE: PASS.
+```
+
+In Claude Code, the stop hook under "Make the gate automatic" below makes the gate run on its own.
+
+**Ask in the way that fits the job.**
+
+A screen or component for a product:
+
+```
+Build <what> for <who>. Use the Antheo skills, starting with antheo-build. Arm the gate on <url> --copy src,
+film the main interaction, and don't stop until the gate passes.
+```
+
+From a reference (a screenshot, a Dribbble shot, a video's frames):
+
+```
+Build <what> from <ref.png>. Look at it closely first. Use the Antheo skills, starting with antheo-build; match the
+reference's look and the effects it shows or implies, and make the words and content your own. Arm the gate with
+--preset none --ref <ref.png>, compare with beside.mjs, fix what differs, compare again, film the motion, and don't
+stop until the gate passes.
+```
+
+Something people should enjoy using (a widget, a toy, an empty state, onboarding):
+
+```
+Build <what> and make it fun to use. Use antheo-creative to find its play, then antheo-build for the rest.
+Name the one thing people will do with it for fun and make that the richest part. Film it, and don't stop until the
+gate passes.
+```
+
+**What makes the difference:**
+
+- **Give a reference** when you care about the look: agents get far closer to a picture than to a description.
+- **One component at a time.** Five at once each get a fifth of the attention.
+- **Let the gate run.** It catches what a quick look misses: dead buttons, focus you can't see, text that breaks at
+  320px, a row that spills out of its card.
+- **Press everything yourself.** The checks prove it isn't broken; only you can say it's good. Tell the agent what
+  feels wrong in one line, and it records your taste for next time (antheo-system).
 
 ## The skills
 
@@ -113,6 +164,7 @@ to ship?" brings in antheo-review.
 | <picture><source media="(prefers-color-scheme: dark)" srcset="assets/icons/dark/antheo-writing.svg"><img src="assets/icons/antheo-writing.svg" width="20" height="20" align="top" alt=""></picture>&nbsp; [antheo&#8209;writing](skills/antheo-writing/SKILL.md) | Every word in the interface: plain, specific and ready to translate |
 | <picture><source media="(prefers-color-scheme: dark)" srcset="assets/icons/dark/antheo-motion.svg"><img src="assets/icons/antheo-motion.svg" width="20" height="20" align="top" alt=""></picture>&nbsp; [antheo&#8209;motion](skills/antheo-motion/SKILL.md) | Decides whether a thing should move, then gives its timing, easing and distance |
 | <picture><source media="(prefers-color-scheme: dark)" srcset="assets/icons/dark/antheo-moment.svg"><img src="assets/icons/antheo-moment.svg" width="20" height="20" align="top" alt=""></picture>&nbsp; [antheo&#8209;moment](skills/antheo-moment/SKILL.md) | The one signature moment, kept for a rare and meaningful event |
+| <picture><source media="(prefers-color-scheme: dark)" srcset="assets/icons/dark/antheo-creative.svg"><img src="assets/icons/antheo-creative.svg" width="20" height="20" align="top" alt=""></picture>&nbsp; [antheo&#8209;creative](skills/antheo-creative/SKILL.md) | Makes a component playful and fun to use: the effects a reference shows or implies, or the play its real-world cousin has |
 | <picture><source media="(prefers-color-scheme: dark)" srcset="assets/icons/dark/antheo-access.svg"><img src="assets/icons/antheo-access.svg" width="20" height="20" align="top" alt=""></picture>&nbsp; [antheo&#8209;access](skills/antheo-access/SKILL.md) | Keyboard, screen reader, voice, touch and zoom, to WCAG 2.2 AA |
 | <picture><source media="(prefers-color-scheme: dark)" srcset="assets/icons/dark/antheo-mobile.svg"><img src="assets/icons/antheo-mobile.svg" width="20" height="20" align="top" alt=""></picture>&nbsp; [antheo&#8209;mobile](skills/antheo-mobile/SKILL.md) | Makes a web screen feel native on a phone: safe areas, the keyboard, bottom sheets |
 
@@ -147,7 +199,7 @@ skills/antheo-motion/
 
 **references/** holds the detail a task sometimes needs: the style block itself, the recipe for one kind of
 animation, the pattern for a pricing page, the habits to catch before calling work done. The agent opens one file
-when the job needs it and never loads the rest, so twenty skills cost almost nothing until they are used.
+when the job needs it and never loads the rest, so twenty-one skills cost almost nothing until they are used.
 
 **scripts/** are plain Node files with no dependencies. They measure what an agent would otherwise guess: contrast,
 layout at seven widths, the words on a screen, every hardcoded value in a codebase.
@@ -176,8 +228,10 @@ layout at seven widths, the words on a screen, every hardcoded value in a codeba
 
 An agent saying "done" proves nothing. These skills ask for proof.
 
-- **The gate.** Before the agent may finish, `gate.mjs` runs the page check and the copy check on every page the work
-  touched. It allows three rounds, and a finding can only be waived with a written reason.
+- **The gate.** Before the agent may finish, `gate.mjs` runs the page check, the access probe (keyboard, focus, text
+  spacing, and every button pressed to find the dead ones), the copy check and the motion scan on every page the work
+  touched. Built from a reference, it also wants proof of comparing: two side-by-side sheets per reference and a
+  filmstrip of the motion. It allows three rounds, and a finding can only be waived with a written reason.
 - **Two reviewers, kept apart.** antheo-review runs one reviewer on the screenshots and one on the measurements, in
   separate contexts, then merges what they found and lists where they disagree.
 - **Evidence or nothing.** A finding names its file and line, or its screenshot. A number that was not measured never
@@ -217,7 +271,7 @@ Astro, Django, Flask, Rails, Laravel and Phoenix.
 
 ## Evals
 
-[`evals/`](evals) holds twenty briefs, one per skill. Every check is measured in a real browser or read from the
+[`evals/`](evals) holds twenty-one briefs, one per skill. Every check is measured in a real browser or read from the
 written answer, never judged by eye. Run each brief twice, once without the skill and once with it, and grade both:
 
 ```sh

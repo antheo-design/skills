@@ -148,7 +148,8 @@ looks placed, not generated.
 
 ## The play is the point
 
-Every object has one thing people do with it just for the pleasure of it: tuning across the static between stations,
+Every object has one thing people do with it just for the pleasure of it (antheo-creative finds it and builds it in
+layers): tuning across the static between stations,
 squashing a candy button, flicking a card stack, turning a knob past its clicks. Find that thing first and make it
 rich, because it is why the component exists. A radio that jumps from station to station is correct; a radio whose
 screen fills with static and clears as a station comes in is the one people play with.

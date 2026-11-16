@@ -72,6 +72,7 @@ Run the grader from the project root, where `playwright-core` and `axe-core` are
 | `no-overflow` | no sideways scroll at the given widths |
 | `menu-opens`, `open-duration`, `no-linear-or-ease-in-open` | press the first button, find the menu holding "Newest first", read its computed transition |
 | `label-steps`, `no-layout-shift` | press the button and sample its label and size every 120ms |
+| `plays-on-press` | press the first button once; something must be animating 60ms later |
 | `action-above-keyboard`, `clear-of-island`, `field-16px` | iPhone 15 emulation (393×852, 59pt top and 34pt bottom safe areas); the keyboard covers 336pt and resizes `visualViewport`, as on iOS |
 | `answer-*` | patterns in answer.md: the verdict first, named findings, line references, a question, no unasked redesign |
 

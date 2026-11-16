@@ -129,6 +129,16 @@
       ]
     },
     {
+      "id": "creative", "skill": "antheo-creative", "type": "motion",
+      "prompt": "Build a like button for a photo app. Make it fun to press.",
+      "expect": [
+        { "check": "plays-on-press", "why": "pressing it plays something you can feel" },
+        { "check": "controls-named", "why": "the playful button is still a named button" },
+        { "check": "reduced-motion", "why": "respects prefers-reduced-motion" },
+        { "check": "no-layout-shift", "why": "the play never moves the page around it" }
+      ]
+    },
+    {
       "id": "access", "skill": "antheo-access", "type": "visual",
       "prompt": "Build the toolbar above an invoice list: a search field, a Filter button, an Export button that is only an icon, and a New invoice button. It must work with a keyboard.",
       "expect": [

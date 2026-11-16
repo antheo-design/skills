@@ -51,7 +51,7 @@ product screen, anything creative), also:
    the real thing behaves: every control answers its press, every change of state moves (values roll, panels slide,
    a needle settles), the object has an idle life if the real one does, and the main action gets one bigger beat.
    Find the one thing people would do with it for fun (tune through the static, squash the candy) and make that the
-   richest part; never trim it to fit the app timing rules, which are for chrome. Then film it.
+   richest part (**antheo-creative**); never trim it to fit the app timing rules, which are for chrome. Then film it.
 8. **Every control does something,** in a demo too: a button with nothing behind it at least shows its result
    ("Opened the readers report"). The access probe presses each one and reports those that answer with nothing.
 9. **Most of the effort goes into the thing.** The gate, the evidence and the notes are the last part of the work,

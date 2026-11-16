@@ -23,7 +23,7 @@ Every UI request starts in **antheo-build**. It decides two things: what must ho
 | an opinion, or "how was this made?" | antheo-critique, antheo-explain |
 | every animation in an app | antheo-motion-audit |
 
-Each skill keeps its entry file short and opens a reference only when a step points to one, so twenty skills cost
+Each skill keeps its entry file short and opens a reference only when a step points to one, so twenty-one skills cost
 little until they are used.
 
 ## Always, and the Quiet preset

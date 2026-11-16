@@ -2,7 +2,7 @@
   "name": "antheo-skills",
   "version": "1.0.0",
   "private": true,
-  "description": "Twenty design skills for coding agents, with the tools that check the work.",
+  "description": "Twenty-one design skills for coding agents, with the tools that check the work.",
   "type": "module",
   "bin": {
     "antheo": "bin/antheo.mjs"

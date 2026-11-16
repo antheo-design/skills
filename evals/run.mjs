@@ -190,6 +190,15 @@ const CHECKS = {
     }
     return { pass: shown >= Math.min(n, 8), detail: `${shown}/${Math.min(n, 8)} focus stops visible` };
   },
+  // the first control is pressed once; something must be animating 60ms later (a squash, a pop, a ripple)
+  'plays-on-press': async (r) => r.page.evaluate(async () => {
+    const b = document.querySelector('button, [role=button], [role=switch]');
+    if (!b) return { pass: false, detail: 'no button to press' };
+    b.click();
+    await new Promise((res) => setTimeout(res, 60));
+    const n = document.getAnimations().filter((a) => a.playState === 'running').length;
+    return { pass: n > 0, detail: `${n} animation(s) running after the press` };
+  }),
   'no-clipped-text': async (r) => r.page.evaluate(() => { const c = [...document.querySelectorAll('button, [role=button], label, span, p, h1, h2, h3, div')].filter((e) => e.getBoundingClientRect().width && e.children.length === 0 && e.textContent.trim() && getComputedStyle(e).textOverflow !== 'ellipsis' && e.scrollWidth > e.clientWidth + 2 && getComputedStyle(e).overflow !== 'visible'); return { pass: !c.length, detail: c.length ? c.slice(0, 2).map((e) => e.textContent.trim().slice(0, 30)).join(' | ') : 'nothing cut off' }; }),
 };
 

@@ -5,7 +5,7 @@
  *   node tests/self-test.mjs              the fast checks (no browser), about 5 seconds
  *   node tests/self-test.mjs --browser    also the tools on real pages (needs Playwright and Chrome or Edge)
  *
- * Fast checks: twenty skills with valid front matter; every file a skill points to exists; every var(--name) in the
+ * Fast checks: twenty-one skills with valid front matter; every file a skill points to exists; every var(--name) in the
  * docs and in the tools' fix hints is defined by the style block; no number from before the style block (13px 500,
  * weight 600); every script parses; copy-lint and the gate behave. Browser checks: a page built from the style block
  * passes the page check and the access probe; a page broken on purpose is caught on each thing that was broken.
@@ -54,7 +54,7 @@ const scripts = files.filter((f) => /\.(mjs|js)$/.test(f));
 
 /* ---------------- structure ---------------- */
 
-test('twenty skills', () => (skills.length === 20 ? [] : [`found ${skills.length}: ${skills.join(', ')}`]));
+test('twenty-one skills', () => (skills.length === 21 ? [] : [`found ${skills.length}: ${skills.join(', ')}`]));
 
 test('front matter: a name that matches the folder, and a description strict YAML can read', () => {
   const out = [];
