@@ -9,7 +9,7 @@ Palette and dark mode come from antheo-color; layout reflow patterns from antheo
 | Body text and text in images | **4.5:1** | 1.4.3 |
 | Large text: 24px regular or 18.66px bold and up | **3:1** | 1.4.3 |
 | Control boundary (input border, button edge when it is the only cue), checkbox/radio box, switch track, slider track, icon that carries meaning, chart marks | **3:1** against the neighbouring colour | 1.4.11 |
-| Focus indicator | **3:1** against the control and against the page behind it | 2.4.11 / 2.4.13 |
+| Focus indicator | **3:1** against the control and against the page behind it | 1.4.11 (2.4.13 Focus Appearance is AAA) |
 | Disabled controls, pure decoration, logos | exempt, but keep 3:1 for readability where you can | |
 | Placeholder text | 4.5:1 (it is text) | 1.4.3 |
 | Text over images or gradients | 4.5:1 at the worst point; add a scrim (`rgb(0 0 0 / 0.55)`) | 1.4.3 |

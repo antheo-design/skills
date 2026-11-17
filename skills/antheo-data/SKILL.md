@@ -20,7 +20,7 @@ question needs two views, it is two questions.
 | Part | Value |
 |---|---|
 | Row height | `--h-row` (40px; 52px on a phone) from antheo-build's style block, 36px for the header row; one height per table, so the rows asked for fit the first screen |
-| Lines and cells | a hairline between rows only, never between columns; the first column in `--text` at `--w-strong`, other cells `--text-2`; a status is a word (with a 6px dot), a role or count is plain text, never a pill |
+| Lines and cells | a hairline between rows only, never between columns; the first column in `--text` at `--w-strong`, values people compare in `--text`, meta columns (an id, a date nobody sorts by) in `--text-2`; a status is a word (with a 6px dot), a role or count is plain text, never a pill |
 | Cell padding | 16px inline (12px dense); the row height sets the rest; the first column is the human-readable name |
 | Text | starts at the start edge |
 | Numbers | at the end edge, `tabular-nums`, the same decimal places down a column, units in the header ("Amount, USD"), not in each cell |
@@ -80,6 +80,12 @@ where space demands, with the full number on focus and hover. A fall can be good
 Every chart has a title and one sentence saying what it shows ("Revenue grew 12% this month, mostly from returning
 customers"), given as `role="img"` with that sentence as its name on a static SVG, or a table beside it. Points in an
 interactive chart are reachable by keyboard and announce their value; tooltips open on focus as well as hover.
+
+## A chart that draws in
+
+A chart may animate once, when it first arrives: up to about 800ms, eased out, final values readable from the first
+frame. Updates after that move within 300ms and never replay the entrance (antheo-motion, "When more motion is
+right"). Mark the chart's root `data-chart`.
 
 ## What generated dashboards get wrong
 

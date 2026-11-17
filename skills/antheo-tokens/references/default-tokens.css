@@ -301,7 +301,8 @@
 *, *::before, *::after { box-sizing: border-box; }
 /* font-size-adjust: Geist's x-height is 0.53 of its size. Naming it makes every fallback (the system font while
    Geist loads, a glyph Geist lacks, the mono face) draw at the same x-height, so text never changes size when the
-   font arrives. A different typeface needs its own number (antheo-type). */
+   font arrives. A different typeface needs its own number (antheo-type), and a second face on the page (a display
+   font on a headline) sets font-size-adjust: none on itself, or it is drawn at the block's x-height. */
 html { background: var(--bg); -webkit-text-size-adjust: 100%; text-size-adjust: 100%; font-size-adjust: 0.53; accent-color: var(--accent); }
 ::selection { background: color-mix(in oklch, var(--accent) 22%, transparent); }
 body {
@@ -329,6 +330,7 @@ a { color: inherit; text-decoration: underline; text-decoration-thickness: 1px; 
   height: var(--h-control); width: 100%; padding: 0 var(--s-3); border: 1px solid transparent; border-radius: var(--r-control);
   background: var(--well); box-shadow: var(--well-edge); font-size: var(--t-field);
 }
+.field::placeholder { color: var(--text-2); opacity: 1; } /* a placeholder is text someone reads: 4.5:1, which --text-3 does not reach */
 .field:focus-visible { outline: 2px solid transparent; outline-offset: 2px; box-shadow: var(--well-edge), 0 0 0 2px var(--focus); } /* the transparent border and outline turn visible in forced colours, where shadows are dropped */
 .field[aria-invalid="true"] { box-shadow: inset 0 0 0 1px var(--danger); }
 .field[aria-invalid="true"]:focus-visible { box-shadow: inset 0 0 0 1px var(--danger), 0 0 0 2px var(--focus); } /* in error and focused: both */
@@ -341,6 +343,8 @@ a { color: inherit; text-decoration: underline; text-decoration-thickness: 1px; 
 @media (hover: hover) and (pointer: fine) { .btn:hover { background: var(--hover); } .btn-primary:hover { background: var(--primary); opacity: 0.9; } }
 .btn:active { scale: var(--scale-press); }
 .btn:disabled, .btn[aria-disabled="true"] { cursor: not-allowed; scale: 1; }
+/* disabled looks disabled: the well, quiet text, no lift. aria-disabled alone is "working", and keeps its fill */
+.btn:disabled { background: var(--well); color: var(--text-2); box-shadow: none; }
 .btn-primary { background: var(--primary); color: var(--on-primary); box-shadow: none; }
 .tag {
   display: inline-flex; align-items: center; height: var(--h-tag); padding: 0 6px; border-radius: var(--r-tag);

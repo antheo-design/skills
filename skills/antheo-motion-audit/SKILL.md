@@ -44,7 +44,10 @@ lines that break a rule. It reads source, so its flags are candidates: confirm e
 
 - Motion on a keyboard action (arrowing through a list, typing, a shortcut): it must answer at once.
 - Anything opened many times a day (a palette, a menu, a row hover) that takes over 150ms or travels over 4px.
-- Interface motion over 300ms; a page over 400ms; a close or hover-out that is delayed.
+- Interface motion over 300ms; a page over 400ms; a close or hover-out that is delayed. Not blocked: a submenu's
+  short grace delay (it keeps the menu open while the pointer crosses to it), a chart drawing in once (`data-chart`,
+  up to about 800ms), an object's play (`data-object`) and a signature moment. A project with its own motion tokens
+  is judged against those.
 - Growing from `scale(0)`; `transition: all`; animating width, height, top, left or margin.
 - `ease-in` on something arriving; a bounce on something closing.
 - A change of state shown only by movement, with nothing left on screen to show it afterwards.

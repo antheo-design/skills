@@ -7,8 +7,9 @@ description: Starts any UI request (a component, a screen, a page, a screenshot 
 
 Clean is not a feeling, it is counts: few text sizes, two weights, three corner sizes, almost no lines, almost no
 colour, and everything the person needs on the first screen. A build looks generated when its styles are invented as
-it goes. So every build starts from one designed style block and stays inside it. These rules outrank every other
-Antheo skill.
+it goes. So every build starts from one designed style block and stays inside it. The order, in every Antheo
+skill: the "always" list below, then the person's direction or reference, then the project's own system, then the
+Quiet preset.
 
 ## What always holds, and what is the Quiet preset
 
@@ -50,9 +51,15 @@ product screen, anything creative), also:
 2. **Start from a reference.** The person's, if they have one; otherwise name one or two real things it should feel
    like (a product, an object, a photo) and say so. With no target, the result drifts to the average.
 3. **Directions before detail, when the look is open.** For an object or a creative piece, three quick directions on
-   the real page (Variants, below); the person picks; then build that one fully.
-4. **The main thing first, and big.** Make the component itself excellent at its real size before drawing its other
-   states. On a component's page it comes first, alone; the states sheet comes after it.
+   the real page (Variants, below); the person picks; then build that one fully. With nobody to ask (a brief run
+   unattended, several finished components wanted), write the three in one line each, pick one, say which and why,
+   and build only that one.
+4. **The main thing first, in its setting, on a stage that fits.** Make the component itself excellent before
+   drawing its other states. On a component's page it comes first, alone, and the stage hugs it: 48 to 64px of room
+   around it, never a small control adrift in a page-wide empty card. A control that is small in real use (a like
+   button, a toggle, a chip) is shown in the smallest true setting that makes it readable: the like button under a
+   photo, the toggle in its settings row, the empty state inside its inbox frame. The setting is demo content, one
+   believable piece, kept out of the component and its props. The states sheet comes after.
 5. **Watch it move.** Film every motion (antheo-motion, "Watch it") and read the frames; a still screenshot can't
    judge motion.
 6. **Put it beside the reference, zoomed** (antheo-review `scripts/beside.mjs`), and name what is missing (light, a detail, proportion, how it moves).
@@ -91,7 +98,10 @@ any depth, say which part is a default of this style ("this style keeps corners 
 Paste `references/quiet.css` whole, as the first CSS of the build, and load its font. After it, **every** colour,
 font size, line height, weight, radius, shadow and control height is a `var(--…)` from the block: no hex, no `px`
 font size, no new radius. (Allowed literals: `0`, `1px`, `2px`, `100%`, and widths; and inside a drawn object, its own
-material colours, defined once on its root for light and dark.) If the project already has its
+material colours, defined once on its root for light and dark.) A second typeface on the page (a display face on a
+headline, a pixel font on a toy) sets `font-size-adjust: none` on itself, or its own measured number
+(**antheo-type**): the block's 0.53 is Geist's, and a tall condensed face would be drawn about a quarter smaller
+without a word. If the project already has its
 own tokens, those are the block (**antheo-system**). In a framework or a server-rendered app, load it once,
 globally, first, and read its names from components, Tailwind or a theme object: `references/stacks.md` has where
 it goes in React, Vue, Svelte, Angular, Astro, Django, Rails, Laravel and the rest.
@@ -144,14 +154,17 @@ it goes in React, Vue, Svelte, Angular, Astro, Django, Rails, Laravel and the re
     line only for a constraint or a consequence ("JPG or PNG, up to 2 MB"; "At least 8 characters"), in `--t-meta`
     `--text-2`, 4px under. An error is the red inner edge and a short message under the field naming the fix (antheo-writing).
 11. **Chrome only as named.** A "section", a "component" or a page that shows components gets no site header, footer
-    or navigation. A page that shows a component puts the live component first, at its real size, then its states.
+    or navigation. A page that shows a component puts the live component first, at its real size and in its
+    smallest true setting ("aim higher", step 4), then its states.
     An app page
     gets one `--h-bar` bar: a neutral logo tile (20px, the `--primary` fill, `--r-tag` corners, a simple one-shape mark inside in `--on-primary`; never an
     empty square), the product name (`--t-body`, `--w-strong`), and the one
     context the request names (a workspace name, as plain text). No sidebar unless the request lists destinations;
     never an avatar, "Log in" or links nobody named.
 12. **Only what was asked.** No invented data, features, panels or copy. A sub-line only if it says something the
-    title doesn't, in at most 12 words. Feature lists of five or six concrete lines, the same count per plan.
+    title doesn't, in at most 12 words. Feature lists of five or six concrete lines, the same count per plan. A
+    component's demo setting (the photo a like button sits under) is not invented chrome: it is the least content
+    that makes the component readable, and it stays in the demo.
 13. **Compact, with rhythm.** Controls `--h-control`, rows `--h-row`, card padding `--pad-card`, sections
     `--gap-section` apart; more space above a title than below it; equal padding on all sides of a card or bar.
     At 1280×800 the main task fits the first screen: every plan to its last feature; a sign-up to its button; a
@@ -167,7 +180,8 @@ it goes in React, Vue, Svelte, Angular, Astro, Django, Rails, Laravel and the re
     window gutter. Cards in a row match in width, height, padding and the order inside; controls in a row share a
     height; a grid has one gap in both directions.
 16. **Two text tones in a card.** `--text` for values, titles and labels; `--text-2` for descriptions and meta.
-    `--text-3` only for icons, ticks and placeholders.
+    `--text-3` only for icons and ticks; a placeholder is text someone reads, so it takes `--text-2` (the block does
+    this).
 17. **A unit stays with its number:** on its baseline, 6px after it, `--t-body` `--text-2`, on one line. A discounted
     price keeps the precision of the original (15 → 12, 9.99 → 7.99), never a computed 9.60 nobody would publish.
 18. **Every state on the same layout,** with one made-up person throughout and no placeholder text. A state
@@ -186,7 +200,8 @@ it goes in React, Vue, Svelte, Angular, Astro, Django, Rails, Laravel and the re
     (`gate.mjs arm <url-or-file> --copy <source folder>`, plus `--preset none` when the project has its own system,
     and `--ref <images>` when the work is built from references, so it asks for the comparisons and a filmstrip);
     before saying done, `gate.mjs check` must say PASS, or after three rounds DONE, UNRESOLVED with what is left, told
-    to the person. How much to check beyond the gate depends on the size of the change (antheo-review, "How much to
+    to the person (each further reference adds a round; a page of several components can ask for more with
+    `--max`). How much to check beyond the gate depends on the size of the change (antheo-review, "How much to
     check"). Setup for each agent: antheo-review `references/gate.md`. A PASS is the floor, not the finish: it says
     nothing measured is broken, never that the work is good ("Correct is the floor; aim higher").
 
@@ -262,6 +277,7 @@ promised · drift · quieting a check instead of fixing it · a fix loop · anot
 - [ ] Anything meant to be kept: built one at a time, from a reference, put beside it zoomed, every motion filmed and read
 - [ ] Every control answers its press (nothing wired to nothing); a still reference given its motion
 - [ ] An object drawn as the thing, not a box with a label; its root marked `data-object`
+- [ ] A component's page: the live component first, in its smallest true setting, on a stage that hugs it
 - [ ] Checked against every habit in `references/habits.md`
 
 ## Files

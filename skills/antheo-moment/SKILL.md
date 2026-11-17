@@ -12,8 +12,9 @@ a component earns one, and builds it to a bar. Everything else that moves (press
 ## Only on a rare, meaningful event
 
 A code accepted, a payment sent, a file landed, the last task done, a first success. Never on hover, typing, opening
-a menu, or anything done many times a day. Most components need none. Build one only when the request names it or
-the person asks for it; otherwise say "none" and stop. A moment is motion on what is already there: it never adds
+a menu, or anything done many times a day. Most components need none. Build one when the request names it or
+the person asks for it. For work meant to be kept that has such an event and no moment asked for, propose one in a
+line; with no such event, say "none" and stop. A moment is motion on what is already there: it never adds
 panels, cards, colours or content the request didn't name. Ask:
 would someone who uses this every day want to skip it? Then it goes, or plays only the first time.
 

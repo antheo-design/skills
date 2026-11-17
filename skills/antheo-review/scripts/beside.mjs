@@ -11,7 +11,9 @@
  *   --scale 2 (device pixels) · --act "click:<sel>" | "hover:<sel>" | "key:<Key>" | "wait:<ms>" (repeatable, in order)
  *   · --wait 800 (ms before the shot) · --out <file> · --region x,y,w,h (only this part of the reference, in its own
  *   pixels: one card of a screenshot of three) · --ground corners|none|<css colour> (the background to leave out of the
- *   colour check: by default the colour at the reference's corners; none keeps every colour).
+ *   colour check: by default the colour at the reference's corners; none keeps every colour) · --zoom x,y (where
+ *   the 3× close-ups look, as fractions of the width and height: 0.5,0.5 is the middle, 0.5,0.85 the lower part,
+ *   where a dial or a row of buttons sits).
  * Without --out it writes .antheo/evidence/beside-<reference name>-<time>.png, which is where the gate looks when it
  * is armed with --ref: two of these, made at least a minute apart, show the build was compared, changed and compared
  * again. Beside each sheet goes a .json record of what was compared: the page, the element, the reference and its
@@ -27,7 +29,7 @@ import { basename, dirname, extname, resolve } from 'node:path';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 
 const argv = process.argv.slice(2);
-const VALUE_FLAGS = ['--clip', '--ref', '--width', '--scale', '--act', '--wait', '--out', '--region', '--ground'];
+const VALUE_FLAGS = ['--clip', '--ref', '--width', '--scale', '--act', '--wait', '--out', '--region', '--ground', '--zoom'];
 const target = argv.find((a, i) => !a.startsWith('--') && !VALUE_FLAGS.includes(argv[i - 1]));
 const flag = (n) => { const i = argv.indexOf(`--${n}`); return i < 0 ? undefined : argv[i + 1]; };
 const all = (n) => argv.flatMap((a, i) => (a === `--${n}` && argv[i + 1] ? [argv[i + 1]] : []));
@@ -97,6 +99,9 @@ try {
         await scratch.close();
       }
       const buildUrl = `data:image/png;base64,${shot.toString('base64')}`;
+      const zoom = (flag('zoom') ?? '0.5,0.5').split(',').map(Number);
+      if (zoom.length !== 2 || zoom.some((n) => !Number.isFinite(n) || n < 0 || n > 1)) { console.error('--zoom takes x,y as fractions from 0 to 1, like 0.5,0.85'); process.exit(2); }
+      const at = `${zoom[0] * 100}% ${zoom[1] * 100}%`, where = flag('zoom') ? `around ${zoom[0]}, ${zoom[1]}` : 'middle';
       const sheet = await browser.newPage({ viewport: { width: 1600, height: 900 }, deviceScaleFactor: 1 });
       // both at the same height on top; underneath, the middle third of each at 3×, where the details are
       await sheet.setContent(`<body style="margin:0;padding:16px;background:#7a7a7a;font:13px/1.4 system-ui,sans-serif;color:#fff">
@@ -105,8 +110,8 @@ try {
           <figure style="margin:0"><img id="b" src="${buildUrl}" style="display:block;height:520px"><figcaption>build: ${flag('clip').replace(/</g, '&lt;')} (${Math.round(box.width)}×${Math.round(box.height)} CSS px)</figcaption></figure>
         </div>
         <div style="display:flex;gap:16px;margin-top:16px">
-          <figure style="margin:0"><div id="rz" style="width:560px;height:360px;overflow:hidden;background:url(${refUrl}) center/300% no-repeat"></div><figcaption>reference, middle at 3×</figcaption></figure>
-          <figure style="margin:0"><div id="bz" style="width:560px;height:360px;overflow:hidden;background:url(${buildUrl}) center/300% no-repeat"></div><figcaption>build, middle at 3×</figcaption></figure>
+          <figure style="margin:0"><div id="rz" style="width:560px;height:360px;overflow:hidden;background:url(${refUrl}) ${at}/300% no-repeat"></div><figcaption>reference, ${where} at 3×</figcaption></figure>
+          <figure style="margin:0"><div id="bz" style="width:560px;height:360px;overflow:hidden;background:url(${buildUrl}) ${at}/300% no-repeat"></div><figcaption>build, ${where} at 3×</figcaption></figure>
         </div></body>`);
       const ok = await sheet.evaluate(() => Promise.all([...document.images].map((i) => i.decode().then(() => true, () => false))).then((r) => r.every(Boolean)));
       if (!ok) { console.error('The reference image could not be read'); code = 4; }
@@ -117,6 +122,7 @@ try {
         await sheet.screenshot({ path: OUT, fullPage: true });
         writeFileSync(OUT.replace(/\.png$/i, '') + '.json', JSON.stringify({
           tool: 'beside', page: url, clip: flag('clip'), reference: refPath, region: region ?? null, ground: flag('ground') ?? 'corners',
+          zoom: flag('zoom') ?? null,
           viewport: `${flag('width') ?? 1280}×900`, theme: argv.includes('--dark') ? 'dark' : 'light', actions: all('act'),
           at: new Date().toISOString(), missingColours: palette.missing,
         }, null, 2));
@@ -146,13 +152,13 @@ function paletteCheck(groundOpt) {
     const c = document.createElement('canvas').getContext('2d'); c.fillStyle = groundOpt; c.fillRect(0, 0, 1, 1);
     const [r, g, b] = c.getImageData(0, 0, 1, 1).data; return { r, g, b };
   })();
-  const main = (img) => {
+  const main = (img, dropGround = true) => {
     const c = document.createElement('canvas'); c.width = 64; c.height = Math.max(1, Math.round(64 * img.naturalHeight / img.naturalWidth));
     const x = c.getContext('2d'); x.drawImage(img, 0, 0, c.width, c.height);
     const d = x.getImageData(0, 0, c.width, c.height).data; const bins = new Map(); let n = 0;
     // the ground the thing was shot on (the four corners) is not the thing: leave it out
     const at = (px, py) => { const i = (py * c.width + px) * 4; return { r: d[i], g: d[i + 1], b: d[i + 2] }; };
-    const corners = groundOpt === 'none' ? [] : named ? [named] : [at(0, 0), at(c.width - 1, 0), at(0, c.height - 1), at(c.width - 1, c.height - 1)];
+    const corners = groundOpt === 'none' || !dropGround ? [] : named ? [named] : [at(0, 0), at(c.width - 1, 0), at(0, c.height - 1), at(c.width - 1, c.height - 1)];
     for (let i = 0; i < d.length; i += 4) {
       if (d[i + 3] < 128) continue;
       const px = { r: d[i], g: d[i + 1], b: d[i + 2] };
@@ -169,8 +175,10 @@ function paletteCheck(groundOpt) {
   const hex = (c) => '#' + [c.r, c.g, c.b].map((v) => Math.round(v).toString(16).padStart(2, '0')).join('');
   function de(a, b) { const [x, y] = [lab(a), lab(b)]; return Math.hypot(x[0] - y[0], x[1] - y[1], x[2] - y[2]) * 100; }
   const [ri, bi] = [...document.images];
-  const ref = main(ri), build = main(bi);
-  const missing = ref.map((c) => { const near = build.reduce((best, b) => (de(c, b) < de(c, best) ? b : best), build[0]); return { c, near, d: near ? de(c, near) : 100 }; })
+  // The build is matched with every colour it has: an element that fills its own box (a card, a tile) carries its
+  // body colour into the corners, and dropping that as "ground" reported the reference's card colours as missing.
+  const ref = main(ri), build = main(bi), buildAll = main(bi, false);
+  const missing = ref.map((c) => { const near = buildAll.reduce((best, b) => (de(c, b) < de(c, best) ? b : best), buildAll[0]); return { c, near, d: near ? de(c, near) : 100 }; })
     .filter((x) => x.d > 10).map((x) => ({ hex: hex(x.c), share: x.c.share, nearest: x.near ? hex(x.near) : 'none', de: Math.round(x.d) }));
   return { ref: ref.map((c) => ({ hex: hex(c), share: c.share })), build: build.map((c) => ({ hex: hex(c), share: c.share })), missing };
 }

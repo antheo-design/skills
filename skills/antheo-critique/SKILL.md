@@ -29,8 +29,8 @@ A ship verdict with measured findings belongs to **antheo-review**; explaining h
 ## Facts are stated, judgement is asked
 
 - **Three kinds of point, never mixed.** A **usability defect** stops someone: they can't read it, reach it, find it
-  or finish the task. A **system inconsistency** breaks the project's own system, or the Quiet preset when there is
-  no other: two button styles for one action, a size that isn't on the scale. **Aesthetic judgement** is everything
+  or finish the task. A **system inconsistency** breaks the project's own system, or, when there is
+  none, the pattern the screen itself sets: two button styles for one action, a size that isn't on the scale. **Aesthetic judgement** is everything
   that could go either way. The first two are stated as facts; the third is only ever a question.
 - **A fact** is visible: say it plainly, with where and what. "The price is 13px, the same as its label, so
   nothing leads (antheo-type)."

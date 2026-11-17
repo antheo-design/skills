@@ -376,7 +376,11 @@ function measure(kind) {
     for (const s of document.scripts) for (const x of (s.textContent || '').matchAll(/setProperty\(\s*['"`](--[\w-]+)/g)) declared.add(x[1]);
     // a linked sheet can be unreadable (file://, another origin), so a name the page actually resolves counts as defined
     const root = getComputedStyle(document.documentElement);
-    return [...new Set([...css.matchAll(/var\(\s*(--[\w-]+)\s*\)/g)].map((x) => x[1]).filter((n) => !declared.has(n) && !root.getPropertyValue(n).trim()))].slice(0, 8);
+    const open = [...new Set([...css.matchAll(/var\(\s*(--[\w-]+)\s*\)/g)].map((x) => x[1]).filter((n) => !declared.has(n) && !root.getPropertyValue(n).trim()))].slice(0, 16);
+    // a name some element resolves (a framework's inline style, setProperty from a bundled script) is defined where
+    // it is used
+    const all = open.length ? [...document.querySelectorAll('body *')].slice(0, 4000) : [];
+    return open.filter((n) => !all.some((el) => getComputedStyle(el).getPropertyValue(n).trim())).slice(0, 8);
   })();
   // a framework's default palette, used unchanged
   const SWATCH = { 'rgb(99, 102, 241)': 'indigo-500', 'rgb(79, 70, 229)': 'indigo-600', 'rgb(59, 130, 246)': 'blue-500', 'rgb(37, 99, 235)': 'blue-600', 'rgb(139, 92, 246)': 'violet-500', 'rgb(124, 58, 237)': 'violet-600', 'rgb(168, 85, 247)': 'purple-500', 'rgb(16, 185, 129)': 'emerald-500', 'rgb(15, 23, 42)': 'slate-900' };
@@ -542,6 +546,7 @@ function craft() {
   }
 
   // near-miss alignment: side-by-side siblings whose first lines of same-size text almost share a top
+  const HELD = 'button, a[href], input, select, textarea, [role=button], [role=switch], [role=tab], [role=slider], [data-object]';
   for (const p of document.querySelectorAll('body *')) {
     if (out.nearMiss.length >= 6) break;
     const s = styleOf(p);
@@ -557,12 +562,19 @@ function craft() {
       if (!a || !b) continue;
       const beside = (rs[i].right <= rs[j].left + 1 || rs[j].right <= rs[i].left + 1) && Math.min(rs[i].bottom, rs[j].bottom) - Math.max(rs[i].top, rs[j].top) > 8;
       if (!beside || Math.abs(a.size - b.size) > 1.5) continue;
+      // a label inside a control or a drawn object is placed by that control; text beside it in the next column of
+      // a states sheet is not its pair
+      if (!!a.el.closest(HELD) !== !!b.el.closest(HELD)) continue;
       const dy = Math.abs(a.top - b.top);
       if (dy >= 3 && dy <= 28) out.nearMiss.push(item(p, `"${a.text}" and "${b.text}" (both ${Math.round(a.size)}px) start ${Math.round(dy)}px apart`));
     }
   }
 
-  // lopsided insides: a boxed control whose content sits closer to one side
+  // lopsided insides: a boxed control whose content sits closer to one side. Measured at rest: a control caught
+  // mid-animation (a squash, a sliding thumb, an idle loop) has no settled inside yet, and a drawn object's inside is
+  // its artwork, not padding.
+  const movingNow = document.getAnimations().filter((a) => a.playState === 'running').map((a) => a.effect?.target).filter(Boolean);
+  const atRest = (el) => !movingNow.some((t) => t === el || t.contains(el) || el.contains(t));
   let seen = 0;
   for (const el of document.querySelectorAll('button, a, [role=tab], [role=button], [role=radio], label, span, li, div')) {
     if (out.lopsided.length >= 6 || seen > 4000) break;
@@ -573,6 +585,7 @@ function craft() {
     if (!/^(BUTTON|A)$/.test(el.tagName) && el.querySelector('button, a[href], input, select, [role=button], [role=radio], [role=tab], [role=menuitem]')) continue;
     const s = styleOf(el);
     if (!boxed(s) || !visible(el) || !(el.innerText || '').trim()) continue;
+    if (el.closest('[data-object]') || !atRest(el)) continue;
     const rects = content(el);
     if (!rects.length) continue;
     // wrapped text ends its lines wherever a word ends, so the room after the longest line says nothing about the
@@ -881,8 +894,9 @@ function motionAudit() {
     const max = Math.max(0, ...td);
     if (max > 0 && visible(el)) {
       out.moving++;
-      td.filter((d) => d > 1).forEach((d) => durs.add(Math.round(d)));
-      if (max > 400 && !tp.every((p) => /stroke-dash|^(inline-size|width)$/.test(p) && el.closest('svg, progress, [role=progressbar], [role=timer]')) && out.slow.length < 6) out.slow.push(sel(el) + ': ' + Math.round(max) + 'ms on ' + tp.slice(0, 3).join(', '));
+      const play = !!el.closest('[data-object]'); // an object's play keeps its own timing (antheo-motion, "When more motion is right")
+      if (!play) td.filter((d) => d > 1).forEach((d) => durs.add(Math.round(d)));
+      if (max > 400 && !play && !(max <= 800 && el.closest('[data-chart]')) && !tp.every((p) => /stroke-dash|^(inline-size|width)$/.test(p) && el.closest('svg, progress, [role=progressbar], [role=timer]')) && out.slow.length < 6) out.slow.push(sel(el) + ': ' + Math.round(max) + 'ms on ' + tp.slice(0, 3).join(', '));
       const bad = tp.filter((p) => LAYOUT.test(p));
       if (bad.length && out.layoutProps.length < 6) out.layoutProps.push(sel(el) + ' transitions ' + bad.slice(0, 3).join(', '));
     }
@@ -1006,6 +1020,7 @@ const findings = [];
 const add = (area, severity, rule, items, fix) => { if (items && (items.length ?? items)) findings.push({ area, severity, rule, items: Array.isArray(items) ? [...new Set(items)] : [], fix }); };
 const results = {};
 const errors = [];
+const missing = [];
 // craft rules: [area, severity, rule, fix]
 const CRAFT = {
   brokenWord: ['craft', 'high', 'a word broken mid-word', 'never overflow-wrap: anywhere on labels, values, buttons or headings: give the column room, stack the row, or white-space: nowrap; only strings people typed (.long-text) may break'],
@@ -1063,6 +1078,7 @@ const full = (m) => {
       if (m.strong > 2) add('consistency', 'medium', `${m.strong} strong filled buttons in the first screen`, [`${m.strong} buttons`], 'one primary action per view; the rest secondary or quiet');
       if (m.transitionAll) add('motion', 'low', `${m.transitionAll} elements use transition: all`, [`${m.transitionAll} elements`], 'name the properties: transform, opacity, background-color');
       add('robustness', 'high', 'script errors', errors, 'fix the errors in the console');
+      add('robustness', 'high', 'a file the page asks for is missing', missing, 'fix the address or add the file: a missing script or stylesheet breaks the page, a missing image leaves a hole');
       add('robustness', 'high', 'a style reads a variable nobody defined', m.undefinedVars, 'define it, or paste the style block first: the whole declaration is dropped, so a transition that reads it does not run and the thing jumps');
       add('character', 'medium', 'a framework palette, unchanged', m.swatches, 'every colour comes from the style block or the project tokens; search the build for palette names');
       add('consistency', 'high', 'big numbers that read as two words', m.splitNumbers, 'drop tabular-nums on standalone figures (use proportional-nums); keep tabular only in columns and counters');
@@ -1084,7 +1100,16 @@ const full = (m) => {
 try {
   const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
   page.on('pageerror', (e) => errors.push(String(e.message).slice(0, 120)));
-  page.on('console', (m) => m.type() === 'error' && errors.push(m.text().slice(0, 120)));
+  // a failed request is named by its address under "a file the page asks for is missing", never repeated as an
+  // anonymous console line
+  page.on('console', (m) => m.type() === 'error' && !/^Failed to load resource/.test(m.text()) && errors.push(m.text().slice(0, 120)));
+  // the icon a browser asks for by itself is not something the page asked for
+  const BROWSER_ASKS = /\/(favicon\.ico|apple-touch-icon[\w-]*\.png)(\?|$)/;
+  const short = (u) => (u.startsWith('file:') ? u.split('/').slice(-2).join('/') : u.replace(/^https?:\/\/[^/]+/, '')).slice(0, 100);
+  // an image that failed is reported where it sits on the page ("broken images"), so not here as well
+  const ours = (r) => r.url() !== url && !BROWSER_ASKS.test(r.url()) && r.resourceType() !== 'image';
+  page.on('response', (r) => { if (r.status() >= 400 && ours(r.request())) missing.push(`${r.status()} ${short(r.url())}`); });
+  page.on('requestfailed', (r) => { if (ours(r) && !/ERR_ABORTED/.test(r.failure()?.errorText ?? '')) missing.push(`did not load: ${short(r.url())}`); });
   const nearest = (t) => widths.reduce((a, b) => (Math.abs(b - t) < Math.abs(a - t) ? b : a));
   const main = nearest(1280), phone = nearest(390), widest = Math.max(...widths);
   const load = async (width, theme) => {

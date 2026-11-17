@@ -38,7 +38,7 @@ node <antheo-review>/scripts/gate.mjs disarm    # when the work is abandoned
   |---|---|---|
   | `GATE: PASS` | 0 | the automated checks found nothing blocking; not a full release review |
   | `GATE: OPEN` | 1 | findings to fix; this was one round |
-  | `GATE: DONE, UNRESOLVED` | 3 | three rounds ran out with work still open: tell the person what is left; don't loop. **Not a pass** |
+  | `GATE: DONE, UNRESOLVED` | 3 | the rounds ran out with work still open (three; one more for each reference after the first, six at most; `--max n` sets it, for a page of several components): tell the person what is left; don't loop. **Not a pass** |
   | `GATE: TOOL ERROR` | 4 | a checker crashed or wrote no report: nothing was verified |
 
   Every round deletes the last report first, so a crash can never leave an old passing result behind. In CI, only

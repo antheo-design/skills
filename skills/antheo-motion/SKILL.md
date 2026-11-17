@@ -144,6 +144,7 @@ film each motion you made and look at the frames before calling it done:
 ```
 node <antheo-motion>/scripts/filmstrip.mjs <url> --clip ".tuner" --click ".preset" --duration 600
 node <antheo-motion>/scripts/filmstrip.mjs <url> --clip ".sheet" --drag ".handle" --by 0,240 --duration 900
+node <antheo-motion>/scripts/filmstrip.mjs <url> --clip ".like" --press ".like button" --hold 500 --duration 1200
 ```
 
 It slows the page to 0.1× (CSS, Web Animations and the JavaScript clock), does the one thing, and lays 12 frames of
@@ -169,6 +170,11 @@ Play is not chrome. An object people fiddle with (a dial, a toy, candy buttons, 
 person asked for keeps its play: the static while a radio tunes, the squash and wobble, the flick. The frequency rule
 and the 300ms cap are for menus, fields and pages; they never justify cutting the fun out of an object
 (antheo-surface `references/objects.md`, "The play is the point"; antheo-creative designs the play).
+
+A chart may draw itself in once: bars growing or a line drawing when the chart first arrives, up to about 800ms,
+eased out, with its final values in the page from the first frame (the labels, the table, the accessible name). After
+that its values move within 300ms, and it never replays on every filter. Mark the chart's root `data-chart` so the
+page check reads it as a chart; under reduced motion it is simply there.
 
 The purpose and frequency rules decide; the numbers are defaults. A game, a creative tool, a learning product or a
 brand moment the person asked for may move more and longer. It still answers input at once, never blocks the next

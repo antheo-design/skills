@@ -11,7 +11,9 @@ for that. It also owns the list of tells, in both directions: the lazy defaults 
 of UI that is trying too hard.
 
 Values belong elsewhere: colours to **antheo-color**, type to **antheo-type**, sizes to **antheo-components**,
-widths to **antheo-layout**. antheo-build's fundamentals outrank everything here.
+widths to **antheo-layout**. antheo-build's "always" list (the task works, access holds, nothing invented, nothing
+broken) holds on every page here. The Quiet preset's numbers do not: a Brand page chooses its own sizes, weights and
+colours.
 
 ## Clean or Brand
 
@@ -80,8 +82,12 @@ precisely, they are what people prefer.
    display face, a colour field, an image, an unusual layout) as long as each serves that idea and has a job. Two
    ideas competing at full volume is the failure, not the number of devices. When the person hasn't chosen, offer two
    or three coherent directions from the nouns, each a whole idea, and let them pick.
+4. **Type at the size of the idea.** The preset's 36px ceiling is for product pages. On a Brand page the headline
+   is often the image: `clamp(48px, 9vw, 120px)` is ordinary, a poster runs 120 to 200px, with tight tracking and
+   leading near 1. Check it at 320px: no word breaks, nothing scrolls sideways. Text people read stays at reading
+   size.
 
-The structure does not change: one content edge, matching siblings, the spacing scale, units beside their numbers,
+The craft does not change: one content edge, matching siblings, the spacing scale, units beside their numbers,
 nothing rotated or hand-drawn unless the person asked for exactly that. Sections share one ground unless a second
 ground has a reason (the closing section, a quote). Plan the sections with `references/scenes.md`.
 
@@ -94,7 +100,7 @@ ground has a reason (the closing section, a quote). Plan the sections with `refe
 ## Done
 
 - [ ] Clean unless the person asked for Brand; in Clean, no ornament from the subject
-- [ ] No tell from `references/slop.md`: lazy, invented or over-designed
+- [ ] Every tell from `references/slop.md` answered: removed, or kept on purpose with the reason said
 - [ ] A Brand page keeps antheo-build's "always" list: one idea, a readable text face, no decoration without a job
 - [ ] Looked at on a phone and at 1280px before calling it done
 

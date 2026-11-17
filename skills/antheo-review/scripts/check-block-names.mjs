@@ -17,7 +17,8 @@ import { fileURLToPath } from 'node:url';
 const here = dirname(fileURLToPath(import.meta.url));
 const skills = resolve(here, '..', '..');
 const block = readFileSync(join(skills, 'antheo-build', 'references', 'quiet.css'), 'utf8');
-const declared = (css) => new Set([...css.matchAll(/(--[a-z0-9_-]+)\s*:/gi)].map((m) => m[1]));
+// `--name: value` in CSS, and `'--name': value` as a key of a style object (React, Vue, Svelte)
+const declared = (css) => new Set([...css.matchAll(/(--[a-z0-9_-]+)['"`]?\]?\s*:/gi)].map((m) => m[1]));
 const reads = (css) => [...css.matchAll(/var\(\s*(--[a-z0-9_-]+)\s*([,)])/gi)].map((m) => ({ name: m[1], fallback: m[2] === ',' }));
 const BLOCK = declared(block);
 // names set from script or inline style by a recipe, and the few a brand page adds on purpose (antheo-direction)

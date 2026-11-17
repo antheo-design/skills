@@ -11,7 +11,8 @@
  *   node filmstrip.mjs <url> --clip ".toast" --focus "#save" --key Enter --dark --out save-dark.png
  *   node filmstrip.mjs <url> --clip ".hero" --load            (the motion that plays when the page opens)
  *
- * What to do (one of): --click <sel> · --hover <sel> · --press <sel> (held down, released after the last frame) ·
+ * What to do (one of): --click <sel> · --hover <sel> · --press <sel> (held down; released after the last frame, or
+ *   with --hold <ms> after that much of the motion, so the frames after it show the release) ·
  *   --drag <sel> --by dx,dy · --focus <sel> --key <Key> · --load. Without one, it films whatever is already moving.
  * Options: --frames 12 (how many) · --duration 600 (ms of the motion to cover, at normal speed) · --rate 0.1 (how
  *   slow) · --width 1280 --height 800 · --dark · --reduce (prefers-reduced-motion: reduce) · --out filmstrip.png ·
@@ -36,7 +37,7 @@ import { dirname, resolve } from 'node:path';
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 
 const argv = process.argv.slice(2);
-const VALUE_FLAGS = ['--clip', '--click', '--hover', '--press', '--drag', '--by', '--focus', '--key', '--frames', '--duration', '--rate', '--width', '--height', '--out', '--pad'];
+const VALUE_FLAGS = ['--clip', '--click', '--hover', '--press', '--hold', '--drag', '--by', '--focus', '--key', '--frames', '--duration', '--rate', '--width', '--height', '--out', '--pad'];
 const target = argv.find((a, i) => !a.startsWith('--') && !VALUE_FLAGS.includes(argv[i - 1]));
 const flag = (n) => { const i = argv.indexOf(`--${n}`); return i < 0 ? undefined : argv[i + 1]; };
 const has = (n) => argv.includes(`--${n}`);
@@ -134,9 +135,18 @@ try {
     };
     const realSpan = DURATION / RATE; // how long the slowed motion takes in real time
     let act = async () => {};
+    let released = false;
     if (flag('hover')) { const p = await center(flag('hover')); act = async () => p && page.mouse.move(p.x, p.y); }
     else if (flag('click')) { const p = await center(flag('click')); act = async () => { if (p) { await page.mouse.move(p.x, p.y); await page.mouse.down(); await page.mouse.up(); } }; }
-    else if (flag('press')) { const p = await center(flag('press')); act = async () => { if (p) { await page.mouse.move(p.x, p.y); await page.mouse.down(); } }; }
+    else if (flag('press')) {
+      const p = await center(flag('press')); const hold = Number(flag('hold'));
+      act = async () => {
+        if (!p) return;
+        await page.mouse.move(p.x, p.y); await page.mouse.down();
+        // let go part way through, in the motion's own time, so the release is filmed too
+        if (hold > 0) { await page.waitForTimeout(Math.min(hold, DURATION) / RATE); await page.mouse.up(); released = true; }
+      };
+    }
     else if (flag('focus') && flag('key')) { await page.locator(flag('focus')).first().focus().catch(() => { code = 4; }); act = async () => page.keyboard.press(flag('key')); }
     else if (flag('drag')) {
       const p = await center(flag('drag'));
@@ -168,7 +178,7 @@ try {
         if (png) frames.push({ at, src: `data:image/png;base64,${png.toString('base64')}` });
       }
       await acting.catch(() => {});
-      if (flag('press')) await page.mouse.up().catch(() => {});
+      if (flag('press') && !released) await page.mouse.up().catch(() => {});
       await slow(false);
       await page.waitForTimeout(300);
       const last = await page.screenshot({ clip: region, animations: 'allow', timeout: 5000 }).catch(() => null);

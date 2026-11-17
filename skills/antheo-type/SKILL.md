@@ -31,8 +31,11 @@ another font's number; it would resize the real font.
 
 ## Six sizes exist; a screen uses four or five
 
-The scale lives in antheo-build's style block (`references/quiet.css`). Small, precise type reads as designed;
-large, loose type reads as generated.
+The scale lives in antheo-build's style block (`references/quiet.css`). In product UI, small, precise type reads as
+designed and large, loose type reads as generated. The scale is the Quiet preset's: a Brand page or a praised
+reference sets its own display sizes (antheo-direction, "Type at the size of the idea"), and lettering on a drawn
+object is drawn to the object. A second face beside the block's font sets `font-size-adjust: none` on itself, or its
+own measured number: the block's 0.53 is Geist's.
 
 | Variable | Size / line height | Tracking | For |
 |---|---|---|---|
@@ -41,7 +44,7 @@ large, loose type reads as generated.
 | `--t-title` | 15 / 22 | −0.01em | a card, plan, dialog or section title |
 | `--t-page` | 20 / 28 | −0.015em | an app page's title: the largest text in an app |
 | `--t-num` | 28 / 32 | −0.02em | a price or key figure: proportional alone, tabular in a column or when it ticks |
-| `--t-display` | 36 / 40 | −0.025em | a marketing headline: the largest text anywhere |
+| `--t-display` | 36 / 40 | −0.025em | a marketing headline: the largest text in the preset |
 
 On a phone the block raises them (body 15/22, title 17/24, page 22/28, display 28/32), and fields are 16px on any
 touch screen so iOS doesn't zoom. An app screen uses at most four of these, a marketing section at most five. Long

@@ -87,7 +87,7 @@ a workspace, account or repository asks the person to type its name, with the bu
 5. No "please" or "sorry" in normal flows; no "Oops"; at most one "!" a screen, for a real win.
 6. Device words: "select" when it could be either, "tap" on touch, "click" only where there is always a pointer.
    Never point by position or colour ("the green button on the right").
-7. Real characters: curly quotes, `…`, an en dash in ranges (9 to 5), `×`, `−`, a no-break space between a number and
+7. Real characters: curly quotes, `…`, an en dash in ranges (9–5), `×`, `−`, a no-break space between a number and
    its unit. **No em dashes in interface text**: a colon, a comma or a full stop instead.
 8. Contractions in a consumer voice; "cannot" and "do not" in legal, health, finance and government flows.
 

@@ -231,8 +231,9 @@ after a failed request; leftovers · a check that was quieted · only one browse
   `--stress`; `--shots`
 - `scripts/latency-probe.mjs`: real presses and drags; time to the first visible change, swallowed second presses,
   drag drift
-- `scripts/beside.mjs`: puts a build next to its reference at the same height, with 3× close-ups of both; the
-  sheets go to `.antheo/evidence/`, where the gate armed with `--ref` looks for them
+- `scripts/beside.mjs`: puts a build next to its reference at the same height, with 3× close-ups of both (`--zoom
+  x,y` aims them: the dial, the buttons); the sheets go to `.antheo/evidence/`, where the gate armed with `--ref`
+  looks for them
 - `scripts/pixdiff.mjs`: compares two screenshots or folders; changed pixels, the changed box, a diff image
 - `references/report.md`: the one report format every checking skill uses: verdict, finding, severity, cap, close
 - `references/rubric.md`: eight design-quality questions, scored 1 to 5 with anchors

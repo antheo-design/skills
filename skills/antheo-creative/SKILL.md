@@ -22,10 +22,11 @@ material, light and depth of a drawn object is **antheo-surface** (`references/o
 2. **Find the toy.** The one thing a person would do with it again and again just because it feels good: tune
    through the static, squash the candy, flick the stack, drag the knob past its clicks. Name it in one sentence.
 3. **Find the play** in the reference, or invent it from the component (below).
-4. **Build it in layers** (the table below): only the layers this thing needs, each one rich.
-5. **Make it safe:** it answers at once, never blocks the task, can be interrupted, and tells the same story under
+4. **Give it a body** (below): its own colours, a size its face can be read at, its setting.
+5. **Build it in layers** (the table below): only the layers this thing needs, each one rich.
+6. **Make it safe:** it answers at once, never blocks the task, can be interrupted, and tells the same story under
    reduced motion.
-6. **Test the fun** (below), film it, fix, film again.
+7. **Test the fun** (below), film it, fix, film again.
 
 ## From a reference: list every effect, then the ones it implies
 
@@ -53,6 +54,22 @@ Then make the words, characters and data your own; keep the play.
 
 `references/ideas.md` holds plays by component, to start from, never to copy whole.
 
+## Give it a body
+
+The play is half of a toy; the other half is how it looks before anyone touches it. A toy drawn in the block's
+greys, small, alone on a wide empty card, reads as a wireframe of a toy, however good its motion is.
+
+- **Its own colours.** A toy, a character or an illustration is content, not chrome: two to four colours taken from
+  the subject (a blue mailbox with a red flag, a yellow sun in a blue sky, a pink heart), defined once on its root
+  like an object's (antheo-surface `references/objects.md`), with its root marked `data-object`. The rule that
+  colour means "on" is for the chrome around it.
+- **A size its face can be read at.** On its stage the drawn part is 96 to 200px, so its detail and its expressions
+  show. The real-size version (a 20px heart in a toolbar) is in the states sheet or beside it.
+- **Its setting.** The like button under a photo, the toggle in its settings row, the empty state inside its inbox
+  frame (antheo-build, "aim higher", step 4). One believable piece of content, never a page of chrome.
+- **Type that fits the stage.** The words that belong to the toy (its title, its one line of help) may step up one
+  or two sizes on its stage; the states sheet under it stays in the block's sizes.
+
 ## The layers of play
 
 | Layer | What it is | Examples |
@@ -78,6 +95,12 @@ physics layer come first; character and surprise make it memorable.
 - **Reduced motion keeps the story:** travel, wobble, bounce and loops become a short fade or an instant change; the
   character still changes state, the static still shows as a still texture, the count still updates.
 - **Loops pause:** idle life stops when off screen and has a pause control if it runs over five seconds (WCAG 2.2.2).
+  A character that moves only while something plays (a mascot bopping to a radio) is paused by that thing's own
+  pause button, and that counts.
+- **A reference caught mid-play starts at rest.** A still that shows a radio playing, a timer running or a video
+  rolling is one frame of its life. The build opens paused and silent, one press from that frame, and the playing
+  state is in the states sheet. Sound and autoplay never start before a press: browsers block them, and so would the
+  person in a quiet room.
 - **It's cheap:** `transform` and `opacity` for movement; noise and particles on a small canvas or a pre-made texture;
   no layout animation; 60fps on a mid-range phone.
 - **Access holds:** every playful control is still a real control with a name, a role, keyboard use and a visible
@@ -86,13 +109,17 @@ physics layer come first; character and surprise make it memorable.
 
 ## Test the fun
 
-1. **The fiddle test.** Would someone press, drag or flick it again for no reason? If not, the toy isn't there yet.
-2. **The twentieth time.** Use it twenty times in a row: still pleasant, never slower, never in the way.
-3. **The frame test.** Film it (antheo-motion `scripts/filmstrip.mjs`): every frame composed; the play visible in the
+1. **The first look.** At rest, before anyone touches it: does it invite a touch? A toy that looks like a plain
+   icon until it is held has hidden its play. Show a hint of the play at rest (a heart with a little fill in it, a
+   thumb that leans, a plane poised to fly), stage it in its setting (antheo-build, "aim higher", step 4), and say
+   what to try in one short line.
+2. **The fiddle test.** Would someone press, drag or flick it again for no reason? If not, the toy isn't there yet.
+3. **The twentieth time.** Use it twenty times in a row: still pleasant, never slower, never in the way.
+4. **The frame test.** Film it (antheo-motion `scripts/filmstrip.mjs`): every frame composed; the play visible in the
    frames, not only described in the notes.
-4. **Beside the reference** (antheo-review `scripts/beside.mjs`), when there is one: every effect on the list is in
+5. **Beside the reference** (antheo-review `scripts/beside.mjs`), when there is one: every effect on the list is in
    the build.
-5. **The plain version.** Turn on reduced motion: it still works, still tells the story, still has its character.
+6. **The plain version.** Turn on reduced motion: it still works, still tells the story, still has its character.
 
 ## What goes wrong
 
@@ -103,6 +130,10 @@ physics layer come first; character and surprise make it memorable.
 - **Copying the reference's content.** Match its effects and feel; write your own words, draw your own character.
 - **Only on the happy path.** The play is designed for empty, loading, error and disabled too: a character that
   shrugs at an error is play; a frozen widget is not.
+- **A grey toy on an empty card.** Chrome colours, 40px tall, no setting: correct, and nobody reaches for it. Give
+  it a body.
+- **Play you have to discover.** The best part needs a hold or a drag, and at rest it is a small grey icon on an
+  empty card. Hint at it at rest and name it in a line.
 
 ## Done
 
@@ -111,6 +142,8 @@ physics layer come first; character and surprise make it memorable.
       ideas written, one picked
 - [ ] Two to four layers of play, each done well; character or surprise where it fits
 - [ ] Answers within 100ms, never blocks, interruptible; reduced motion keeps the story; loops pause
+- [ ] It has a body: its own two to four colours, 96px or more on its stage, in its setting
+- [ ] The first look invites a touch: the play hinted at rest, in its setting, with one line on what to try
 - [ ] The fiddle test, the twentieth time and the frame test passed; filmed and the frames read
 - [ ] Every playful control is still a real control (antheo-access)
 

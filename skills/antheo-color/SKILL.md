@@ -66,12 +66,12 @@ first.
 | Fields and tracks; a hovered row; a selected row | `--well`, `--hover`, `--selected` | opacity hacks |
 | Main text | `--text` (light 12 to 21:1, dark 10 to 16.5:1) | pure `#000` |
 | Secondary text | `--text-2` (4.5 to 7.5:1) | a grey that fails |
-| Icons, ticks, placeholders, disabled | `--text-3` (3 to 4.5:1) | anything people must read |
+| Icons, ticks, an off track, disabled | `--text-3` (3 to 4.5:1) | anything people must read, placeholders included: they take `--text-2` |
 | The one main action | `--primary` (the ink), with `--on-primary` on it | a coloured primary button beside a coloured accent |
 | "On", chosen, the one highlight tag | `--accent` with `--on-accent`; `--accent-soft` with `--accent-text` | the accent on more than four things on a screen |
 | Status | `--success`, `--warning`, `--danger`, each always with its word | the brand colour to mean success or error; a status colour as decoration |
 
-Two text tones carry hierarchy; a third (subtle) is only for placeholders and disabled text. Stacks of `/0.6`,
+Two text tones carry hierarchy; a third (subtle) is only for icons and disabled text. Stacks of `/0.6`,
 `/0.4`, `/0.2` of one colour read as generated.
 
 ## Colour is never the only signal
@@ -105,7 +105,8 @@ page or the part; the style block defines it. `data-theme="light"` forces light 
 
 ## Gradients, rarely
 
-Same-hue, under 12% lightness shift, never behind body text, never as text. Interpolate `in oklab`; `in oklch` when
+In the Quiet preset: same-hue, under 12% lightness shift, never behind body text, never as text. A drawn object's
+material and a Brand page's colour field make their own (antheo-surface `references/objects.md`, antheo-direction). Interpolate `in oklab`; `in oklch` when
 two distant hues would pass through grey.
 
 ## Check with colour vision in mind

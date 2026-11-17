@@ -2,14 +2,13 @@
 
 **Only for a Brand page the person asked for** (antheo-direction). Never for app screens, components or ordinary
 sections. antheo-build's fundamentals hold in every direction: one content edge, matching siblings, a neutral text
-face for everything read or pressed, units beside their numbers, nothing covering content. Pick **one** expressive
-device for the page (the display face, the colour field or the image). Anything rotated, hand-drawn, stamped or
+face for everything read or pressed, units beside their numbers, nothing covering content. The page carries **one**
+expressive idea, with as many devices as serve it (the display face, the colour field, the image, the layout). Anything rotated, hand-drawn, stamped or
 textured is used only when the person asked for exactly that.
 
 For an expressive page only. Each has its own type, colour, imagery, section vocabulary and motion; mixing two
 produces mush. Pick from the nouns, not the mood, and write the reason in one line in the brief.
 
-Pick **one**. Each has its own type, color, imagery, section vocabulary and motion. Mixing two produces mush.
 
 ### Editorial
 For publishing, food, craft, studios, writing tools, anything with a story.

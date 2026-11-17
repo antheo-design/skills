@@ -13,7 +13,7 @@ A component looks designed when every value on it has a reason and every state h
 when it was assembled from defaults, and themed when it wears its subject as a costume. This skill holds the anatomy, the
 measurements and the states, with the exact value each one takes.
 
-The values are exact, not ranges to approximate: `32px` is not `34px`, `0.97` is not `0.95`. When the project has its
+Inside the preset the values are exact, not ranges to approximate: `32px` is not `34px`, `0.97` is not `0.95`. When the project has its
 own design system or component library, its tokens and components win; the proportions and the restraint stay.
 
 Fill, edge, drop, corners, lines and icons belong to **antheo-surface**. Colour values belong to **antheo-color**, type to **antheo-type**, token names to **antheo-tokens**. Page structure
@@ -136,8 +136,8 @@ before it, never a spinner alone. A selected thing is unmistakable at a glance a
 colour: a chosen chip or option is ink-filled with a check, never a faint tint; an unavailable one says why inside
 it ("Full"), not only with a strikethrough. A choice that carries a description (an option with a line under it, a
 plan card, a list choice) shows its chosen state on the whole item, a `--selected` fill across it as well as its own
-dot or tick, so the choice reads before the mark is found. Disabled is opacity `0.6`
-(`0.4` on an icon-only button), never hidden information, with the reason nearby when it isn't obvious; a control
+dot or tick, so the choice reads before the mark is found. Disabled is the well fill with its label in `--text-2` and no shadow, as the block draws it
+(an icon-only button drops to opacity `0.4`), never hidden information, with the reason nearby when it isn't obvious; a control
 that must still explain itself stays focusable with `aria-disabled` instead of `disabled`. Details in
 `references/states.md`.
 

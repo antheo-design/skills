@@ -542,6 +542,44 @@ if (BROWSER && hasPlaywright) {
     if (dead.some((d) => /Q4|Q3/.test(d))) out.push('a period option was called dead');
     return out;
   });
+  test('a control that answers only by its own state or an animation on its object is not called dead', () => {
+    // the toy redraws itself every frame (so the probe hears it as noise), and a press only flips its own data-state
+    // and starts a one-shot animation on a child: both are answers
+    const file = labPage('alive', '<div data-object class="toy" role="group" aria-label="Toy" style="width:120px;height:120px;border-radius:12px;background:oklch(0.5 0.1 250)">'
+      + '<button type="button" id="spin" aria-label="Spin" style="width:44px;height:44px;border:0;border-radius:50%;background:oklch(0.9 0.02 250)"><i id="dot" style="display:block;width:8px;height:8px;margin:auto;border-radius:50%;background:oklch(0.3 0.02 250)"></i></button>'
+      + '<button type="button" id="flip" aria-label="Flip" data-state="off" style="width:44px;height:44px;border:0;border-radius:50%;background:oklch(0.9 0.02 250)"></button></div>'
+      + '<button type="button" class="btn" id="dead">See more</button>');
+    fs.appendFileSync(file, '<script>const t=document.querySelector(".toy"),s=document.getElementById("spin"),f=document.getElementById("flip");'
+      + 'const tick=()=>{t.style.setProperty("--n",String(performance.now()|0));s.style.opacity="1";f.style.opacity="1";requestAnimationFrame(tick)};tick();'
+      + 's.onclick=()=>document.getElementById("dot").animate([{transform:"scale(1)"},{transform:"scale(1.6)"},{transform:"scale(1)"}],{duration:400});'
+      + 'f.onclick=()=>{f.dataset.state=f.dataset.state==="on"?"off":"on"}</script>');
+    const json = file.replace(/\.html$/, '.probe.json');
+    spawnSync(process.execPath, [probe, file, '--json', json], { encoding: 'utf8', timeout: 240000 });
+    if (!fs.existsSync(json)) return ["the access probe didn't run"];
+    const dead = (JSON.parse(read(json)).findings ?? []).filter((x) => x.area === 'dead-control').map((x) => x.element);
+    const out = [];
+    if (dead.some((d) => /Spin/.test(d))) out.push('a button that starts an animation on its own object was called dead');
+    if (dead.some((d) => /Flip/.test(d))) out.push('a button that flips its own state was called dead');
+    if (!dead.some((d) => d.includes('See more'))) out.push('the dead "See more" button was not named');
+    return out;
+  });
+  test("an object's play is not judged as chrome, and a missing file is named while the browser's own favicon request is not", () => {
+    // inside the object: a long spring and uneven insides are its artwork; a script that is not there is named
+    const file = labPage('play', '<div data-object class="sw" style="display:inline-flex;height:40px;width:96px;border-radius:20px;background:oklch(0.85 0.05 250);align-items:center">'
+      + '<span class="knob" style="margin-left:2px;padding:0 4px 0 22px;height:32px;border-radius:16px;background:oklch(0.99 0 0);font-size:12px;line-height:32px">On</span></div>'
+      + '<p style="margin-top:24px"><span class="tag chip-bad" style="padding:0 4px 0 22px">Off balance</span></p><script src="./not-there.js"></script>',
+      '.knob{transition:transform 620ms cubic-bezier(.3,1.4,.5,1)}');
+    const f = rulesOf(file, ['--preset', 'none']);
+    if (!f) return ['the page check did not run'];
+    const items = (re) => JSON.stringify(f.filter((x) => re.test(x.rule)).flatMap((x) => x.items));
+    const out = [];
+    if (items(/lopsided padding/).includes('knob')) out.push("the object's own inside was called lopsided padding");
+    if (!items(/lopsided padding/).includes('chip-bad')) out.push('a lopsided tag outside the object was not caught');
+    if (items(/slower than 400ms/).includes('knob')) out.push("the object's 620ms spring was called slow interface motion");
+    if (!items(/a file the page asks for is missing/).includes('not-there.js')) out.push('the missing script was not named');
+    if (items(/script errors|is missing/).includes('favicon')) out.push('a favicon request was reported as an error');
+    return out;
+  });
 
   test('beside puts a build next to its reference, and the gate armed with --ref asks for that evidence until it exists', () => {
     const out = [];

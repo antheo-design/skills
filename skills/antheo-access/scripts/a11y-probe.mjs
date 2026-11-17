@@ -386,7 +386,9 @@ function motionScan() {
 
 /* Presses every visible, enabled button once and reports the ones that answer with nothing: no change in the page, no
    focus move, no navigation, no request, no new window, nothing copied. What changes by itself (an animation loop, a
-   clock) is watched first for a moment and doesn't count as an answer. Links and form submits are cancelled. */
+   clock) is watched first for a moment and doesn't count as an answer, except on the pressed control: its own state
+   (aria-pressed, aria-checked, a data attribute, a class) changing, or an animation starting on it or its object, is
+   an answer even when the control was already moving. Links and form submits are cancelled. */
 async function deadScan() {
   const P = window.__p;
   // a page with no script at all is a static mock-up: nothing can be wired yet, so there is nothing to press
@@ -414,15 +416,23 @@ async function deadScan() {
   const list = [...document.querySelectorAll(sel)].filter((el) => P.visible(el) && !el.disabled && el.getAttribute('aria-disabled') !== 'true' && !el.closest('[inert]') && !chosen(el)).slice(0, 60);
   const dead = [];
   const href = location.href;
+  // the control's own state, without its inline style (a running animation rewrites that every frame)
+  const state = (el) => [el, el.closest('[data-object]')].filter(Boolean).map((n) => [...n.attributes].filter((a) => a.name !== 'style').map((a) => `${a.name}=${a.value}`).join('|')).join('#');
+  // animations that are not endless loops, on the control, inside it, or on the object it belongs to
+  const started = (el, before) => { const home = el.closest('[data-object]') ?? el; return document.getAnimations().some((a) => !before.has(a) && a.effect?.target && (home.contains(a.effect.target) || a.effect.target.contains(el)) && a.effect.getComputedTiming().iterations !== Infinity); };
   for (const el of list) {
     // an earlier press may have chosen this one already (two switches bound to the same state)
     if (!el.isConnected || chosen(el) || el.disabled || el.getAttribute('aria-disabled') === 'true') continue;
     signal = false; let changed = false;
     const before = document.activeElement;
+    const was = state(el), running = new Set(document.getAnimations());
     mo = watch((m) => { if (!noisy.has(m.target)) changed = true; });
     el.click();
-    await sleep(450);
+    await sleep(120);
+    if (started(el, running)) changed = true;
+    await sleep(330);
     mo.disconnect();
+    if (el.isConnected && (state(el) !== was || started(el, running))) changed = true;
     if (!changed && !signal && location.href === href && document.activeElement === before) dead.push(P.sel(el));
   }
   return { checked: list.length, dead: dead.slice(0, 12) };

@@ -53,7 +53,7 @@ White on white is told apart by a faint edge and a soft drop, never by a visible
 | `--sh-lift` | a menu, a popover, the one card that leads (a recommended plan) | the same edge, a deeper drop |
 | `--sh-dialog` | a dialog, a sheet | the deepest drop |
 
-**A card is never outlined.** No border, no ring you can see as a line, no coloured edge, in any theme. Emphasis is
+**In the Quiet preset, a card is never outlined.** No border, no ring you can see as a line, no coloured edge, in any theme. Emphasis is
 the next shadow up (`--sh-lift`), never an outline, and never a size change. No glow, no coloured shadow, no card
 inside a card. Keep `border: 1px solid transparent` on a card or button so forced-colours mode, which drops shadows,
 still draws an edge.

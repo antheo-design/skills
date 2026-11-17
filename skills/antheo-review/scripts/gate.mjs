@@ -224,17 +224,20 @@ if (cmd === 'arm') {
   let max = 3;
   let preset = 'quiet';
   let probeOn = true;
+  let maxGiven = false;
   const refs = [];
   for (let i = 0; i < rest.length; i++) {
     if (rest[i] === '--copy') { while (rest[i + 1] && !rest[i + 1].startsWith('--')) copy.push(resolve(rest[++i])); }
     else if (rest[i] === '--widths') widths = rest[++i];
     else if (rest[i] === '--preset') preset = rest[++i] === 'none' ? 'none' : 'quiet';
-    else if (rest[i] === '--max') max = Number(rest[++i]) || 3;
+    else if (rest[i] === '--max') { max = Number(rest[++i]) || 3; maxGiven = true; }
     else if (rest[i] === '--no-probe') probeOn = false;
     else if (rest[i] === '--ref') { while (rest[i + 1] && !rest[i + 1].startsWith('--')) refs.push(resolve(rest[++i])); }
     else if (!rest[i].startsWith('--')) targets.push(/^https?:/.test(rest[i]) ? rest[i] : resolve(rest[i]));
   }
   if (!targets.length) { say('arm needs at least one page: a dev-server URL or an HTML file.'); process.exit(2); }
+  // each further reference is another thing to get right: one more round for each, six at most
+  if (!maxGiven && refs.length > 1) max = Math.min(6, max + refs.length - 1);
   const missingRef = refs.find((r) => !existsSync(r));
   if (missingRef) { say(`No reference image at ${missingRef}.`); process.exit(2); }
   const now = new Date().toISOString();
