@@ -210,17 +210,20 @@ layout at seven widths, the words on a screen, every hardcoded value in a codeba
 | Tool | Skill | What it does |
 |---|---|---|
 | `beside.mjs` | review | Puts what you built next to its reference, same height, with 3× close-ups of both |
-| `check-page.mjs` | review | Opens a page at seven widths in light and dark and reports what is broken, with a score |
+| `check-page.mjs` | review | Opens a page at seven widths in light and dark and reports what is broken, with a score: load speed and layout shift, a field nobody can find, a chart nobody can read, and with `--stress`, long text, right to left and forced colours |
+| `latency-probe.mjs` | review | Real presses and drags: how fast each control answers, drag drift, and with `--play`, every frame while something plays |
 | `gate.mjs` | review | Keeps the agent working until the page check, the access probe and the copy check pass, and, when built from references, until it has compared and filmed |
-| `a11y-probe.mjs` | access | Walks a page by keyboard: focus order, traps, dialogs, zoom, forced colours |
+| `a11y-probe.mjs` | access | Walks a page by keyboard: focus order, traps, dialogs, zoom, forced colours; presses every button, holding back anything it would send |
 | `copy-lint.mjs` | writing | Finds weak words, vague buttons and broken plurals in JSX, Vue, Svelte, Angular and server templates |
 | `contrast.mjs` | color | WCAG 2.2 contrast and APCA for any two colours |
 | `block.mjs`, `tokens.mjs` | tokens | The style block in your brand, or a full token set, with every pair measured |
 | `variant-bar.js` | build | Three versions on the real page, switched with the keys 1, 2 and 3 |
 | `filmstrip.mjs` | motion | Films one motion at a tenth of its speed into a sheet of frames, so it can be judged, not guessed |
-| `scan-motion.mjs` | motion audit | Every animation in a codebase, with drift in durations and curves |
-| `audit-values.mjs` | system | Every hardcoded value in a codebase, grouped and mapped to tokens |
-| `inspect.mjs` | explain | One element's layers, styles and animations |
+| `scan-motion.mjs` | motion audit | Every animation in a codebase, with drift in durations and curves, and reduced-motion rules that remove too much |
+| `audit-values.mjs` | system | Every hardcoded value in a codebase, in any colour form, grouped and mapped to tokens |
+| `requests.mjs` | system | What a screen sends, captured before and after a migration and compared field by field, with nothing sent |
+| `harness.mjs` | stress | Every state at every width, and awkward content through every slot, on one page |
+| `inspect.mjs` | explain | One element's layers, styles and animations, or a survey of a whole site with `--site` |
 
 </details>
 
