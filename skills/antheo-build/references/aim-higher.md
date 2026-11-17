@@ -9,7 +9,7 @@ library, a product screen, anything creative. `SKILL.md` has them in one line ea
 2. **Start from a reference.** The person's, if they have one; otherwise name one or two real things it should feel
    like (a product, an object, a photo) and say so. With no target, the result drifts to the average.
 3. **Directions before detail, when the look is open.** For an object or a creative piece, three quick directions on
-   the real page (Variants, below); the person picks; then build that one fully. With nobody to ask (a brief run
+   the real page (`variants.md`); the person picks; then build that one fully. With nobody to ask (a brief run
    unattended, several finished components wanted), write the three in one line each, pick one, say which and why,
    and build only that one.
 4. **The main thing first, in its setting, on a stage that fits.** Make the component itself excellent before

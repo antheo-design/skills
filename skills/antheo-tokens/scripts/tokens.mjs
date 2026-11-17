@@ -267,7 +267,7 @@ const stack = {
 const families = [...new Set([sansFont, displayFont, monoFont])];
 // single-weight display faces break when asked for weights they don't have
 const ONE_WEIGHT = ['Instrument Serif', 'Young Serif', 'Gloock', 'DM Serif Display'];
-const googleFonts = `https://fonts.googleapis.com/css2?${families.map((f) => `family=${f.replace(/ /g, '+')}${ONE_WEIGHT.includes(f) ? ':ital@0;1' : ':wght@400;500;600;700'}`).join('&')}&display=swap`;
+const googleFonts = `https://fonts.googleapis.com/css2?${families.map((f) => `family=${f.replace(/ /g, '+')}${ONE_WEIGHT.includes(f) ? ':ital@0;1' : f === 'Geist' ? ':wght@400..700' : ':wght@400;500;600;700'}`).join('&')}&display=swap`;
 // display weight: big type looks expensive light and cheap heavy; serifs at 400, sans at 500 (600 for rounded)
 const displayWeight = displayIsSerif ? 400 : typeStyle === 'rounded' ? 600 : 500;
 
@@ -564,7 +564,7 @@ const scaleVars = () =>
     `  --weight-display: ${displayWeight};`,
     ...Object.entries(SPACE).map(([k, v]) => `  --space-${String(k).replace('.', '_')}: ${v / 16}rem; /* ${v}px */`),
     ...Object.entries(radius).map(([k, v]) => `  --radius-${k}: ${v}px;`),
-    ...Object.entries(control).map(([k, v]) => `  --control-${k}: ${v}px;`),
+    ...Object.entries(control).map(([k, v]) => `  --control-${k}: ${+(v / 16).toFixed(4)}rem; /* ${v}px */`),
     `  --target-min: 24px; /* WCAG 2.2 AA; aim for 44px on touch */`,
     `  --measure: 66ch; /* body text line length */`,
     `  /* layout: one container and one gutter for the whole page, so every section starts on the same edge */`,
@@ -617,6 +617,28 @@ const TOUCH_TYPE = Object.entries(BLOCK_TOUCH_PX).flatMap(([b, px]) => {
   return type[BLOCK_TYPE[b]].px < px && next ? [[b, next]] : [];
 });
 const role = ([b, k]) => `--t-${b}: var(--text-${k}); --l-${b}: var(--leading-${k}); --k-${b}: var(--tracking-${k});`;
+// At rest the product register is the style block's look in this brief's colours: the block's six type roles, its two
+// weights (when the face is Geist, whose weight axis has them), its control heights and its card padding, read from
+// the block so there is one copy (the values below stand in when the block is not beside this script). "Product"
+// then means one look, whichever file a build starts from; the scale above stays for what a system builds beyond it.
+const BLOCK_ROOT = BLOCK_FILE.slice(0, Math.max(0, BLOCK_FILE.indexOf('@media')));
+const atRest = (n, fallback) => BLOCK_ROOT.match(new RegExp(`${n}:\\s*([^;]+);`))?.[1].trim() ?? fallback;
+const REST_TYPE = { meta: ['0.75rem', '1rem', '0em'], body: ['0.8125rem', '1.25rem', '0em'], title: ['0.9375rem', '1.375rem', '-0.01em'], page: ['1.25rem', '1.75rem', '-0.015em'], num: ['1.75rem', '2rem', '-0.02em'], display: ['2.25rem', '2.5rem', '-0.025em'] };
+const restRole = ([b, [t, l, k]]) => `--t-${b}: ${atRest(`--t-${b}`, t)}; --l-${b}: ${atRest(`--l-${b}`, l)}; --k-${b}: ${atRest(`--k-${b}`, k)};`;
+const blockWeights = register === 'product' && sansFont === 'Geist';
+// Depth too: the block's edges, its four shadows, the well's edge, the backdrop and the hover wash, light at rest and
+// dark where the theme is dark (no drop on a dark card; a raised control one step lighter than the card), tinted
+// with this brief's ink. And its rhythm: the gap between groups and sections, the measure, the page widths.
+const DEPTH_FALLBACK = {
+  light: { '--edge': '0 0 0 1px oklch(var(--ink) / 0.055)', '--sh-control': '0 0 0 1px oklch(var(--ink) / 0.09), 0 1px 1px oklch(var(--ink) / 0.06)', '--sh-card': 'var(--edge), 0 1px 2px oklch(var(--ink) / 0.05), 0 2px 8px -2px oklch(var(--ink) / 0.06)', '--sh-lift': 'var(--edge), 0 2px 4px -1px oklch(var(--ink) / 0.06), 0 8px 16px -6px oklch(var(--ink) / 0.1)', '--sh-dialog': 'var(--edge), 0 4px 8px -2px oklch(var(--ink) / 0.08), 0 16px 32px -8px oklch(var(--ink) / 0.18)', '--well-edge': 'inset 0 0 0 1px oklch(var(--ink) / 0.06)', '--backdrop': 'oklch(0.2 0.006 80 / 0.32)', '--wash': 'oklch(var(--ink) / 0.05)' },
+  dark: { '--edge': '0 0 0 1px oklch(1 0 0 / 0.06)', '--sh-control': '0 0 0 1px oklch(1 0 0 / 0.08), 0 1px 1px oklch(0 0 0 / 0.4)', '--sh-card': 'var(--edge)', '--sh-lift': '0 0 0 1px oklch(1 0 0 / 0.09), 0 8px 20px -8px oklch(0 0 0 / 0.6)', '--sh-dialog': '0 0 0 1px oklch(1 0 0 / 0.09), 0 16px 40px -8px oklch(0 0 0 / 0.7)', '--well-edge': 'inset 0 0 0 1px oklch(1 0 0 / 0.05)', '--backdrop': 'oklch(0 0 0 / 0.6)', '--wash': 'oklch(1 0 0 / 0.06)' },
+};
+const BLOCK_DARK = BLOCK_FILE.match(/\[data-theme="dark"\] \{([^}]*)\}/)?.[1] ?? '';
+const depth = (src, fallback) => Object.entries(fallback).map(([n, v]) => `${n}: ${src.match(new RegExp(`${n}:\\s*([^;]+);`))?.[1].trim() ?? v};`);
+const INK = rgbToOklch(hexToRgb(light.text)).map((v, i) => (i === 2 ? Math.round(v) : +v.toFixed(3))).join(' ');
+const DEPTH_LIGHT = depth(BLOCK_ROOT, DEPTH_FALLBACK.light);
+const DEPTH_DARK = depth(BLOCK_DARK, DEPTH_FALLBACK.dark);
+const RHYTHM = Object.entries({ '--gap-group': 'var(--s-6)', '--gap-section': '32px', '--measure': '65ch', '--page-max': 'var(--w-data)', '--page-wide': '1440px', '--section': 'clamp(64px, 8vw, 96px)', '--section-dense': 'var(--s-12)' }).map(([n, v]) => `${n}: ${atRest(n, v)};`);
 const BLOCK_RULES = (() => {
   if (!BLOCK_FILE) return '';
   const rules = BLOCK_FILE.slice(BLOCK_FILE.indexOf('*, *::before, *::after'));
@@ -624,7 +646,7 @@ const BLOCK_RULES = (() => {
   return `\n/* The style block's element rules and classes, unchanged. */\n${geist ? rules : rules.replace(/\s*font-size-adjust:[^;]+;/, '').replace(/\/\* font-size-adjust:[\s\S]*?\*\/\n/, '')}`;
 })();
 
-const css = `/* ${name} design tokens: generated by antheo-tokens/scripts/tokens.mjs
+const cssRaw = `/* ${name} design tokens: generated by antheo-tokens/scripts/tokens.mjs
    brief: brand ${brandHex}, mood ${mood}, shape ${shape}, density ${density}, type ${typeStyle}
    fonts: <link rel="stylesheet" href="${googleFonts}">
    Use semantic names only (--color-text, --color-accent…), never the hex values. */
@@ -643,9 +665,17 @@ ${vars(sh(true), 'shadow-').replace(/^ {2}/gm, '    ')}
   }
 }
 
-:root[data-theme='dark'] {
+/* One theme for one part of the page, whatever the system's: data-theme="dark" or "light" on any element (the page,
+   a card, one half of a side-by-side), as in the style block. */
+[data-theme='dark'] {
+  color-scheme: dark;
 ${vars(dark, 'color-')}
 ${vars(sh(true), 'shadow-')}
+}
+[data-theme='light'] {
+  color-scheme: light;
+${vars(light, 'color-')}
+${vars(sh(false), 'shadow-')}
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -664,23 +694,37 @@ ${vars(sh(true), 'shadow-')}
   --primary: var(--color-accent); --on-primary: var(--color-accent-fg);
   --accent: var(--color-brand); --on-accent: var(--color-brand-fg);
   --accent-soft: color-mix(in oklch, var(--color-brand) 10%, var(--color-surface)); --accent-text: var(--color-brand-text);
-  --danger: var(--color-danger); --success: var(--color-success); --warning: var(--color-warning); --focus: var(--color-focus);
-  --backdrop: var(--color-scrim); --wash: var(--color-wash);
+  --danger: var(--color-danger); --success: var(--color-success); --warning: var(--color-warning); --focus: ${register === 'product' ? 'var(--color-text-muted)' : 'var(--color-focus)'};
+${register === 'product' ? `  --ink: ${INK};
+  ${DEPTH_LIGHT.slice(0, 2).join(' ')}
+  ${DEPTH_LIGHT.slice(2, 4).join(' ')}
+  ${DEPTH_LIGHT.slice(4).join(' ')}` : `  --backdrop: var(--color-scrim); --wash: var(--color-wash);
   --edge: 0 0 0 1px var(--color-ring);
   --sh-control: var(--edge), var(--shadow-1); --sh-card: var(--edge), var(--shadow-1); --sh-lift: var(--edge), var(--shadow-2);
-  --sh-dialog: var(--edge), var(--shadow-3); --well-edge: inset 0 0 0 1px var(--color-ring);
-  --font: var(--font-sans); --mono: var(--font-mono); --w-text: 400; --w-strong: 500;
-${Object.entries(BLOCK_TYPE).map(([b, k]) => `  --t-${b}: var(--text-${k}); --l-${b}: var(--leading-${k}); --k-${b}: var(--tracking-${k});`).join('\n')}
+  --sh-dialog: var(--edge), var(--shadow-3); --well-edge: inset 0 0 0 1px var(--color-ring);`}
+  --font: var(--font-sans); --mono: var(--font-mono); --w-text: ${blockWeights ? atRest('--w-text', '450') : 400}; --w-strong: ${blockWeights ? atRest('--w-strong', '550') : 500};
+${register === 'product' ? Object.entries(REST_TYPE).map((e) => `  ${restRole(e)}`).join('\n') : Object.entries(BLOCK_TYPE).map(([b, k]) => `  --t-${b}: var(--text-${k}); --l-${b}: var(--leading-${k}); --k-${b}: var(--tracking-${k});`).join('\n')}
   --t-field: var(--t-body);
   --r-tag: var(--radius-xs); --r-control: var(--radius-sm); --r-card: var(--radius-md); --r-sheet: var(--radius-lg); --r-full: var(--radius-full);
   ${[1, 2, 3, 4, 5, 6, 8, 10, 12, 16, 24].map((k) => `--s-${k}: var(--space-${k});`).join(' ')}
-  --gap-section: var(--gap-group); --gutter: var(--page-gutter);
-  --h-control: var(--control-md); --h-small: var(--control-sm); --h-cta: var(--control-md); --h-row: 2.5rem; --h-tag: 1.25rem; --h-bar: 3rem;
+  ${register === 'product' ? `${RHYTHM.join(' ')} --gutter: var(--page-gutter);` : '--gap-section: var(--gap-group); --gutter: var(--page-gutter);'}
+  --h-control: ${register === 'product' ? atRest('--h-control', '2rem') : 'var(--control-md)'}; --h-small: var(--control-sm); --h-cta: ${register === 'product' ? atRest('--h-cta', '2.25rem') : 'var(--control-md)'}; --h-row: 2.5rem; --h-tag: 1.25rem; --h-bar: 3rem;${register === 'product' ? `\n  --pad-card: ${atRest('--pad-card', '20px')};` : ''}
   --sw-w: 2rem; --sw-h: 1.25rem; --sw-knob: 1rem; --sw-knob-fill: oklch(1 0 0);
   --w-form: 400px; --w-settings: 680px; --w-pricing: 1040px; --w-data: 1120px;
   --ease-move: var(--ease-out);
 }
-${register === 'product' ? `/* Phones and touch, as the style block does it. Phones: the block's 28/32px headline, cards and the gutter at 16px.
+${register === 'product' ? `/* Dark, as the style block draws it: a card has no drop, and a raised control is one step lighter than the card. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --raised: var(--color-surface-2);
+    ${DEPTH_DARK.join('\n    ')}
+  }
+}
+[data-theme='dark'] {
+  --raised: var(--color-surface-2);
+  ${DEPTH_DARK.join('\n  ')}
+}
+` : ''}${register === 'product' ? `/* Phones and touch, as the style block does it. Phones: the block's 28/32px headline, cards and the gutter at 16px.
    Touch (phone width, or a finger at any width): text steps up to the block's own sizes (13/18, 15/22, 17/24 and
    22/28px), controls are ${control.lg}px, small ones ${control.md}px, rows 52px, and the switch is 44 by 26px with a 22px knob. */`
     : `/* Phones and touch, as the style block does it, in these names. Phones: the headline takes the numeral's step, cards
@@ -697,6 +741,17 @@ ${register === 'product' ? `    ${TOUCH_BLOCK.slice(0, 4).join(' ')}\n    ${TOUC
 }
 @media (pointer: coarse) { :root { --t-field: 1rem; } }
 ${BLOCK_RULES}`;
+// Names that point at other names resolve where they are declared. So the block's colour and depth names (--bg,
+// --text, --sh-card…) are declared once more on any themed part, right after the root's, and a themed part draws
+// its own ground and text. Sizes are left alone there: they follow the root's phone and touch rules.
+const css = (() => {
+  const from = cssRaw.indexOf('  --bg: var(--color-bg);');
+  const to = cssRaw.indexOf('  --font: var(--font-sans);', from);
+  const close = '  --ease-move: var(--ease-out);\n}\n';
+  if (from < 0 || to < 0 || !cssRaw.includes(close)) return cssRaw;
+  const part = `/* The same colour and depth names on a themed part, so they follow that part's theme. */\n[data-theme] {\n${cssRaw.slice(from, to)}}\n:where([data-theme]):not(html) { background: var(--bg); color: var(--text); }\n`;
+  return cssRaw.replace(close, close + part);
+})();
 
 const tw = `/* ${name} tokens as a Tailwind v4 theme. Import after "tailwindcss" and after tokens.css. */
 @theme inline {

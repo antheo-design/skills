@@ -86,6 +86,8 @@ and its frames read, because these screenshots are all at rest.
 ## High on sight, without weighing
 
 - A control with no accessible name; a keyboard trap; focus that is invisible, or lost after a dialog closes.
+- A text field nobody can find: its edge and its fill are both under 3:1 (1.4.11). The page check reports it in any
+  style, so an existing app with faint input borders holds the gate open until they are fixed or the person waives it.
 - Text under its contrast ratio; colour as the only signal; a status colour used against its meaning.
 - Sideways scroll at any width; content cut off with no way to the full value; a word broken mid-word.
 - A bar covering content, or content showing sharp through a bar (see-through with no blur, or its text under

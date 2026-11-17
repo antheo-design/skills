@@ -4,7 +4,7 @@ Part of antheo-tokens. `node <antheo-tokens>/scripts/tokens.mjs --help` prints t
 
 | Flag | Default | Choose |
 |---|---|---|
-| `--register` | `product` | `product` for every Clean screen: components, app screens, and ordinary pricing or marketing sections (near-neutral chrome, an ink primary button, the brand for selection, Geist, 14px body with 13px as `--text-sm`); `expressive` only for a Brand page the person asked for (antheo-direction) |
+| `--register` | `product` | `product` for every Clean screen: components, app screens, and ordinary pricing or marketing sections (near-neutral chrome, an ink primary button, the brand for selection, Geist, 13px body); `expressive` only for a Brand page the person asked for (antheo-direction) |
 | `--brand` | a calm default (it warns you) | the one colour from the subject's world (antheo-color) |
 | `--field` | a deep shade of the brand | expressive only: the band colour, from a second noun |
 | `--display` | from the mood | expressive only: the display face (antheo-type) |

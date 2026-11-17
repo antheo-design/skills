@@ -3,7 +3,7 @@
    person asked for, run the generator with --register expressive instead. To rebrand by hand, change --color-brand*,
    then check each pair with antheo-color/scripts/contrast.mjs. Use the semantic names (--color-text, --color-accent…),
    never the hex.
-   fonts: <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap"> */
+   fonts: <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400..700&family=JetBrains+Mono:wght@400;500;600;700&display=swap"> */
 :root {
   color-scheme: light dark;
   --font-sans: "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
@@ -70,9 +70,9 @@
   --radius-lg: 14px;
   --radius-xl: 20px;
   --radius-full: 9999px;
-  --control-sm: 28px;
-  --control-md: 36px;
-  --control-lg: 44px;
+  --control-sm: 1.75rem; /* 28px */
+  --control-md: 2.25rem; /* 36px */
+  --control-lg: 2.75rem; /* 44px */
   --target-min: 24px; /* WCAG 2.2 AA; aim for 44px on touch */
   --measure: 66ch; /* body text line length */
   /* layout: one container and one gutter for the whole page, so every section starts on the same edge */
@@ -212,7 +212,10 @@
   }
 }
 
-:root[data-theme='dark'] {
+/* One theme for one part of the page, whatever the system's: data-theme="dark" or "light" on any element (the page,
+   a card, one half of a side-by-side), as in the style block. */
+[data-theme='dark'] {
+  color-scheme: dark;
   --color-bg: #100f0e;
   --color-surface: #1a1918;
   --color-surface-2: #222120;
@@ -257,6 +260,52 @@
   --shadow-3: 0 2px 4px oklch(0.08 0.024 120 / 0.1), 0 12px 24px -6px oklch(0.08 0.024 120 / 0.24), 0 24px 48px -12px oklch(0.08 0.024 120 / 0.2);
   --shadow-4: 0 4px 8px oklch(0.08 0.024 120 / 0.12), 0 24px 48px -8px oklch(0.08 0.024 120 / 0.32), 0 48px 96px -16px oklch(0.08 0.024 120 / 0.28);
 }
+[data-theme='light'] {
+  color-scheme: light;
+  --color-bg: #f9f8f7;
+  --color-surface: #ffffff;
+  --color-surface-2: #f6f6f4;
+  --color-surface-sunken: #f3f2f1;
+  --color-border: #dfdedc;
+  --color-border-strong: #bfbdbb;
+  --color-text: #1e1a16;
+  --color-text-muted: #605d59;
+  --color-text-subtle: #82807c;
+  --color-accent: #1e1a16;
+  --color-accent-fg: #ffffff;
+  --color-accent-hover: #36322d;
+  --color-accent-press: #46423d;
+  --color-accent-soft: #f1f0ee;
+  --color-accent-text: #1e1a16;
+  --color-focus: #1e1a16;
+  --color-success: #007f38;
+  --color-success-soft: #e0fae4;
+  --color-success-text: #005e28;
+  --color-warning: #8d5e00;
+  --color-warning-soft: #ffefda;
+  --color-warning-text: #694500;
+  --color-danger: #b33832;
+  --color-danger-soft: #ffedeb;
+  --color-danger-text: #862723;
+  --color-info: #006eae;
+  --color-info-soft: #e7f4ff;
+  --color-info-text: #005182;
+  --color-field: #2a3115;
+  --color-on-field: #f3f8e6;
+  --color-on-field-muted: #c0c8ae;
+  --color-on-field-accent: #bbce84;
+  --color-selection: #e0deda;
+  --color-scrim: rgb(20 20 20 / 0.4);
+  --color-wash: oklch(0.2 0.01 70 / 0.05);
+  --color-ring: oklch(0.2 0.01 70 / 0.08);
+  --color-brand: #5d6b2f;
+  --color-brand-fg: #ffffff;
+  --color-brand-text: #5d6b2f;
+  --shadow-1: 0 1px 2px oklch(0.28 0.024 120 / 0.06), 0 1px 1px oklch(0.28 0.024 120 / 0.04);
+  --shadow-2: 0 1px 2px oklch(0.28 0.024 120 / 0.05), 0 4px 8px -2px oklch(0.28 0.024 120 / 0.08), 0 8px 16px -6px oklch(0.28 0.024 120 / 0.06);
+  --shadow-3: 0 2px 4px oklch(0.28 0.024 120 / 0.05), 0 12px 24px -6px oklch(0.28 0.024 120 / 0.12), 0 24px 48px -12px oklch(0.28 0.024 120 / 0.1);
+  --shadow-4: 0 4px 8px oklch(0.28 0.024 120 / 0.06), 0 24px 48px -8px oklch(0.28 0.024 120 / 0.16), 0 48px 96px -16px oklch(0.28 0.024 120 / 0.14);
+}
 
 @media (prefers-reduced-motion: reduce) {
   :root {
@@ -274,26 +323,67 @@
   --primary: var(--color-accent); --on-primary: var(--color-accent-fg);
   --accent: var(--color-brand); --on-accent: var(--color-brand-fg);
   --accent-soft: color-mix(in oklch, var(--color-brand) 10%, var(--color-surface)); --accent-text: var(--color-brand-text);
-  --danger: var(--color-danger); --success: var(--color-success); --warning: var(--color-warning); --focus: var(--color-focus);
-  --backdrop: var(--color-scrim); --wash: var(--color-wash);
-  --edge: 0 0 0 1px var(--color-ring);
-  --sh-control: var(--edge), var(--shadow-1); --sh-card: var(--edge), var(--shadow-1); --sh-lift: var(--edge), var(--shadow-2);
-  --sh-dialog: var(--edge), var(--shadow-3); --well-edge: inset 0 0 0 1px var(--color-ring);
-  --font: var(--font-sans); --mono: var(--font-mono); --w-text: 400; --w-strong: 500;
-  --t-meta: var(--text-xs); --l-meta: var(--leading-xs); --k-meta: var(--tracking-xs);
-  --t-body: var(--text-sm); --l-body: var(--leading-sm); --k-body: var(--tracking-sm);
-  --t-title: var(--text-lg); --l-title: var(--leading-lg); --k-title: var(--tracking-lg);
-  --t-page: var(--text-xl); --l-page: var(--leading-xl); --k-page: var(--tracking-xl);
-  --t-num: var(--text-3xl); --l-num: var(--leading-3xl); --k-num: var(--tracking-3xl);
-  --t-display: var(--text-4xl); --l-display: var(--leading-4xl); --k-display: var(--tracking-4xl);
+  --danger: var(--color-danger); --success: var(--color-success); --warning: var(--color-warning); --focus: var(--color-text-muted);
+  --ink: 0.221 0.01 67;
+  --edge: 0 0 0 1px oklch(var(--ink) / 0.055); --sh-control: 0 0 0 1px oklch(var(--ink) / 0.09), 0 1px 1px oklch(var(--ink) / 0.06);
+  --sh-card: var(--edge), 0 1px 2px oklch(var(--ink) / 0.05), 0 2px 8px -2px oklch(var(--ink) / 0.06); --sh-lift: var(--edge), 0 2px 4px -1px oklch(var(--ink) / 0.06), 0 8px 16px -6px oklch(var(--ink) / 0.1);
+  --sh-dialog: var(--edge), 0 4px 8px -2px oklch(var(--ink) / 0.08), 0 16px 32px -8px oklch(var(--ink) / 0.18); --well-edge: inset 0 0 0 1px oklch(var(--ink) / 0.06); --backdrop: oklch(0.2 0.006 80 / 0.32); --wash: oklch(var(--ink) / 0.05);
+  --font: var(--font-sans); --mono: var(--font-mono); --w-text: 450; --w-strong: 550;
+  --t-meta: 0.75rem; --l-meta: 1rem; --k-meta: 0em;
+  --t-body: 0.8125rem; --l-body: 1.25rem; --k-body: 0em;
+  --t-title: 0.9375rem; --l-title: 1.375rem; --k-title: -0.01em;
+  --t-page: 1.25rem; --l-page: 1.75rem; --k-page: -0.015em;
+  --t-num: 1.75rem; --l-num: 2rem; --k-num: -0.02em;
+  --t-display: 2.25rem; --l-display: 2.5rem; --k-display: -0.025em;
   --t-field: var(--t-body);
   --r-tag: var(--radius-xs); --r-control: var(--radius-sm); --r-card: var(--radius-md); --r-sheet: var(--radius-lg); --r-full: var(--radius-full);
   --s-1: var(--space-1); --s-2: var(--space-2); --s-3: var(--space-3); --s-4: var(--space-4); --s-5: var(--space-5); --s-6: var(--space-6); --s-8: var(--space-8); --s-10: var(--space-10); --s-12: var(--space-12); --s-16: var(--space-16); --s-24: var(--space-24);
-  --gap-section: var(--gap-group); --gutter: var(--page-gutter);
-  --h-control: var(--control-md); --h-small: var(--control-sm); --h-cta: var(--control-md); --h-row: 2.5rem; --h-tag: 1.25rem; --h-bar: 3rem;
+  --gap-group: var(--s-6); --gap-section: 32px; --measure: 65ch; --page-max: var(--w-data); --page-wide: 1440px; --section: clamp(64px, 8vw, 96px); --section-dense: var(--s-12); --gutter: var(--page-gutter);
+  --h-control: 2rem; --h-small: var(--control-sm); --h-cta: 2.25rem; --h-row: 2.5rem; --h-tag: 1.25rem; --h-bar: 3rem;
+  --pad-card: 20px;
   --sw-w: 2rem; --sw-h: 1.25rem; --sw-knob: 1rem; --sw-knob-fill: oklch(1 0 0);
   --w-form: 400px; --w-settings: 680px; --w-pricing: 1040px; --w-data: 1120px;
   --ease-move: var(--ease-out);
+}
+/* The same colour and depth names on a themed part, so they follow that part's theme. */
+[data-theme] {
+  --bg: var(--color-bg); --surface: var(--color-surface); --raised: var(--color-surface); --well: var(--color-surface-sunken);
+  --hover: var(--color-surface-2); --selected: var(--color-selection); --line: var(--color-border);
+  --text: var(--color-text); --text-2: var(--color-text-muted); --text-3: var(--color-text-subtle);
+  --primary: var(--color-accent); --on-primary: var(--color-accent-fg);
+  --accent: var(--color-brand); --on-accent: var(--color-brand-fg);
+  --accent-soft: color-mix(in oklch, var(--color-brand) 10%, var(--color-surface)); --accent-text: var(--color-brand-text);
+  --danger: var(--color-danger); --success: var(--color-success); --warning: var(--color-warning); --focus: var(--color-text-muted);
+  --ink: 0.221 0.01 67;
+  --edge: 0 0 0 1px oklch(var(--ink) / 0.055); --sh-control: 0 0 0 1px oklch(var(--ink) / 0.09), 0 1px 1px oklch(var(--ink) / 0.06);
+  --sh-card: var(--edge), 0 1px 2px oklch(var(--ink) / 0.05), 0 2px 8px -2px oklch(var(--ink) / 0.06); --sh-lift: var(--edge), 0 2px 4px -1px oklch(var(--ink) / 0.06), 0 8px 16px -6px oklch(var(--ink) / 0.1);
+  --sh-dialog: var(--edge), 0 4px 8px -2px oklch(var(--ink) / 0.08), 0 16px 32px -8px oklch(var(--ink) / 0.18); --well-edge: inset 0 0 0 1px oklch(var(--ink) / 0.06); --backdrop: oklch(0.2 0.006 80 / 0.32); --wash: oklch(var(--ink) / 0.05);
+}
+:where([data-theme]):not(html) { background: var(--bg); color: var(--text); }
+/* Dark, as the style block draws it: a card has no drop, and a raised control is one step lighter than the card. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --raised: var(--color-surface-2);
+    --edge: 0 0 0 1px oklch(1 0 0 / 0.06);
+    --sh-control: 0 0 0 1px oklch(1 0 0 / 0.08), 0 1px 1px oklch(0 0 0 / 0.4);
+    --sh-card: var(--edge);
+    --sh-lift: 0 0 0 1px oklch(1 0 0 / 0.09), 0 8px 20px -8px oklch(0 0 0 / 0.6);
+    --sh-dialog: 0 0 0 1px oklch(1 0 0 / 0.09), 0 16px 40px -8px oklch(0 0 0 / 0.7);
+    --well-edge: inset 0 0 0 1px oklch(1 0 0 / 0.05);
+    --backdrop: oklch(0 0 0 / 0.6);
+    --wash: oklch(1 0 0 / 0.06);
+  }
+}
+[data-theme='dark'] {
+  --raised: var(--color-surface-2);
+  --edge: 0 0 0 1px oklch(1 0 0 / 0.06);
+  --sh-control: 0 0 0 1px oklch(1 0 0 / 0.08), 0 1px 1px oklch(0 0 0 / 0.4);
+  --sh-card: var(--edge);
+  --sh-lift: 0 0 0 1px oklch(1 0 0 / 0.09), 0 8px 20px -8px oklch(0 0 0 / 0.6);
+  --sh-dialog: 0 0 0 1px oklch(1 0 0 / 0.09), 0 16px 40px -8px oklch(0 0 0 / 0.7);
+  --well-edge: inset 0 0 0 1px oklch(1 0 0 / 0.05);
+  --backdrop: oklch(0 0 0 / 0.6);
+  --wash: oklch(1 0 0 / 0.06);
 }
 /* Phones and touch, as the style block does it. Phones: the block's 28/32px headline, cards and the gutter at 16px.
    Touch (phone width, or a finger at any width): text steps up to the block's own sizes (13/18, 15/22, 17/24 and
@@ -457,10 +547,10 @@ dialog[open]::backdrop { opacity: 1; }
 @media (prefers-reduced-motion: reduce) {
   :root { --dist-xs: 0px; --dist-sm: 0px; --dist-md: 0px; --dist-lg: 0px; --scale-press: 1; --scale-pop: 1; --scale-tip: 1; --scale-leave: 1; --ease-spring: var(--ease-out); }
   .btn { transition: background-color var(--dur-fast) var(--ease-out); }
-  /* the sheet stops sliding and fades in place */
+  /* the sheet stops sliding and fades in place, in the 200ms a crossfade takes */
   @media (max-width: 47.99rem) {
     dialog { opacity: 0; translate: none; }
-    dialog[open] { opacity: 1; translate: none; }
+    dialog[open] { opacity: 1; translate: none; transition-duration: var(--dur-base); }
     @starting-style { dialog[open] { opacity: 0; translate: none; } }
   }
 }

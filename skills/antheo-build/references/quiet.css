@@ -54,7 +54,7 @@
   --t-page: 1.25rem;     --l-page: 1.75rem;     --k-page: -0.015em;    /* 20/28px: an app page's title, the largest text in an app */
   --t-num: 1.75rem;      --l-num: 2rem;         --k-num: -0.02em;      /* 28/32px: a price or key figure */
   --t-display: 2.25rem;  --l-display: 2.5rem;   --k-display: -0.025em; /* 36/40px: a marketing headline, the largest text in the preset */
-  --t-field: 0.8125rem;
+  --t-field: var(--t-body);   /* a field's text is the body's; 16px on touch, further down */
 
   /* Shape: three corner sizes. */
   --r-tag: 4px; --r-control: 6px; --r-card: 10px; --r-sheet: 14px; --r-full: 999px;
@@ -315,10 +315,10 @@ dialog[open]::backdrop { opacity: 1; }
 @media (prefers-reduced-motion: reduce) {
   :root { --dist-xs: 0px; --dist-sm: 0px; --dist-md: 0px; --dist-lg: 0px; --scale-press: 1; --scale-pop: 1; --scale-tip: 1; --scale-leave: 1; --ease-spring: var(--ease-out); }
   .btn { transition: background-color var(--dur-fast) var(--ease-out); }
-  /* the sheet stops sliding and fades in place */
+  /* the sheet stops sliding and fades in place, in the 200ms a crossfade takes */
   @media (max-width: 47.99rem) {
     dialog { opacity: 0; translate: none; }
-    dialog[open] { opacity: 1; translate: none; }
+    dialog[open] { opacity: 1; translate: none; transition-duration: var(--dur-base); }
     @starting-style { dialog[open] { opacity: 0; translate: none; } }
   }
 }

@@ -44,6 +44,7 @@ product screen, anything creative), also do these ten; `references/aim-higher.md
 1. **One thing at a time:** build one, finish it, then the next.
 2. **Start from a reference:** the person's, or one or two real things you name. With no target, work drifts to the average.
 3. **Directions before detail, when the look is open:** three quick ones on the real page, and the person picks.
+   With nobody to ask, write the three in a line each, pick one, say which and why, and build only that.
 4. **The main thing first, in its setting, on a stage that fits.** On a component's page it comes first, alone, and
    the stage hugs it: 48 to 64px of room, never a small control adrift in a page-wide empty card. A control that is
    small in real use is shown in its smallest true setting (the like button under a photo, the toggle in its
@@ -53,38 +54,28 @@ product screen, anything creative), also do these ten; `references/aim-higher.md
    ratios and its one or two signature details, fix, look again. Two or three rounds is where quality comes from.
 7. **Go past a still:** give a still reference the life it implies, and make the one thing people would fiddle with
    the richest part (**antheo-creative**); never trim it to fit the app timing rules, which are for chrome.
-8. **Every control does something,** in a demo too. The access probe presses each one.
+8. **Every control does something,** in a demo too: a button with nothing behind it at least shows its result.
+   The access probe presses each one.
 9. **Most of the effort goes into the thing,** not the gate, the evidence and the notes.
 10. **Say honestly where it stands:** what passed, what was compared, what still falls short of the reference.
 
 ## Match the person
 
-Read who is asking from how they ask, and change the depth, never the quality of the work. Ask only when the answer
-would change what gets built.
-
-| Person | Give them |
-|---|---|
-| New to design | the sensible default, built and working, in plain words, and the one mistake to avoid |
-| Practised | the options and their trade-offs, and how it fits the code they have |
-| Senior | the constraints, exceptions, behaviour contract and the evidence |
-| Lead | the outcome for people and the business, the options with cost and owner, rollout and how success is measured |
-
-A small component task gets no strategy memo; a rollout question gets more than a component. Explaining a choice at
-any depth, say which part is a default of this style ("this style keeps corners small") and which is true in any style
-("the button keeps its width, so nothing jumps"); never call another look wrong because the preset avoids it.
+Read who is asking from how they ask, and change the depth, never the quality of the work: someone new gets the
+sensible default in plain words, a senior the constraints and the evidence (`references/people.md` has the four
+levels). Ask only when the answer would change what gets built. Explaining a choice, say which part is a default of
+this style and which is true in any style; never call another look wrong because the preset avoids it.
 
 ## 1. Paste the style block first
 
 Paste `references/quiet.css` whole, as the first CSS of the build, and load its font. After it, **every** colour,
 font size, line height, weight, radius, shadow and control height is a `var(--…)` from the block: no hex, no `px`
 font size, no new radius. (Allowed literals: `0`, `1px`, `2px`, `100%`, and widths; and inside a drawn object, its own
-material colours, defined once on its root for light and dark.) A second typeface on the page (a display face on a
-headline, a pixel font on a toy) sets `font-size-adjust: none` on itself, or its own measured number
-(**antheo-type**): the block's 0.53 is Geist's, and a tall condensed face would be drawn about a quarter smaller
-without a word. If the project already has its
-own tokens, those are the block (**antheo-system**). In a framework or a server-rendered app, load it once,
-globally, first, and read its names from components, Tailwind or a theme object: `references/stacks.md` has where
-it goes in React, Vue, Svelte, Angular, Astro, Django, Rails, Laravel and the rest.
+material colours, defined once on its root for light and dark.) A second typeface on the page sets
+`font-size-adjust: none` on itself, or its own measured number (**antheo-type**): the block's 0.53 is Geist's. If the
+project already has its own tokens, those are the block (**antheo-system**). In a framework or a server-rendered
+app, load it once, globally, first, and read its names from components, Tailwind or a theme object
+(`references/stacks.md`).
 
 ```
 --bg --surface --raised --well --hover --line      the page, cards, white controls, fields, hover, a hairline
@@ -135,28 +126,24 @@ it goes in React, Vue, Svelte, Angular, Astro, Django, Rails, Laravel and the re
     line only for a constraint or a consequence ("JPG or PNG, up to 2 MB"; "At least 8 characters"), in `--t-meta`
     `--text-2`, 4px under. An error is the red inner edge and a short message under the field naming the fix (antheo-writing).
 11. **Chrome only as named.** A "section", a "component" or a page that shows components gets no site header, footer
-    or navigation. A page that shows a component puts the live component first, at its real size and in its
-    smallest true setting ("aim higher", step 4), then its states.
-    An app page
-    gets one `--h-bar` bar: a neutral logo tile (20px, the `--primary` fill, `--r-tag` corners, a simple one-shape mark inside in `--on-primary`; never an
-    empty square), the product name (`--t-body`, `--w-strong`), and the one
-    context the request names (a workspace name, as plain text). No sidebar unless the request lists destinations;
-    never an avatar, "Log in" or links nobody named.
+    or navigation; the live component comes first, in its smallest true setting ("aim higher", step 4), then its
+    states. An app page gets one `--h-bar` bar: a neutral logo tile (20px, the `--primary` fill, `--r-tag` corners, a
+    simple one-shape mark in `--on-primary`, never an empty square), the product name (`--t-body`, `--w-strong`) and
+    the one context the request names, as plain text. No sidebar unless the request lists destinations; never an
+    avatar, "Log in" or links nobody named.
 12. **Only what was asked.** No invented data, features, panels or copy. A sub-line only if it says something the
     title doesn't, in at most 12 words. Feature lists of five or six concrete lines, the same count per plan. A
     component's demo setting (the photo a like button sits under) is not invented chrome: it is the least content
     that makes the component readable, and it stays in the demo.
 13. **Compact, with rhythm.** Controls `--h-control`, rows `--h-row`, card padding `--pad-card`, sections
     `--gap-section` apart; more space above a title than below it; equal padding on all sides of a card or bar.
-    At 1280×800 the main task fits the first screen: every plan to its last feature; a sign-up to its button; a
-    list to eight rows and its action; settings to the whole first card. When it doesn't fit, tighten in this order:
-    the gaps between fields or rows, then card padding, then the space above the title; never control heights or text
-    sizes.
-14. **Widths.** A form `--w-form`; settings one `--w-settings` column; a pricing row `--w-pricing`; data
-    `--w-data`. Centred in the window. Fields that belong together share a row (name and email). A block narrower than
-    the column it sits in (a form, a card, a dialog's content, one settings group) takes the column's width, with
-    related things side by side, so it keeps the one edge; only a block alone on the page (a sign-in card) stays
-    narrow, centred. Never a narrow block against one edge with bare space beside it.
+    At 1280×800 the main task fits the first screen: every plan to its last feature, a sign-up to its button, a
+    list to eight rows and its action, settings to the whole first card. When it doesn't fit, tighten the gaps between
+    fields or rows, then card padding, then the space above the title; never control heights or text sizes.
+14. **Widths.** A form `--w-form`; settings one `--w-settings` column; a pricing row `--w-pricing`; data `--w-data`;
+    centred in the window. Fields that belong together share a row (name and email). A block narrower than its
+    column (a form, a card, one settings group) takes the column's width, so it keeps the one edge; only a block
+    alone on the page (a sign-in card) stays narrow and centred. Never a narrow block with bare space beside it.
 15. **One edge, matching siblings.** Everything in the column shares its left edge; the bar's contents sit on the
     window gutter. Cards in a row match in width, height, padding and the order inside; controls in a row share a
     height; a grid has one gap in both directions.
@@ -166,11 +153,10 @@ it goes in React, Vue, Svelte, Angular, Astro, Django, Rails, Laravel and the re
 17. **A unit stays with its number:** on its baseline, 6px after it, `--t-body` `--text-2`, on one line. A discounted
     price keeps the precision of the original (15 → 12, 9.99 → 7.99), never a computed 9.60 nobody would publish.
 18. **Every state on the same layout,** with one made-up person throughout and no placeholder text. A state
-    opened by a URL parameter or a story holds until dismissed, so it can be looked at. Done: the
-    button says the past tense of its own verb (Save → "Saved", Create → "Created", Send → "Sent") and one line says
-    what changed. Loading: the label swaps in place and choices stay chosen.
-    Nothing covers content; a word never breaks. A row that is removed closes smoothly (antheo-motion recipe
-    37); nothing on the screen jumps.
+    opened by a URL parameter or a story holds until dismissed, so it can be looked at. Done: the button says the
+    past tense of its own verb (Save → "Saved", Send → "Sent") and one line says what changed. Loading: the label
+    swaps in place and choices stay chosen. Nothing covers content; a word never breaks; a removed row closes
+    smoothly (antheo-motion recipe 37); nothing on the screen jumps.
 19. **Icons are few and grey.** 16px, 1.5 stroke, `--text-3`: navigation, an icon-only button (with a name), a tick
     in a list. No decorative icon inside a primary button; a spinner while it works and a check when it's done are
     states, not decoration (antheo-components).
@@ -272,7 +258,7 @@ and hairlines against the rules above, press every control, and read the console
   --t-page: 1.25rem;     --l-page: 1.75rem;     --k-page: -0.015em;    /* 20/28px: an app page's title, the largest text in an app */
   --t-num: 1.75rem;      --l-num: 2rem;         --k-num: -0.02em;      /* 28/32px: a price or key figure */
   --t-display: 2.25rem;  --l-display: 2.5rem;   --k-display: -0.025em; /* 36/40px: a marketing headline, the largest text in the preset */
-  --t-field: 0.8125rem;
+  --t-field: var(--t-body);   /* a field's text is the body's; 16px on touch, further down */
 
   /* Shape: three corner sizes. */
   --r-tag: 4px; --r-control: 6px; --r-card: 10px; --r-sheet: 14px; --r-full: 999px;
@@ -533,10 +519,10 @@ dialog[open]::backdrop { opacity: 1; }
 @media (prefers-reduced-motion: reduce) {
   :root { --dist-xs: 0px; --dist-sm: 0px; --dist-md: 0px; --dist-lg: 0px; --scale-press: 1; --scale-pop: 1; --scale-tip: 1; --scale-leave: 1; --ease-spring: var(--ease-out); }
   .btn { transition: background-color var(--dur-fast) var(--ease-out); }
-  /* the sheet stops sliding and fades in place */
+  /* the sheet stops sliding and fades in place, in the 200ms a crossfade takes */
   @media (max-width: 47.99rem) {
     dialog { opacity: 0; translate: none; }
-    dialog[open] { opacity: 1; translate: none; }
+    dialog[open] { opacity: 1; translate: none; transition-duration: var(--dur-base); }
     @starting-style { dialog[open] { opacity: 0; translate: none; } }
   }
 }

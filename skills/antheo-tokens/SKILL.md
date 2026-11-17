@@ -76,9 +76,13 @@ No Node: copy `references/default-tokens.css` (the generator's product set) and 
 **Which one?** A screen, a component or a small product: the style block, rebranded with `block.mjs`. A design
 system that needs a Tailwind theme, W3C JSON, a full type ramp or the expressive register: the generator. Either
 way components read the block's short names, so no markup is rewritten when a product moves from one to the other.
-The generated product set is close to the block, not identical: controls are 36px tall (the block's are 32), titles
-17px (15), weights 400 and 500 (450 and 550), card padding 16px (20). Meta, body and page sizes, the corners, the
-small, row and bar heights, and every touch size (44px controls, the switch, 16px fields) are the same.
+The generated product set is the block's look in the brief's colours: it reads the block's type roles, weights
+(with Geist), control heights, card padding, edges and shadows, rhythm and touch sizes from `quiet.css`, so
+"product" means one look whichever file a build starts from, and a theme on one part of a page works the same way.
+What differs: what the brief chooses (the colours and the mono face); the page gutter, fluid where the block's is
+fixed; space written in rem where the block uses px (equal at the usual root size); and reduced motion, where the
+generated set shortens every duration to 150ms for its motion kit. What it adds is the full scale underneath
+(`--text-*`, `--space-*`, `--control-*`, `--radius-*`, `--shadow-*`) for a system to build on.
 
 ## Two tiers, named for the job
 
