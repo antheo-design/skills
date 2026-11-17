@@ -8,7 +8,7 @@ Palette and dark mode come from antheo-color; layout reflow patterns from antheo
 |---|---|---|
 | Body text and text in images | **4.5:1** | 1.4.3 |
 | Large text: 24px regular or 18.66px bold and up | **3:1** | 1.4.3 |
-| Control boundary (input border, button edge when it is the only cue), checkbox/radio box, switch track, slider track, icon that carries meaning, chart marks | **3:1** against the neighbouring colour | 1.4.11 |
+| Control boundary when it is the only cue (an outlined input, a button edge, or the one line under a filled field: the block's `.field` draws it), checkbox/radio box, switch track, slider track, icon that carries meaning, chart marks | **3:1** against the neighbouring colour | 1.4.11 |
 | Focus indicator | **3:1** against the control and against the page behind it | 1.4.11 (2.4.13 Focus Appearance is AAA) |
 | Disabled controls, pure decoration, logos | exempt, but keep 3:1 for readability where you can | |
 | Placeholder text | 4.5:1 (it is text) | 1.4.3 |
@@ -24,7 +24,7 @@ Not by colour alone (1.4.1): error = icon + text + colour; selected tab = underl
 One token, from antheo-tokens: `--focus`:
 
 ```css
-:root { --focus: #1a56db; --focus-contrast: #fff; }
+:root { --focus: var(--text-2); }   /* the style block's; a brand may set its own, 3:1 against every surface */
 :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
 ```
 Do not write `:focus { outline: none }`. Browsers already show `:focus-visible` only for keyboard use, so the one rule above is all you need.
@@ -32,8 +32,8 @@ Do not write `:focus { outline: none }`. Browsers already show `:focus-visible` 
 | Situation | Recipe |
 |---|---|
 | Any control on a plain background | 2px solid `--focus`, offset 2px (a ring of at least 2 CSS px around the control, 3:1 against what it changes from) |
-| Unknown or varying background (cards, images, dark/light) | Two-tone ring: `outline: 2px solid var(--focus); outline-offset: 2px; box-shadow: 0 0 0 4px var(--focus-contrast);` (keeps 3:1 on both neighbours); in forced colors the outline still shows |
-| Input fields | Ring replaces nothing: keep the 1px border and add the outline; do not rely on a border colour change (needs 3:1 change and 2px) |
+| Unknown or varying background (cards, images, dark/light) | Two-tone ring: `outline: 2px solid var(--focus); outline-offset: 2px; box-shadow: 0 0 0 4px var(--bg);` (keeps 3:1 on both neighbours); in forced colors the outline still shows |
+| Input fields | Ring replaces nothing: keep the field's own edge and add the ring; do not rely on a border colour change (needs 3:1 change and 2px) |
 | Tight containers with `overflow: hidden` | Negative offset: `outline-offset: -3px`, or pad the container so the ring is not clipped |
 | Rounded controls | `outline` follows `border-radius` in modern browsers; no workaround needed |
 | Custom checkbox/switch (native input hidden) | `input:focus-visible + .box { outline: 2px solid var(--focus); outline-offset: 2px }` |
@@ -134,7 +134,7 @@ Check contrast in each theme separately; do not assume a light pass carries over
 
 ## 7. Other low-vision and cognitive aids
 
-- Line length 45 to 75 characters; left-aligned (no justified text); body at least 16px (1rem); line-height at least 1.5 for paragraphs.
+- Line length 45 to 75 characters; left-aligned (no justified text); long reading at 16px (1rem) with line-height at least 1.5; app text follows the style block (13px, 15px on a phone, set in rem). WCAG sets no minimum size: what it asks is that text holds at 200% zoom (1.4.4).
 - Do not use light weights (under 400) below 18px.
 - Links are underlined in running text; link text makes sense out of context ("Read the pricing guide", not "Click here").
 - Underline or bold current nav item in addition to colour.

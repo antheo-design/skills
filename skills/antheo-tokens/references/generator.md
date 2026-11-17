@@ -20,5 +20,5 @@ The generator writes six files and prints a report:
 | `layout.css` | the layout kit (antheo-layout) |
 | `motion.css` | the motion kit (antheo-motion) |
 | `tokens.tailwind.css` | the same as a Tailwind v4 `@theme` |
-| `tokens.json` | W3C Design Tokens format, for other tools |
+| `tokens.json` | the Design Tokens format (the 2025.10 stable release: colours as objects with a colour space, components and a hex; sizes and times with their unit), for other tools |
 | `preview.html` | every token on one page, in both themes |

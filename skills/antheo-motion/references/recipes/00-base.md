@@ -6,9 +6,12 @@ From antheo-motion. Values come from the tables in its `SKILL.md`; every recipe 
 /* respond to hover only where hovering exists */
 @media (hover: hover) and (pointer: fine) { .hoverable:hover { background: var(--well); } }
 
-/* one switch for "less motion" */
+/* "less motion": travel, scale and rotation go; fades and colour stay, and a spinner or progress bar keeps turning,
+   because it is the only sign that something is happening. Never a blanket reset on *: it stops those too. The style
+   block already zeroes its distance and scale tokens; each recipe with keyframes carries its own reduced version. */
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { animation-duration: 1ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; }
+  html { scroll-behavior: auto; }
   [data-motion="travel"] { translate: none !important; scale: none !important; rotate: none !important; }
+  [data-motion="loop"] { animation: none !important; }   /* a decorative loop; never put this on a spinner */
 }
 ```

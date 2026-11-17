@@ -9,6 +9,8 @@ differ in everything.
 1. **Name the one question.** "List or cards for the members page?", "Where does the plan switch go?" Write it down.
 2. **Three variants, structurally different on that one axis** (two is a coin toss, five is noise; never more than
    five). Same content, same style block, same states; only the axis changes. Never one "good" and two strawmen.
+   Each one is finished enough to ship: the "always" list holds in all of them (names, keyboard, contrast, nothing
+   broken), because a variant that fails it is not a choice to offer.
 3. **On the real page, not an empty route.** Mount the variants where the thing will live, with the real header,
    data and width around them: an empty page hides the problems.
 4. **One line each** on what it is best at (`data-variant-note`). Never mark a favourite.

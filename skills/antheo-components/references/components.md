@@ -8,8 +8,8 @@ Sizes and colours follow `look.md`, depth and corners antheo-surface; the values
 
 ### Button
 - **Variants:** primary (ink fill, one per surface), secondary (raised: white with the ring and 1px drop), ghost (no fill, for toolbars), danger (danger text; red fill only in its final confirm), link (inline).
-- **Sizes:** `--h-small` 28, `--h-control` 32, `--h-cta` 36, 44 on touch; padding-inline 10 / 12 / 12 / 16px, the
-  same on both sides; label `--t-body` at `--w-strong`.
+- **Sizes:** `--h-small` 28, `--h-control` 32, `--h-cta` 36, 44 on touch; padding-inline `--s-3` (12px) at every
+  height, the same on both sides; label `--t-body` at `--w-strong`.
 - **Icon + label:** icon 16px (20px beside 16px text), 6px gap, exactly 2px less padding on the icon side.
 - **Icon-only:** square (same height), `aria-label`, tooltip with the same words.
 - **Loading:** keep the width (set `min-width` before swapping), spinner replaces the icon or sits before the label, `aria-busy="true"`, ignore further clicks.
@@ -40,7 +40,7 @@ The style block has it as `.seg`: `<div class="seg" role="radiogroup" aria-label
   there is one → the helper line, when there is one. Each line is `--t-meta` and sits 4px under the one before; the
   error is `--danger` with an icon, the helper `--text-2`. Nothing sits between a label and its field. The same order
   holds under every control that has messages: a select, an upload, a group of choices.
-- A well: the block's `.field` (`--h-control`, padding-inline `--s-3`, `--r-control`, no border, `--well` with `--well-edge`); 16px text on touch screens (`--t-field`), so a phone never zooms in on focus.
+- A well: the block's `.field` (`--h-control`, padding-inline `--s-3`, `--r-control`, no border, `--well` with `--field-edge`: the faint inner edge plus one `--text-3` line along the bottom, the 3:1 boundary a field needs); 16px text on touch screens (`--t-field`), so a phone never zooms in on focus.
 - **States:** hover (the well one step deeper), focus-visible (the well deepens again plus the 2px focus ring), filled, disabled (text-2, no hover), read-only (no well, reads as text), error (a 1px danger ring + a message with an icon), success (only where it helps, e.g. "Username available").
 - **Markup:** `<label for="work-email">Work email</label>` then `<input id="work-email" type="email" autocomplete="work email" aria-describedby="work-email-error work-email-hint">`. Error message: `id="work-email-error"`, and `aria-invalid="true"` on the input.
 - Optional fields say "(optional)" in the label. Required ones don't need asterisks if most fields are required.
@@ -105,21 +105,21 @@ The style block has it as `.seg`: `<div class="seg" role="radiogroup" aria-label
 
 ### Dialog (modal)
 - For decisions that need full attention or short focused tasks. Not for things that could be inline.
-- Width 360 to 480px for a decision, up to 640px for a task (a bottom sheet on phones); padding 20px; 20px corners; the dialog edge, drop and backdrop from antheo-surface.
+- Width 360 to 480px for a decision, up to 640px for a task (a bottom sheet on phones); padding `--s-6` (24px); `--r-card` corners (10px; a phone sheet's top corners are `--r-sheet`, 14px); the dialog edge, drop and backdrop from antheo-surface.
 - **Anatomy:** the panel head (a `.t-title` title, a `--t-body` `--text-2` description, a `--h-small` close button) → body → footer with quiet then primary sharing the width (on phones stacked, primary on top).
 - **Markup:** `<dialog aria-labelledby="t">` opened with `showModal()`. Focus goes to the first field (or the least destructive button); Tab is trapped; Esc closes; focus returns to the trigger.
 - Close button (×) top-right with `aria-label="Close"`.
 
 ### Confirmation of a destructive action
 - Title names the thing: "Delete 'Q3 plan'?" Body says what is lost and whether it can be undone. Buttons: "Cancel" (secondary, focused by default) and "Delete plan" (danger). For very destructive actions, type the name to confirm.
-- **Prefer Undo over confirming** for reversible actions (archive, remove from list): do it, then show a toast with Undo for 6 to 8 seconds.
+- **Prefer Undo over confirming** for reversible actions (archive, remove from list): do it, then show a toast with Undo. A toast that carries an action stays until it is dismissed or the next action replaces it, and the same undo is reachable somewhere that does not time out (antheo-access).
 
 ### Drawer / sheet
 - A drawer slides from the edge it belongs to: right for details and filters on desktop, bottom on phones. Use instead of a dialog when people need to see the page behind it, or the content is long.
 - Width 24 to 32rem (desktop); bottom sheet with a drag handle and snap points on phones; always a close button and Esc.
 
 ### Popover, dropdown menu
-- Grows from its trigger (`transform-origin` at the trigger side) in 150ms and leaves in 120ms; the menu edge and drop from antheo-surface; 12px corners, 4px from the edge to the items (3px padding plus the 1px transparent border), items 32px tall with 8px corners.
+- Grows from its trigger (`transform-origin` at the trigger side) in 150ms and leaves in 120ms; the menu edge and drop from antheo-surface; `--r-card` corners (10px), 4px from the edge to the items (3px padding plus the 1px transparent border), items `--h-control` tall (32px) with `--r-control` corners (6px).
 - Menu items: icon (optional) + label + shortcut (at the end, text-2). Groups are set apart by 4px of space, or a 12px text-2 label; no lines. The highlight fills the item in place. Destructive item last, in danger text.
 - **Markup:** `<button aria-haspopup="menu" aria-expanded>` + `role="menu"` + `role="menuitem"`; or the `popover` attribute for non-menu popovers.
 - **Keys:** Enter/Space/↓ opens and focuses the first item; ↑/↓ move; Home/End; typing jumps to an item; Esc closes and returns focus; Tab closes.
@@ -187,4 +187,4 @@ The style block has it as `.seg`: `<div class="seg" role="radiogroup" aria-label
 - `<details><summary>` (keyboard and screen readers for free). Summary row ≥ 44px, chevron that rotates 90° or 180° on open. Allow several open unless there's a reason not to.
 
 ### Code / kbd
-- Code blocks: mono 12px in a well, a copy button at the top end whose icon turns to a tick for 2s. Inline `kbd`: 11px, raised (ring and drop), 4px corners, 4px padding.
+- Code blocks: mono 12px in a well, a copy button at the top end whose icon turns to a tick for 2s. Inline `kbd`: `--t-meta` (12px), raised (ring and drop), 4px corners, 4px padding.

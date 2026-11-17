@@ -44,38 +44,23 @@ object's commonest failure.
 
 Every rule and check in these skills proves that nothing is broken. None of them proves the work is good: a page can
 pass the gate at 100 and still be forgettable. So, for anything meant to be kept (a component for a library, a
-product screen, anything creative), also:
+product screen, anything creative), also do these ten; `references/aim-higher.md` has each one in full.
 
-1. **One thing at a time.** Several components in one pass each get a fraction of the attention. Build one, finish
-   it, then the next.
-2. **Start from a reference.** The person's, if they have one; otherwise name one or two real things it should feel
-   like (a product, an object, a photo) and say so. With no target, the result drifts to the average.
-3. **Directions before detail, when the look is open.** For an object or a creative piece, three quick directions on
-   the real page (Variants, below); the person picks; then build that one fully. With nobody to ask (a brief run
-   unattended, several finished components wanted), write the three in one line each, pick one, say which and why,
-   and build only that one.
-4. **The main thing first, in its setting, on a stage that fits.** Make the component itself excellent before
-   drawing its other states. On a component's page it comes first, alone, and the stage hugs it: 48 to 64px of room
-   around it, never a small control adrift in a page-wide empty card. A control that is small in real use (a like
-   button, a toggle, a chip) is shown in the smallest true setting that makes it readable: the like button under a
-   photo, the toggle in its settings row, the empty state inside its inbox frame. The setting is demo content, one
-   believable piece, kept out of the component and its props. The states sheet comes after.
-5. **Watch it move.** Film every motion (antheo-motion, "Watch it") and read the frames; a still screenshot can't
-   judge motion.
-6. **Put it beside the reference, zoomed** (antheo-review `scripts/beside.mjs`), and name what is missing (light, a detail, proportion, how it moves).
-   Measure a few ratios in both (an icon to its button, a figure to its card) and match them; copy its one or two
-   signature details exactly (drawn edges on 3D type, the gloss strip on candy). Fix, and look again. Two or three of
-   these rounds is where quality comes from.
-7. **Go past a still.** A still reference shows the thing at rest, never its life. Design what it implies, from how
-   the real thing behaves: every control answers its press, every change of state moves (values roll, panels slide,
-   a needle settles), the object has an idle life if the real one does, and the main action gets one bigger beat.
-   Find the one thing people would do with it for fun (tune through the static, squash the candy) and make that the
-   richest part (**antheo-creative**); never trim it to fit the app timing rules, which are for chrome. Then film it.
-8. **Every control does something,** in a demo too: a button with nothing behind it at least shows its result
-   ("Opened the readers report"). The access probe presses each one and reports those that answer with nothing.
-9. **Most of the effort goes into the thing.** The gate, the evidence and the notes are the last part of the work,
-   not the work: a component that passes every check and lost its charm has failed.
-10. **Say honestly where it stands:** what passed, what was compared, and what still falls short of the reference.
+1. **One thing at a time:** build one, finish it, then the next.
+2. **Start from a reference:** the person's, or one or two real things you name. With no target, work drifts to the average.
+3. **Directions before detail, when the look is open:** three quick ones on the real page, and the person picks.
+4. **The main thing first, in its setting, on a stage that fits.** On a component's page it comes first, alone, and
+   the stage hugs it: 48 to 64px of room, never a small control adrift in a page-wide empty card. A control that is
+   small in real use is shown in its smallest true setting (the like button under a photo, the toggle in its
+   settings row, the empty state inside its inbox frame). The states sheet comes after.
+5. **Watch it move:** film every motion and read the frames (antheo-motion, "Watch it").
+6. **Put it beside the reference, zoomed** (antheo-review `scripts/beside.mjs`): name what is missing, match a few
+   ratios and its one or two signature details, fix, look again. Two or three rounds is where quality comes from.
+7. **Go past a still:** give a still reference the life it implies, and make the one thing people would fiddle with
+   the richest part (**antheo-creative**); never trim it to fit the app timing rules, which are for chrome.
+8. **Every control does something,** in a demo too. The access probe presses each one.
+9. **Most of the effort goes into the thing,** not the gate, the evidence and the notes.
+10. **Say honestly where it stands:** what passed, what was compared, what still falls short of the reference.
 
 ## Match the person
 
@@ -110,13 +95,13 @@ it goes in React, Vue, Svelte, Angular, Astro, Django, Rails, Laravel and the re
 --bg --surface --raised --well --hover --line      the page, cards, white controls, fields, hover, a hairline
 --text --text-2 --text-3 --primary --accent --danger   main text, help, icons, the filled button, "on", danger
 --accent-soft --accent-text                        a highlight tag: the saving, the recommended plan
---t-meta 12 · --t-body 13 · --t-title 15 · --t-page 20 · --t-num 28 · --t-display 36   (each with --l-* and --k-*)
+--t-meta 12 · --t-body 13 · --t-title 15 · --t-page 20 · --t-num 28 · --t-display 36   (px at a 16px root; set in rem; each with --l-* and --k-*)
 --w-text 450 · --w-strong 550                      the only two weights
 --r-tag 4 · --r-control 6 · --r-card 10 · --r-full the only corners
 --sh-control --sh-card --sh-lift --sh-dialog       the only shadows
 --h-control 32 · --h-cta 36 · --h-row 40 · --pad-card 20 · --gap-section 32
 --dur-fast 150ms · --dur-base 200ms · --ease-out   the motion variables (antheo-motion's recipes read them)
-.card  .field  .btn  .btn-primary  .btn-quiet  .tag  .tag-accent  .switch  .seg  dialog  a
+.card  .field  .btn  .btn-primary  .btn-quiet  .chip  .tag  .tag-accent  .switch  .seg  dialog  a
 .t-meta  .t-title  .t-page  .t-num  .t-display  .muted
 ```
 
@@ -134,7 +119,8 @@ it goes in React, Vue, Svelte, Angular, Astro, Django, Rails, Laravel and the re
 4. **Cards have no outline.** A card is `.card`: the surface on the page, a faint edge and a soft drop. Never a
    visible border, never a coloured edge, never a card inside a card.
 5. **Almost no lines.** A hairline (`--line`) only between repeating rows of a list or table. Never under a card's
-   header, between sections, between a price and its features, or under a top bar.
+   header, between sections, between a price and its features, or under a top bar at rest (a sticky bar takes one
+   once content has scrolled under it).
 6. **Three corners.** Cards, dialogs, menus and tables `--r-card`; buttons, fields and chips `--r-control`; tags
    and the logo tile `--r-tag`. Fully round only for switches, avatars and a segmented control, and those don't
    count as a fourth size. No pill buttons.
@@ -150,7 +136,7 @@ it goes in React, Vue, Svelte, Angular, Astro, Django, Rails, Laravel and the re
 9. **One primary action.** The only `.btn-primary`, after what it acts on, always enabled (while it is sending
    it stays focusable with `aria-disabled="true"` and ignores a second press). A recommended plan is its
    filled button, a `.tag-accent` "Recommended" and `--sh-lift`, at exactly its neighbours' size.
-10. **Fields are wells.** `.field`, with its label above (`--t-body`, `--w-strong`, `--text`), 6px apart. A helper
+10. **Fields are wells.** `.field` (a borderless fill with one line along its bottom edge), with its label above (`--t-body`, `--w-strong`, `--text`), 6px apart. A helper
     line only for a constraint or a consequence ("JPG or PNG, up to 2 MB"; "At least 8 characters"), in `--t-meta`
     `--text-2`, 4px under. An error is the red inner edge and a short message under the field naming the fix (antheo-writing).
 11. **Chrome only as named.** A "section", a "component" or a page that shows components gets no site header, footer
@@ -198,12 +184,10 @@ it goes in React, Vue, Svelte, Angular, Astro, Django, Rails, Laravel and the re
     checker's score is not a look.
 21. **Arm the gate, and pass it.** At the start, arm antheo-review's gate on every page the work touches
     (`gate.mjs arm <url-or-file> --copy <source folder>`, plus `--preset none` when the project has its own system,
-    and `--ref <images>` when the work is built from references, so it asks for the comparisons and a filmstrip);
-    before saying done, `gate.mjs check` must say PASS, or after three rounds DONE, UNRESOLVED with what is left, told
-    to the person (each further reference adds a round; a page of several components can ask for more with
-    `--max`). How much to check beyond the gate depends on the size of the change (antheo-review, "How much to
-    check"). Setup for each agent: antheo-review `references/gate.md`. A PASS is the floor, not the finish: it says
-    nothing measured is broken, never that the work is good ("Correct is the floor; aim higher").
+    and `--ref <images>` when the work is built from references); before saying done, `gate.mjs check` must say
+    PASS, or after its rounds DONE, UNRESOLVED with what is left, told to the person. Rounds, setup and how much to
+    check beyond the gate: antheo-review `references/gate.md` and "How much to check". A PASS is the floor, not the
+    finish.
 
 ## 3. Then the screen's pattern card
 
@@ -245,12 +229,11 @@ page", "campaign", "bold", "playful") or praises a reference: **antheo-direction
 
 ## From a design: measure, don't guess
 
-1. **Figma:** search the available tools for a Figma connector first; ask for an export only if none exists.
-2. **A screenshot gives proportions, not sizes.** State the scale you assumed ("2× retina, so halve it").
-3. **Round to a block variable only within 2px, or ΔE 2 for a colour.** Further off, ask; never invent a value.
-4. **Build only what is drawn,** then put a screenshot of the build beside the design (`node
-   <antheo-review>/scripts/pixdiff.mjs design.png build.png --tolerance 4 --out diff.png`) and fix what differs.
-5. **Finish with a table:** `element | design value | built value | matched or explained`.
+Open `references/from-design.md` for any Figma frame, export or screenshot to match. In short: read real values
+through a Figma connector when there is one (a screenshot gives proportions, not sizes); map every colour, size,
+gap, corner and component to the project's own within 2px or ΔE 2 before building, and ask when further off; build
+only what is drawn, with the undrawn states taken from the system and listed; compare with `pixdiff.mjs`; finish
+with the table and the three lists (not wired, not drawn, conflicts).
 
 ## Variants and corrections
 
@@ -283,6 +266,9 @@ promised · drift · quieting a check instead of fixing it · a fix loop · anot
 ## Files
 
 - `references/examples.md`: what goes wrong and the fix, from the skills page and from real builds; when the default is wrong
+- `references/aim-higher.md`: the ten steps past "correct", each in full
+- `references/from-design.md`: matching a Figma frame, export or screenshot: the mapping table, what is not yours
+  to design, the comparison and the report
 - `references/pages/`: ten finished pages built only from the style block (sign-up, settings, a list, a table, a
   dashboard, pricing, an empty state, an error, a phone screen, right to left); open the nearest one when unsure how
   the rules look together

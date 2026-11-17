@@ -10,6 +10,9 @@
  * Needs playwright-core (npm i -D playwright-core) and Chrome or Edge, or npx playwright install chromium
  * (it tries channel "chrome" first). Closes the browser when done, always.
  *
+ *   node check-page.mjs <url> --stress      (also: the page rewritten as a long translation, with very long words and
+ *                                          right-to-left, at the phone and the main width, and one pass in forced
+ *                                          colours; reports what breaks or disappears only then)
  *   node check-page.mjs <url> --kind page   (or app: forces the marketing-page character checks on or off; app and
  *                                          component pages also get the costume checks of the product look; anything
  *                                          inside [data-object], a drawn object such as a bank card or a dial, is
@@ -18,6 +21,14 @@
  * Scores 0 to 100 per area and overall (higher is better):
  *   access 25 · layout 15 · craft 30 · consistency 10 · motion 10 · robustness 10
  * A blocker (a broken value on screen, a failed image) caps the overall score at 49.
+ * Fields: a text field, textarea or select whose edge and fill are both under 3:1 against what is beside them is a
+ * high finding (WCAG 1.4.11), in light and in dark. A line on one side is enough: a border, an outline, or a
+ * box-shadow layer with no blur.
+ * Charts (an element marked data-chart): one with no name a screen reader can say and no table beside it is a high
+ * finding; two series drawn in hues of the same lightness with nothing else to tell them apart is a medium one.
+ * Load measures, on a first visit at the main width: Largest Contentful Paint and Cumulative Layout Shift, in the
+ * JSON as vitals { lcp (ms), cls, lcpElement }. A shift over 0.1 is a finding that names what moved; an LCP over 2.5s
+ * is a low one, since a local number is only a floor. Press latency (INP) is latency-probe.mjs's job.
  * "character" counts the measurable signs of the template look; it cannot see taste, so a page can pass it and still
  * be forgettable.
  */
@@ -138,13 +149,25 @@ function measure(kind) {
 
   // text: contrast, sizes, families, colors, line length
   const sizes = {}, families = {}, weights = {}, colors = {}, radii = {}, spacing = { on: 0, off: 0 }, offSamples = [];
+  // a size only figures wear (1,284 · $12.40 · 98.6% · 12:45 · 4.2k) is the one numeral size a data screen may add
+  const wordSizes = {};
+  const figure = (t) => /\d/.test(t) && /^[\d\s.,:;'’/+\-−–()%‰\p{Sc}]+$/u.test(t.replace(/(?<=\d)\s?(?:[kKmMbB]|bn)(?!\p{L})/gu, ''));
+  // a dialog or a sheet may round up to 16px (the style block's phone sheet has 14px top corners): boxRadii holds the
+  // corners of everything else
+  const boxRadii = {};
   let longLines = [], smallBody = [], tightLeading = [], chars = 0, smallChars = 0;
   const canvas = document.createElement('canvas').getContext('2d');
   for (const el of document.querySelectorAll('body *')) {
     if (!visible(el)) continue;
     const s = getComputedStyle(el);
     const own = [...el.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim().length > 1);
-    if (s.borderRadius && s.borderRadius !== '0px') radii[s.borderRadius.split(' ')[0]] = (radii[s.borderRadius.split(' ')[0]] || 0) + 1;
+    if (s.borderRadius && s.borderRadius !== '0px') {
+      // the largest of the four corners: a side sheet rounded "0 14px 14px 0" is a 14px corner, not 0
+      const corners = ['TopLeft', 'TopRight', 'BottomRight', 'BottomLeft'].map((c) => s[`border${c}Radius`].split(' ')[0]);
+      const r0 = corners.find((c) => c.includes('%')) ?? corners.reduce((a, b) => (parseFloat(b) > parseFloat(a) ? b : a));
+      radii[r0] = (radii[r0] || 0) + 1;
+      if (!(el.matches('dialog, [role=dialog], [role=alertdialog]') && !r0.includes('%') && parseFloat(r0) <= 16)) boxRadii[r0] = 1;
+    }
     for (const p of ['paddingTop', 'paddingLeft', 'marginTop', 'marginBottom', 'rowGap', 'columnGap']) {
       const v = parseFloat(s[p]);
       if (v > 2 && v < 200) { if (v % 4 === 0 || v % 4 === 2 && v < 16) spacing.on++; else { spacing.off++; if (offSamples.length < 5) offSamples.push(`${p} ${v}px on ${sel(el)}`); } }
@@ -153,6 +176,7 @@ function measure(kind) {
     if (!own || srOnly(el)) continue;
     const px = parseFloat(s.fontSize);
     sizes[px] = (sizes[px] || 0) + 1;
+    if (!figure([...el.childNodes].filter((n) => n.nodeType === 3).map((n) => n.textContent).join(' ').trim())) wordSizes[px] = 1;
     const len = [...el.childNodes].filter((n) => n.nodeType === 3).reduce((n, t) => n + t.textContent.trim().length, 0);
     chars += len;
     if (px < 12) smallChars += len;
@@ -391,13 +415,109 @@ function measure(kind) {
     if (swatchSet.size > 4) break;
   }
 
+  // a field anyone can find (WCAG 1.4.11). It passes when one edge is a line of 1px or more at 3:1 against what is
+  // beside it (a border on any side, an outline, or a box-shadow layer with no blur, inset or not: a line on one side
+  // such as "inset 0 -1px 0" counts), or when its fill is 3:1 against the surface behind it. The best ratio is reported.
+  out.fieldEdge = [];
+  const apart = (a, b) => { const [hi, lo] = [lum(a), lum(b)].sort((x, y) => y - x); return (hi + 0.05) / (lo + 0.05); };
+  const FIELD = 'input:not([type=checkbox], [type=radio], [type=range], [type=button], [type=submit], [type=reset], [type=image], [type=color], [type=file], [type=hidden]), textarea, select';
+  for (const el of document.querySelectorAll(FIELD)) {
+    if (el.disabled || el.closest('[aria-disabled="true"], fieldset:disabled') || !visible(el) || srOnly(el)) continue;
+    const size = el.getBoundingClientRect();
+    if (size.width < 16 || size.height < 8) continue;
+    // what draws the field: the control itself, or a close wrapper that holds only this field (an input and its prefix)
+    const boxes = [el];
+    for (let a = el.parentElement, n = 0; a && a !== document.body && n < 2; a = a.parentElement, n++) {
+      if (a.querySelectorAll(FIELD).length !== 1 || a.getBoundingClientRect().height > size.height + 32) break;
+      boxes.push(a);
+    }
+    let best = 0, unread = false;
+    for (const box of boxes) {
+      const c = getComputedStyle(box);
+      const outside = box.parentElement ? behind(box.parentElement) : null;
+      // an image or a gradient behind or inside it: not something this can measure, so nothing is said
+      if (!outside || (c.backgroundImage !== 'none' && !c.backgroundImage.startsWith('url("data:image/svg'))) { unread = true; break; }
+      const own = parse(c.backgroundColor);
+      const fill = own && own.a > 0 ? blend(own, outside) : outside;
+      best = Math.max(best, apart(fill, outside));
+      // a line is judged as drawn (its colour over what is under it) against the surface outside and the fill inside
+      const line = (colour, under) => { const p = parse(colour); if (!p) { unread = true; return; } if (p.a > 0) { const drawn = blend(p, under); best = Math.max(best, apart(drawn, outside), apart(drawn, fill)); } };
+      for (const side of ['Top', 'Right', 'Bottom', 'Left']) if (parseFloat(c[`border${side}Width`]) >= 1 && !['none', 'hidden'].includes(c[`border${side}Style`])) line(c[`border${side}Color`], fill);
+      if (c.outlineStyle !== 'none' && parseFloat(c.outlineWidth) >= 1) line(c.outlineColor, outside);
+      if (c.boxShadow !== 'none') for (const layer of c.boxShadow.split(/,(?![^(]*\))/)) {
+        const colour = layer.match(/[a-z-]+\([^)]*\)|#[0-9a-f]{3,8}\b/i)?.[0] ?? layer.trim().split(/\s+/)[0];
+        const [x = 0, y = 0, blur = 0, spread = 0] = [...layer.replace(colour, '').matchAll(/-?[\d.]+px/g)].map((m) => parseFloat(m[0]));
+        if (blur === 0 && spread + Math.max(Math.abs(x), Math.abs(y)) >= 1) line(colour, /\binset\b/.test(layer) ? fill : outside);
+      }
+    }
+    if (!unread && best < 3 && out.fieldEdge.length < 8) out.fieldEdge.push(`${sel(el)} best ${best.toFixed(2)}:1`);
+  }
+
+  // charts (marked data-chart): a name a screen reader can say, and series that differ by more than hue
+  out.chartNoName = []; out.chartHue = [];
+  const oklch = ({ r, g, b }) => {
+    const [R, G, B] = [r, g, b].map((v) => { v /= 255; return v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; });
+    const l = Math.cbrt(0.4122214708 * R + 0.5363325363 * G + 0.0514459929 * B), m = Math.cbrt(0.2119034982 * R + 0.6806995451 * G + 0.1073969566 * B), n = Math.cbrt(0.0883024619 * R + 0.2817188376 * G + 0.6299787005 * B);
+    const A = 1.9779984951 * l - 2.428592205 * m + 0.4505937099 * n, Bb = 0.0259040371 * l + 0.7827717662 * m - 0.808675766 * n;
+    return { L: 0.2104542553 * l + 0.793617785 * m - 0.0040720468 * n, C: Math.hypot(A, Bb), H: (Math.atan2(Bb, A) * 180 / Math.PI + 360) % 360 };
+  };
+  for (const chart of document.querySelectorAll('[data-chart]')) {
+    if (!visible(chart)) continue;
+    const labelled = (el) => !!(el.getAttribute('aria-label')?.trim() || (el.getAttribute('aria-labelledby') || '').split(/\s+/).some((id) => id && document.getElementById(id)?.textContent.trim()));
+    // the name: role="img" (or a picture element) with a label, an <img alt>, an SVG <title>, a figure's caption, or
+    // the same data as a table in the chart, its figure or its section
+    const named = [chart, ...chart.querySelectorAll('svg, canvas, img, [role=img]')].some((el) => (labelled(el) && (/^(img|figure|group|graphics-document)$/.test(el.getAttribute('role') || '') || /^(svg|canvas|img)$/i.test(el.tagName)))
+        || (el.tagName === 'IMG' && el.alt.trim()) || [...el.children].some((c) => c.tagName.toLowerCase() === 'title' && c.textContent.trim()))
+      || !!chart.closest('figure')?.querySelector('figcaption')?.textContent.trim()
+      || !!(chart.querySelector('table') || chart.closest('figure, section')?.querySelector('table'));
+    if (!named && out.chartNoName.length < 6) out.chartNoName.push(sel(chart));
+
+    // series by hue alone. Conservative on purpose: only drawn SVG marks with a flat, hued, mostly opaque colour are
+    // read; a pattern or gradient fill, a canvas, or a colour scale of many steps is left alone.
+    const svgMarks = [...chart.querySelectorAll('svg path, svg line, svg polyline, svg polygon, svg rect, svg circle, svg ellipse')].filter((el) => !el.closest('defs, clipPath, mask, marker, pattern, symbol'));
+    if (svgMarks.some((el) => { const c = getComputedStyle(el); return /url\(/.test(c.fill) || /url\(/.test(c.stroke); })) continue;
+    const words = [...chart.querySelectorAll('svg text')].filter((t) => /\p{L}{2,}/u.test(t.textContent)).map((t) => t.getBoundingClientRect());
+    const near = (x0, y0, x1, y1, reach) => words.some((w) => Math.hypot(Math.max(w.left - x1, 0, x0 - w.right), Math.max(w.top - y1, 0, y0 - w.bottom)) <= reach);
+    const frame = chart.getBoundingClientRect();
+    const series = new Map(); // "r,g,b" → what its marks have besides colour
+    for (const el of svgMarks) {
+      const r = el.getBoundingClientRect(), c = getComputedStyle(el);
+      if (Math.max(r.width, r.height) < 8 || r.width * r.height > 0.8 * frame.width * frame.height) continue; // a speck, or the plot's own ground
+      const filled = c.fill !== 'none' && (parse(c.fill)?.a ?? 0) * +c.fillOpacity > 0.5;
+      const col = parse(filled ? c.fill : c.stroke);
+      if (!col || (!filled && (c.stroke === 'none' || !(parseFloat(c.strokeWidth) > 0))) || col.a * +c.opacity * (filled ? 1 : +c.strokeOpacity) <= 0.5) continue;
+      const lch = oklch(col);
+      if (lch.C < 0.04) continue; // neutral: gridlines, axes, an ink series
+      const key = `${Math.round(col.r)},${Math.round(col.g)},${Math.round(col.b)}`;
+      const one = series.get(key) ?? { ...lch, hex: '#' + [col.r, col.g, col.b].map((v) => Math.round(v).toString(16).padStart(2, '0')).join(''), dashes: new Set(), markers: new Set(), labelled: false };
+      one.dashes.add(filled ? 'fill' : c.strokeDasharray);
+      if (Math.max(r.width, r.height) <= 16) one.markers.add(el.tagName.toLowerCase());
+      // a word beside a filled mark, or at the end of a line, is a direct label
+      if (filled) one.labelled ||= near(r.left, r.top, r.right, r.bottom, 24);
+      else { try { const p = el.getPointAtLength(el.getTotalLength()).matrixTransform(el.getScreenCTM()); one.labelled ||= near(p.x, p.y, p.x, p.y, 40); } catch { one.labelled = true; /* cannot tell: say nothing */ } }
+      series.set(key, one);
+    }
+    const list = [...series.values()];
+    if (list.length < 2 || list.length > 8) continue;
+    const sig = (x) => [...x.dashes].sort().join('|') + '#' + [...x.markers].sort().join('|');
+    let worst = null;
+    for (let i = 0; i < list.length; i++) for (let j = i + 1; j < list.length; j++) {
+      const a = list[i], b = list[j], dH = Math.min(Math.abs(a.H - b.H), 360 - Math.abs(a.H - b.H));
+      if (dH < 20 && Math.abs(a.C - b.C) < 0.04) continue; // one series in two tints (a hover, an area under its line)
+      if (a.labelled || b.labelled || sig(a) !== sig(b)) continue;
+      const dL = Math.abs(a.L - b.L);
+      if (dL < 0.08 && (!worst || dL < worst.dL)) worst = { a, b, dL };
+    }
+    if (worst && out.chartHue.length < 6) out.chartHue.push(`${sel(chart)}: ${worst.a.hex} and ${worst.b.hex} are equally light (OKLCH lightness ${worst.a.L.toFixed(2)} and ${worst.b.L.toFixed(2)}), and their marks differ in nothing else`);
+  }
+
   return {
     ...out,
     broken, shortPanels, character, splitNumbers, undefinedVars, swatches: [...swatchSet],
     smallShare: chars ? smallChars / chars : 0,
     longLines: longLines.slice(0, 4), smallBody: smallBody.slice(0, 4), tightLeading: tightLeading.slice(0, 4),
     sizes: Object.keys(sizes).length, families: Object.keys(families), weights: Object.keys(weights).length, colors: Object.keys(colors).length,
-    radii: Object.keys(radii).length, radiiList: Object.keys(radii), sizeList: Object.keys(sizes).map(Number).sort((x, y) => x - y), weightList: Object.keys(weights), spacingOff: spacing.on + spacing.off ? spacing.off / (spacing.on + spacing.off) : 0, offSamples,
+    radii: Object.keys(radii).length, radiiList: Object.keys(radii), sizeList: Object.keys(sizes).map(Number).sort((x, y) => x - y), figureSizes: Object.keys(sizes).filter((k) => !wordSizes[k]).map(Number), sheetRadii: Object.keys(radii).filter((k) => !boxRadii[k]), weightList: Object.keys(weights), spacingOff: spacing.on + spacing.off ? spacing.off / (spacing.on + spacing.off) : 0, offSamples,
     strong, infinite: anims.filter((a) => a.inf).map((a) => a.target).slice(0, 5), transitionAll,
     lang: document.documentElement.lang, main: !!document.querySelector('main, [role=main]'), title: document.title,
     bg: getComputedStyle(document.body).backgroundColor,
@@ -946,6 +1066,27 @@ function stressApply(mode) {
   }
 }
 
+/* ── stress: forced colours (Windows contrast themes) drop every fill and shadow ─────────────────────────────── */
+// Two passes on the same page. "mark", before forced colours: remember each control whose shape is drawn only by a
+// fill or a shadow (no border, no outline, not drawn by the browser itself). "read", in forced colours: the ones that
+// still have no edge are the ones that disappear. (The access probe makes the same check, with focus rings.)
+function forcedScan(pass) {
+  const lined = (c) => ['Top', 'Right', 'Bottom', 'Left'].some((d) => parseFloat(c[`border${d}Width`]) > 0 && !['none', 'hidden'].includes(c[`border${d}Style`])) || (c.outlineStyle !== 'none' && parseFloat(c.outlineWidth) > 0);
+  const edge = (el) => lined(getComputedStyle(el)) || ['::before', '::after'].some((p) => { const c = getComputedStyle(el, p); return c.content !== 'none' && c.content !== 'normal' && lined(c); });
+  if (pass === 'read') return [...document.querySelectorAll('[data-antheo-fc]')].filter((el) => !edge(el)).map((el) => el.getAttribute('data-antheo-fc'));
+  const sel = (el) => { const id = el.id ? '#' + el.id : ''; const cls = typeof el.className === 'string' && el.className.trim() ? '.' + el.className.trim().split(/\s+/).slice(0, 2).join('.') : ''; const t = (el.innerText || el.getAttribute('aria-label') || el.value || '').trim().replace(/\s+/g, ' ').slice(0, 26); return el.tagName.toLowerCase() + id + cls + (t ? ' "' + t + '"' : ''); };
+  for (const el of document.querySelectorAll('button, [role=button], [role=tab], [role=switch], [role=checkbox], [role=radio], input:not([type=hidden]), select, textarea, a[class*=btn], a[class*=button]')) {
+    const r = el.getBoundingClientRect(), c = getComputedStyle(el);
+    if (r.width < 4 || r.height < 4 || c.visibility === 'hidden' || c.display === 'none' || +c.opacity < 0.05) continue;
+    // the browser draws these itself: a tick box, a slider, and a field or select left with its native look
+    const field = el.matches('select, textarea, input:not([type=button], [type=submit], [type=reset], [type=image])');
+    if (/^(checkbox|radio|range|color|file)$/.test(el.type || '') || (field && /^(auto|menulist|menulist-button|textfield)$/.test(c.appearance))) continue;
+    const drawn = c.backgroundColor !== 'rgba(0, 0, 0, 0)' || c.backgroundImage !== 'none' || c.boxShadow !== 'none';
+    if (drawn && !edge(el)) el.setAttribute('data-antheo-fc', sel(el));
+  }
+  return [];
+}
+
 /* ── dark: does the dark theme have depth, or is it mud? ─────────────────────────────────────────────────────── */
 function darkAudit() {
   const out = { melt: [], glare: null, tiers: null };
@@ -1012,6 +1153,51 @@ function darkAudit() {
   return out;
 }
 
+/* ── load: how soon the main content shows, and whether the page jumps while it loads ─────────────────────────── */
+// Read from the browser's own buffered records, so everything since the navigation began is counted. LCP is the last
+// largest-contentful-paint record. CLS is the worst burst of layout shifts (shifts under a second apart, five seconds
+// at most), without the ones the browser marks as following a press or a key. Each shift names up to five elements
+// that moved, so the finding can say which.
+async function vitals() {
+  const sel = (el) => { const id = el.id ? '#' + el.id : ''; const cls = typeof el.className === 'string' && el.className.trim() ? '.' + el.className.trim().split(/\s+/).slice(0, 2).join('.') : ''; const t = (el.innerText || el.getAttribute('aria-label') || '').trim().replace(/\s+/g, ' ').slice(0, 26); return el.tagName.toLowerCase() + id + cls + (t ? ' "' + t + '"' : ''); };
+  const can = (type) => typeof PerformanceObserver === 'function' && (PerformanceObserver.supportedEntryTypes ?? []).includes(type);
+  const read = async (type) => {
+    if (!can(type)) return null;
+    const got = [];
+    const po = new PerformanceObserver((l) => got.push(...l.getEntries()));
+    po.observe({ type, buffered: true });
+    await new Promise((r) => setTimeout(r, 120)); // buffered records arrive in a task of their own
+    got.push(...po.takeRecords());
+    po.disconnect();
+    return got;
+  };
+  const [paints, shifts] = await Promise.all([read('largest-contentful-paint'), read('layout-shift')]);
+  const out = { lcp: null, cls: null, lcpElement: null, moved: [] };
+  const last = paints?.[paints.length - 1];
+  if (last) { out.lcp = Math.round(last.startTime); out.lcpElement = last.element ? sel(last.element) : last.url ? last.url.split('/').pop().slice(0, 60) : null; }
+  if (shifts) {
+    let worst = 0, burst = 0, first = 0, prev = 0;
+    const moved = new Map(); // element → the furthest it moved, and when
+    for (const e of shifts) {
+      if (e.hadRecentInput) continue;
+      if (!(burst > 0 && e.startTime - prev < 1000 && e.startTime - first < 5000)) { burst = 0; first = e.startTime; }
+      burst += e.value;
+      prev = e.startTime;
+      worst = Math.max(worst, burst);
+      for (const src of e.sources ?? []) {
+        const node = src.node?.nodeType === 3 ? src.node.parentElement : src.node;
+        if (!node?.tagName) continue;
+        const dy = Math.round(src.currentRect.y - src.previousRect.y), dx = Math.round(src.currentRect.x - src.previousRect.x);
+        const far = Math.max(Math.abs(dy), Math.abs(dx));
+        if (far > (moved.get(node)?.far ?? 0)) moved.set(node, { far, value: e.value, text: `${sel(node)} moved ${far}px ${Math.abs(dy) >= Math.abs(dx) ? (dy > 0 ? 'down' : 'up') : 'sideways'}, ${Math.round(e.startTime)}ms into the load` });
+      }
+    }
+    out.cls = Math.round(worst * 1000) / 1000;
+    out.moved = [...moved.values()].sort((a, b) => b.value - a.value || b.far - a.far).slice(0, 6).map((m) => m.text);
+  }
+  return out;
+}
+
 /* ── run ─────────────────────────────────────────────────────────────────────────────────────────────────────── */
 const chromium = await loadChromium();
 let browser;
@@ -1047,6 +1233,8 @@ const CRAFT = {
   clipped: ['craft', 'medium', 'text cut off with no ellipsis', 'text-overflow: ellipsis with a title/tooltip, or let it wrap'],
   gaps: ['craft', 'low', 'section spacing follows no rhythm', 'two or three section paddings (dense, regular, airy) from the scale, used on purpose'],
 };
+// a text field nobody can find: the same rule in light and, for fields that only fail there, in dark
+const FIELD_EDGE = ['a field with no visible boundary: its edge and fill are under 3:1 (WCAG 1.4.11)', 'one line anyone can see: a 1px border, an underline or an inset shadow with no blur, at 3:1 against the surface (the style block\'s .field draws its bottom line in the third text tone), or a fill at 3:1; a faint well on its own is not a boundary'];
 const hits = new Map(); // rule key → Map(item id → { detail, where: Set })
 const hit = (key, items, where) => { for (const it of items ?? []) { if (!hits.has(key)) hits.set(key, new Map()); const m = hits.get(key); if (!m.has(it.id)) m.set(it.id, { detail: it.detail, where: new Set() }); m.get(it.id).where.add(where); } };
 const full = (m) => {
@@ -1058,22 +1246,30 @@ const full = (m) => {
       add('access', 'medium', 'contrast not measured: text on an image or gradient', m.onImage, 'look at it in both themes, and measure the lightest and darkest spot behind the text with antheo-color/scripts/contrast.mjs');
       add('access', 'high', 'controls with no accessible name', m.unnamed, 'visible text, or aria-label on icon-only controls');
       add('access', 'high', 'form fields with no label', m.unlabeled, '<label for> tied to the field; placeholders are not labels');
+      add('access', 'high', FIELD_EDGE[0], m.fieldEdge, FIELD_EDGE[1]);
       add('access', 'medium', 'placeholder used as the label', m.placeholderLabels, 'add a visible label above the field; keep the placeholder as an example');
       add('access', 'medium', 'images without alt', m.alt, 'describe what it shows, or alt="" when it is decoration');
       add('access', 'medium', 'heading structure', m.headings, 'one h1, then h2, h3 in order');
+      add('access', 'high', 'a chart with no name: nobody using a screen reader learns what it shows', m.chartNoName, 'role="img" on the chart with an aria-label that says what it shows ("Invoiced by month: up 12% since March"), or a <title> in its SVG, or a <figure> with a <figcaption>, or the same data as a <table> in the same figure or section (antheo-data)');
+      add('access', 'medium', 'chart series told apart by hue alone', m.chartHue, 'give the two series a second difference: 0.08 or more of OKLCH lightness, a dash pattern, a different marker shape, or a label at the end of each line; then look at it in greyscale (antheo-data)');
       if (!m.lang) add('access', 'low', 'no lang on <html>', ['<html>'], 'lang="en" (or the page language) so screen readers pronounce it right');
       if (!m.main) add('access', 'low', 'no <main> landmark', ['page'], 'wrap the page content in <main>');
       add('layout', 'medium', 'lines too long to read comfortably', m.longLines, 'cap text at about 66 characters: max-width: 66ch');
       add('layout', 'medium', 'body text under 13px', m.smallBody, 'app text 13px with a pointer and 15px on touch; pages people read 16px');
       if (m.smallShare > 0.35) add('layout', 'medium', `${Math.round(m.smallShare * 100)}% of the text is smaller than 12px`, ['most of the page'], 'the page reads small: app text 13px with a pointer, 15px on touch; reading pages 16px; 12px only for meta');
       add('layout', 'low', 'body line height under 1.3', m.tightLeading, 'body line-height 1.45 to 1.6');
-      if (m.sizes > 5) add('consistency', 'medium', `${m.sizes} text sizes on one screen`, [m.sizeList.join(', ') + 'px'], 'an app screen uses at most 4 sizes, a marketing section 5: take them from the style block (antheo-build, rule 1)');
+      // four sizes; a fifth only when one of them is worn by nothing but figures (a data screen's numeral size). A
+      // marketing page keeps its five (it adds a display size), with or without numerals
+      if (m.sizes > (m.figureSizes.length || m.character.marketing ? 5 : 4)) add('consistency', 'medium', `${m.sizes} text sizes on one screen`, [`${m.sizeList.join(', ')}px${m.figureSizes.length ? ` (only numerals at ${m.figureSizes.join(', ')}px)` : ''}`], 'an app screen uses four text sizes, and a data screen may add one numeral size (five); a marketing page five: take them from the style block (antheo-build, rule 1)');
       if (m.families.length > 3) add('consistency', 'medium', `${m.families.length} font families`, m.families, 'one family for text, one optional for display, one mono');
       if (m.weights > 2) add('consistency', 'medium', `${m.weights} font weights`, [m.weightList.join(', ')], 'two weights: one for text, one for titles, labels and buttons (antheo-build, rule 2)');
       if (m.colors > 10) add('consistency', 'medium', `${m.colors} different text colors`, [`${m.colors} colors`], 'text needs 3 to 4 roles: default, muted, accent, on-accent');
-      { const rs = [...new Set(m.radiiList.map((r) => (/%/.test(r) ? 999 : parseFloat(r))).filter((v) => v > 0 && v < 100))].sort((x, y) => x - y);
-        if (rs.length > 3) add('consistency', 'medium', `${rs.length} corner sizes`, [rs.join(', ') + 'px'], 'three corner sizes: 10px cards, 6px controls, 4px tags; fully round only for switches and avatars (antheo-build, rule 6)');
-        if (rs.length && rs[rs.length - 1] > 12) add('craft', 'medium', `corners up to ${rs[rs.length - 1]}px`, [`${rs[rs.length - 1]}px`], 'big round corners read as generated: cards 10px at most'); }
+      { // a radius worn only by a dialog or a sheet, 16px or less, is neither a fourth size nor a big corner (the style
+        // block's phone sheet is 14px): tag, control, card and a sheet read as three sizes at every width
+        const sheet = new Set(m.sheetRadii);
+        const rs = [...new Set(m.radiiList.filter((r) => !sheet.has(r)).map((r) => (/%/.test(r) ? 999 : parseFloat(r))).filter((v) => v > 0 && v < 100))].sort((x, y) => x - y);
+        if (rs.length > 3) add('consistency', 'medium', `${rs.length} corner sizes`, [rs.join(', ') + 'px'], 'three corner sizes: 10px cards, 6px controls, 4px tags; fully round only for switches and avatars; a dialog or a sheet may have its own, up to 16px (antheo-build, rule 6)');
+        if (rs.length && rs[rs.length - 1] > 12) add('craft', 'medium', `corners up to ${rs[rs.length - 1]}px`, [`${rs[rs.length - 1]}px`], 'big round corners read as generated: cards 10px at most; only a dialog or a sheet goes further, to 16px'); }
       if (m.spacingOff > 0.2) add('consistency', 'low', `${Math.round(m.spacingOff * 100)}% of spacing off the 4px grid`, m.offSamples, 'take every gap and padding from one spacing scale');
       if (m.strong > 2) add('consistency', 'medium', `${m.strong} strong filled buttons in the first screen`, [`${m.strong} buttons`], 'one primary action per view; the rest secondary or quiet');
       if (m.transitionAll) add('motion', 'low', `${m.transitionAll} elements use transition: all`, [`${m.transitionAll} elements`], 'name the properties: transform, opacity, background-color');
@@ -1182,6 +1378,8 @@ try {
       if (theme === 'light' && width === phone && phone <= 480 && phone !== main) { const m = await page.evaluate(measure, kind); add('access', 'medium', 'touch targets under 24px at phone width', m.targets, 'min 24×24 (WCAG 2.2 2.5.8), 44×44 for primary touch controls'); }
       if (theme === 'dark' && width === main) {
         const m = await page.evaluate(measure, kind); add('access', 'high', 'text below contrast minimum in dark mode', m.contrast, 'tune the dark palette separately; it is not an inversion');
+        const inLight = new Set((results[main]?.fieldEdge ?? []).map((i) => i.split(' best ')[0]));
+        add('access', 'high', `${FIELD_EDGE[0]} in dark mode`, m.fieldEdge.filter((i) => !inLight.has(i.split(' best ')[0])), FIELD_EDGE[1]);
         const d = await page.evaluate(darkAudit);
         add('craft', 'medium', 'dark mode: raised surfaces melt into the page', d.melt, 'step each surface up 0.03+ in lightness (--surface, --raised) and give raised things the faint edge: box-shadow: var(--edge)');
         if (d.glare) add('craft', 'low', `dark mode: main text glares at ${d.glare}:1`, ['body text'], 'keep dark-mode text at 10 to 16.5:1 (the style block sets --text to L 0.95)');
@@ -1211,11 +1409,32 @@ try {
         if (shots && width === nearest(1280)) await page.screenshot({ path: join(shots, `stress-${mode}-${width}.png`), fullPage: true });
       }
     }
+    // and one pass in forced colours, at the main width: what was drawn with a fill or a shadow alone is gone
+    await load(nearest(1280), 'light');
+    await page.evaluate(forcedScan, 'mark');
+    await page.emulateMedia({ forcedColors: 'active' });
+    await page.waitForTimeout(200);
+    const gone = await page.evaluate(forcedScan, 'read');
+    if (shots) await page.screenshot({ path: join(shots, `stress-forced-colors-${nearest(1280)}.png`), fullPage: true });
+    await page.emulateMedia({ forcedColors: 'none' });
+    add('access', 'high', 'disappears in forced colours: a control with no edge left', gone.slice(0, 8), 'border: 1px solid transparent on every control (it becomes the system\'s edge colour) and focus drawn with outline, never box-shadow alone; or give it an edge inside @media (forced-colors: active)');
   }
   await page.close();
   // one finding per craft rule, each element once, with every size it was seen at
   const sizes = (set) => { const l = [...set].filter((w) => !w.endsWith('dark')).map(Number).sort((a, b) => a - b), d = [...set].filter((w) => w.endsWith('dark')).map((w) => parseInt(w, 10)).sort((a, b) => a - b); return [l.length ? `${l.join(', ')}px` : '', d.length ? `dark ${d.join(', ')}px` : ''].filter(Boolean).join('; '); };
   for (const [key, m] of hits) { const [area, sev, rule, fix] = CRAFT[key]; add(area, sev, rule, [...m].map(([id, v]) => `${id}: ${v.detail} (at ${sizes(v.where)})`), fix); }
+
+  // load measures: a first visit (a new page has an empty cache) at the main width, in light
+  {
+    const page = await browser.newPage({ viewport: { width: main, height: main < 600 ? 844 : 900 } });
+    await page.goto(url, { waitUntil: 'networkidle', timeout: 45000 }).catch(() => {});
+    await page.waitForTimeout(450);
+    const v = await page.evaluate(vitals).catch(() => null);
+    await page.close();
+    results.vitals = { lcp: v?.lcp ?? null, cls: v?.cls ?? null, lcpElement: v?.lcpElement ?? null };
+    if (v?.cls > 0.1) add('layout', 'medium', `the page jumps while it loads (CLS ${v.cls.toFixed(2)})`, v.moved.length ? v.moved : ['the elements that moved are no longer on the page'], 'reserve the room before the content arrives: width and height (or aspect-ratio) on images, video and embeds; a min-height or a skeleton of the final size for anything filled in after load; a fallback font with matched metrics. Put late content below what is on screen, never above it. Good is 0.1 or less');
+    if (v?.lcp > 2500) add('robustness', 'low', `the main content shows late (LCP ${(v.lcp / 1000).toFixed(1)}s)`, [v.lcpElement ?? 'the largest element in the first screen'], 'a local number is a floor: the real one is measured on the deployed page, on a mid-range phone and a slow connection (good is 2.5s or less). Send the largest element in the first HTML, not after a script; preload its image or font and never lazy-load it. A dev server that compiles on request reads high, so check a production build before acting on this');
+  }
 
   // keyboard: does focus show?
   {
@@ -1303,6 +1522,7 @@ if (!flag('quiet')) {
   console.log(preset === 'none' ? 'preset: none (the project\'s own look is not judged; universal checks only)' : 'preset: Quiet (also judges the Antheo Quiet look; --preset none for a project with its own system or a requested direction)');
   if (flag('no-dark') !== undefined) console.log('WARNING: dark mode was not checked (--no-dark). People with a dark system setting will see a theme nobody looked at.');
   if (results.dark) console.log(`dark theme: ${results.dark.supported ? 'yes' : 'none found'}`);
+  if (results.vitals) console.log(`load, measured here on a first visit: LCP ${results.vitals.lcp === null ? 'not measured' : `${results.vitals.lcp}ms`} · CLS ${results.vitals.cls === null ? 'not measured' : results.vitals.cls.toFixed(2)} (a floor: the real numbers come from the deployed page)`);
   if (!findings.length) console.log('\nNo findings. Still look at it at 390px and in dark mode yourself.');
   for (const f of findings) {
     console.log(`\n[${f.severity}] ${f.area}: ${f.rule}`);
@@ -1312,7 +1532,7 @@ if (!flag('quiet')) {
   }
 }
 const json = flag('json');
-if (json && json !== true) writeFileSync(json, JSON.stringify({ url, preset, overall, verdict, scores, findings, dark: results.dark, motion: results.motion }, null, 2));
+if (json && json !== true) writeFileSync(json, JSON.stringify({ url, preset, overall, verdict, scores, findings, vitals: results.vitals, dark: results.dark, motion: results.motion }, null, 2));
 if (flag('quiet')) console.log(JSON.stringify({ overall, verdict, highs, mediums, scores }));
 
 // Chrome, then Edge, then Playwright's own Chromium; one clear line if none is installed. (The same function is in every

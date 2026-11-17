@@ -66,7 +66,7 @@ Grow the hit area without growing the look:
 
 ```css
 .icon-btn { position: relative; width: 20px; height: 20px; }
-.icon-btn::before { content: ""; position: absolute; inset: -10px; } /* 40×40 target */
+.icon-btn::before { content: ""; position: absolute; inset: -12px; } /* a 44×44 target */
 ```
 
 Never let two hit areas overlap. WCAG 2.2 (2.5.8) sets 24×24 as the minimum; 44×44 is the comfortable touch size.

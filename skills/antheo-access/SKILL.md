@@ -55,7 +55,9 @@ and errors go in `aria-describedby`.
 
 ## Structure
 
-One `h1`, headings in order, the level by the outline and the size by CSS. Landmarks (`header`, `nav`, `main`,
+One `h1`, headings in order, the level by the outline and the size by CSS: conventions people who navigate by
+heading rely on, reported as guidance. The failure is structure that exists only to the eye (1.3.1): a heading that
+is styled text, a table without header cells, a list made of line breaks. Landmarks (`header`, `nav`, `main`,
 `footer`), a second `nav` named. `<html lang>`; `lang` on foreign phrases. Lists are lists; data tables have
 `th scope` and a caption.
 
@@ -85,7 +87,9 @@ no puzzle (3.3.8). Patterns: `references/forms.md`.
 
 - Targets at least 24 × 24 CSS px (2.5.8), unless: a 24px circle centred on the target touches no other target or
   circle (spacing); an equal control elsewhere meets it; it sits inline in text; the browser draws it; or its size is
-  essential. Primary touch controls 44 × 44.
+  essential. Primary touch controls 44 × 44 (a house default beyond AA, which asks 24).
+- A link is an `<a href>`: it opens in a new tab with Cmd or Ctrl-click and shows its address. A click handler on
+  anything else takes that away.
 - Every drag has a single-pointer or key alternative (2.5.7): buttons, a "move to" menu, arrow keys.
 - Act on click or pointer-up; moving off cancels (2.5.2).
 - Hover and focus content is dismissible with Escape, hoverable, and persistent (1.4.13); anything on hover also works
@@ -102,7 +106,7 @@ paragraphs 2em (1.4.12): no fixed heights on text. Never block zoom. `forced-col
 ## Time and motion
 
 Reduced motion honoured (antheo-motion). Anything moving or updating by itself for more than 5 seconds has pause,
-stop or hide (2.2.2); nothing flashes more than 3 times a second (2.3.1). Timeouts warn 20 seconds ahead and can be
+stop or hide (2.2.2); nothing flashes more than 3 times a second (2.3.1). Timeouts warn at least 20 seconds ahead and can be
 extended (2.2.1). Selecting a value never submits or navigates (3.2.2). Help sits in the same place on every page
 (3.2.6).
 
@@ -113,8 +117,10 @@ node <this-skill>/scripts/a11y-probe.mjs <url or file> --json a11y.json
 ```
 
 It walks the page by keyboard: focus order, traps, dialogs returning focus, forced colours, text spacing, reflow at
-320px; then it presses every button once and reports the ones wired to nothing. The presses are real, so run it on a
-dev build with test data (a Delete or Send fires), or pass `--no-triggers`; it needs `playwright-core`. Fix every BLOCKER and SERIOUS finding. Then the 15-minute manual pass in `references/screen-readers.md`
+320px; then it presses every button once and reports the ones wired to nothing. The presses are real, and safe by
+default: every request that would write (anything but GET, HEAD or OPTIONS) is held back, listed, and counted as an
+answer. `--allow-writes` lets them through, only on a page whose data can be lost; `--no-triggers` presses nothing.
+A GET that changes data and a WebSocket message are not held back. It needs `playwright-core`. Fix every BLOCKER and SERIOUS finding. Then the 15-minute manual pass in `references/screen-readers.md`
 (keyboard only, a screen-reader tour, 200% zoom, forced colours, reduced motion). Automated tools catch about a third
 of real problems; never call something accessible from a green scan alone. In a framework, also keep its linter on
 (jsx-a11y, vuejs-accessibility, Svelte's a11y warnings, angular-eslint's template rules; the list is in

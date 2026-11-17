@@ -25,7 +25,7 @@ node <antheo-review>/scripts/gate.mjs disarm    # when the work is abandoned
   changed. `--widths 390,1280` by default.
 - **Check before saying done.** A blocker or a high finding from `check-page.mjs` (at each width, light and dark), a
   blocker or serious finding from antheo-access's `a11y-probe.mjs` (keyboard, focus, forced colours, text spacing,
-  reflow, and buttons wired to nothing; `--no-probe` skips it), or a high finding from `copy-lint.mjs` keeps it open.
+  reflow, and buttons wired to nothing; `--no-probe` skips it; the probe's presses never send a write unless the gate was armed with `--allow-writes`), or a high finding from `copy-lint.mjs` keeps it open.
 - **Built from references: show the comparing.** Armed with `--ref <image>...`, it also needs, in `.antheo/evidence/`,
   two `beside.mjs` sheets per reference made at least a minute apart (compared, changed, compared again) and one
   `filmstrip.mjs` sheet per reference in which something moved (a film of nothing doesn't count). Both tools write

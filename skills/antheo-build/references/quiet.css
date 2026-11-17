@@ -41,18 +41,20 @@
   --backdrop:   oklch(0.2 0.006 80 / 0.32);
   --wash:       oklch(var(--ink) / 0.05);  /* laid over any fill on hover, when the fill itself must stay */
 
-  /* Type: six sizes exist, a screen uses four or five. Two weights. */
+  /* Type: six sizes exist, a screen uses four or five. Two weights. Sizes, line heights and the heights that hold
+     text are in rem, so they follow the reader's own browser font size; each comment gives the px at the usual 16px.
+     (A project that resets the root size, html { font-size: 62.5% }, scales all of them: set it back or convert.) */
   --font: "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
   --w-text: 450;
   --w-strong: 550;
-  --t-meta: 12px;    --l-meta: 16px;    --k-meta: 0em;       /* help, footnotes, table headers */
-  --t-body: 13px;    --l-body: 20px;    --k-body: 0em;       /* everything read or pressed */
-  --t-title: 15px;   --l-title: 22px;   --k-title: -0.01em;  /* a card, plan, dialog or section title */
-  --t-page: 20px;    --l-page: 28px;    --k-page: -0.015em;  /* an app page's title: the largest text in an app */
-  --t-num: 28px;     --l-num: 32px;     --k-num: -0.02em;    /* a price or key figure */
-  --t-display: 36px; --l-display: 40px; --k-display: -0.025em; /* a marketing headline: the largest text anywhere */
-  --t-field: 13px;
+  --t-meta: 0.75rem;     --l-meta: 1rem;        --k-meta: 0em;         /* 12/16px: help, footnotes, table headers */
+  --t-body: 0.8125rem;   --l-body: 1.25rem;     --k-body: 0em;         /* 13/20px: everything read or pressed */
+  --t-title: 0.9375rem;  --l-title: 1.375rem;   --k-title: -0.01em;    /* 15/22px: a card, plan, dialog or section title */
+  --t-page: 1.25rem;     --l-page: 1.75rem;     --k-page: -0.015em;    /* 20/28px: an app page's title, the largest text in an app */
+  --t-num: 1.75rem;      --l-num: 2rem;         --k-num: -0.02em;      /* 28/32px: a price or key figure */
+  --t-display: 2.25rem;  --l-display: 2.5rem;   --k-display: -0.025em; /* 36/40px: a marketing headline, the largest text in the preset */
+  --t-field: 0.8125rem;
 
   /* Shape: three corner sizes. */
   --r-tag: 4px; --r-control: 6px; --r-card: 10px; --r-sheet: 14px; --r-full: 999px;
@@ -65,8 +67,8 @@
   --gap-label: 6px; --gap-inline: var(--s-2); --gap-item: var(--s-3); --gap-field: var(--s-4); --gap-group: var(--s-6);
 
   /* Sizes. */
-  --h-control: 32px; --h-small: 28px; --h-cta: 36px; --h-row: 40px; --h-tag: 20px; --h-bar: 48px;
-  --sw-w: 32px; --sw-h: 20px; --sw-knob: 16px; --sw-knob-fill: oklch(1 0 0);
+  --h-control: 2rem; --h-small: 1.75rem; --h-cta: 2.25rem; --h-row: 2.5rem; --h-tag: 1.25rem; --h-bar: 3rem;   /* 32, 28, 36, 40, 20, 48px */
+  --sw-w: 2rem; --sw-h: 1.25rem; --sw-knob: 1rem; --sw-knob-fill: oklch(1 0 0);                                  /* 32 by 20px, a 16px knob */
   --w-form: 400px; --w-settings: 680px; --w-pricing: 1040px; --w-data: 1120px;
   --measure: 65ch;                           /* the longest line of running text */
   /* A whole marketing page only: its container and the space between its sections. */
@@ -109,14 +111,21 @@
 
 /* Phones: only these values change; nothing else in a build is re-sized by hand. */
 @media (max-width: 47.99rem) {
+  :root { --t-display: 1.75rem; --l-display: 2rem; --pad-card: 16px; --gutter: 16px; }   /* a 28/32px headline */
+}
+/* Touch: at phone width, and wherever the main pointer is a finger at any width (a tablet), text steps up and
+   controls are 44px tall. A switch, an icon button and a segment stay smaller to the eye and are pressed through a
+   44px area, added further down. (A laptop with a trackpad and a touch screen reports a fine pointer and keeps the
+   desktop sizes.) */
+@media (max-width: 47.99rem), (pointer: coarse) {
   :root {
-    --t-meta: 13px; --l-meta: 18px; --t-body: 15px; --l-body: 22px; --t-title: 17px; --l-title: 24px;
-    --t-page: 22px; --l-page: 28px; --t-display: 28px; --l-display: 32px;
-    --h-control: 44px; --h-small: 36px; --h-cta: 44px; --h-row: 52px; --pad-card: 16px; --gutter: 16px;
-    --sw-w: 44px; --sw-h: 26px; --sw-knob: 22px;
+    --t-meta: 0.8125rem; --l-meta: 1.125rem; --t-body: 0.9375rem; --l-body: 1.375rem;   /* 13/18, 15/22px */
+    --t-title: 1.0625rem; --l-title: 1.5rem; --t-page: 1.375rem; --l-page: 1.75rem;     /* 17/24, 22/28px */
+    --h-control: 2.75rem; --h-small: 2.25rem; --h-cta: 2.75rem; --h-row: 3.25rem;       /* 44, 36, 44, 52px */
+    --sw-w: 2.75rem; --sw-h: 1.625rem; --sw-knob: 1.375rem;                             /* 44 by 26px, a 22px knob */
   }
 }
-@media (pointer: coarse) { :root { --t-field: 16px; } }
+@media (pointer: coarse) { :root { --t-field: 1rem; } }   /* 16px: under that, iOS zooms the page into a focused field */
 
 /* One theme for one part of the page, whatever the system's: put data-theme="dark" or "light" on any element (the
    page, a card, one half of a side-by-side). Everything inside follows. */
@@ -171,7 +180,7 @@ html { background: var(--bg); -webkit-text-size-adjust: 100%; text-size-adjust: 
 body {
   margin: 0; background: var(--bg); color: var(--text);
   font: var(--w-text) var(--t-body) / var(--l-body) var(--font); letter-spacing: var(--k-body);
-  -webkit-font-smoothing: antialiased; font-synthesis: none;
+  -webkit-font-smoothing: antialiased; font-synthesis: style;   /* never a faked bold or small caps; an <em> may be slanted where the face ships no italic */
 }
 h1, h2, h3 { margin: 0; font-weight: var(--w-strong); text-wrap: balance; }
 p { margin: 0; text-wrap: pretty; }
@@ -191,10 +200,14 @@ a { color: inherit; text-decoration: underline; text-decoration-thickness: 1px; 
 .card { background: var(--surface); border: 1px solid transparent; border-radius: var(--r-card); box-shadow: var(--sh-card); padding: var(--pad-card); }
 .field {
   height: var(--h-control); width: 100%; padding: 0 var(--s-3); border: 1px solid transparent; border-radius: var(--r-control);
-  background: var(--well); box-shadow: var(--well-edge); font-size: var(--t-field);
+  /* a borderless well with one line anyone can see along its bottom edge: a field told apart only by a faint fill
+     needs 3:1 (WCAG 1.4.11), and a single --text-3 line gives it without boxing the field in. The fully faint
+     field is an opt-out a product takes knowingly: .field { --field-edge: var(--well-edge); } */
+  --field-edge: var(--well-edge), inset 0 -1px 0 var(--text-3);
+  background: var(--well); box-shadow: var(--field-edge); font-size: var(--t-field);
 }
 .field::placeholder { color: var(--text-2); opacity: 1; } /* a placeholder is text someone reads: 4.5:1, which --text-3 does not reach */
-.field:focus-visible { outline: 2px solid transparent; outline-offset: 2px; box-shadow: var(--well-edge), 0 0 0 2px var(--focus); } /* the transparent border and outline turn visible in forced colours, where shadows are dropped */
+.field:focus-visible { outline: 2px solid transparent; outline-offset: 2px; box-shadow: var(--field-edge), 0 0 0 2px var(--focus); } /* the transparent border and outline turn visible in forced colours, where shadows are dropped */
 .field[aria-invalid="true"] { box-shadow: inset 0 0 0 1px var(--danger); }
 .field[aria-invalid="true"]:focus-visible { box-shadow: inset 0 0 0 1px var(--danger), 0 0 0 2px var(--focus); } /* in error and focused: both */
 .btn {
@@ -214,6 +227,17 @@ a { color: inherit; text-decoration: underline; text-decoration-thickness: 1px; 
   background: var(--well); color: var(--text-2); font-size: var(--t-meta); line-height: var(--l-meta);
 }
 .tag-accent { background: var(--accent-soft); color: var(--accent-text); font-weight: var(--w-strong); } /* the one thing to notice: a saving, the recommended plan */
+/* A chip: one of several choices that can each be on. <button class="chip" aria-pressed="true"> with a tick drawn
+   before the label when it is on: the accent fill is never the only cue. */
+.chip {
+  display: inline-flex; align-items: center; gap: var(--s-1); height: var(--h-control); padding: 0 var(--s-3); border: 1px solid transparent;
+  border-radius: var(--r-control); background: var(--well); box-shadow: var(--well-edge); color: var(--text-2); font-weight: var(--w-strong);
+  white-space: nowrap; cursor: pointer;
+  transition: scale var(--dur-instant) var(--ease-out), background-color var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+}
+@media (hover: hover) and (pointer: fine) { .chip:hover { color: var(--text); } }
+.chip:active { scale: var(--scale-press); }
+.chip:is([aria-pressed="true"], [aria-checked="true"]) { background: var(--accent); color: var(--on-accent); box-shadow: none; }
 /* A button with no chrome: a row action, "Show", a close button. Use with .btn; add .icon for a square one. */
 .btn-quiet { background: transparent; box-shadow: none; color: var(--text-2); }
 .btn-quiet.icon { width: var(--h-small); height: var(--h-small); padding: 0; color: var(--text-3); }
@@ -234,12 +258,19 @@ a { color: inherit; text-decoration: underline; text-decoration-thickness: 1px; 
    highlight, so a switch or a chosen segment stays visible (not while focused, so the focus ring wins) */
 .switch:not(:focus-visible), .seg > button:not(:focus-visible) { outline: 1px solid transparent; outline-offset: -1px; }
 @media (forced-colors: active) {
-  .switch[aria-checked="true"], .seg > button[aria-checked="true"] { background-color: Highlight; color: HighlightText; }
+  .switch[aria-checked="true"], .seg > button[aria-checked="true"], .chip:is([aria-pressed="true"], [aria-checked="true"]) { background-color: Highlight; color: HighlightText; }
   .switch::after { background: CanvasText; }
   .switch[aria-checked="true"]::after { background: HighlightText; }
 }
 .switch[aria-checked="true"]::after { translate: calc(var(--sw-w) - var(--sw-knob) - 4px) 0; }
 .switch[aria-checked="true"]:dir(rtl)::after { translate: calc(-1 * (var(--sw-w) - var(--sw-knob) - 4px)) 0; }
+/* On touch, a switch, an icon button and a segment keep their drawn size and are pressed through an area 44px tall
+   (and 44px wide for the first two), centred on them. */
+@media (max-width: 47.99rem), (pointer: coarse) {
+  .btn-quiet.icon, .seg > button { position: relative; }
+  .switch::before, .btn-quiet.icon::before { content: ""; position: absolute; top: 50%; left: 50%; width: max(100%, 2.75rem); height: max(100%, 2.75rem); translate: -50% -50%; }
+  .seg > button::before { content: ""; position: absolute; inset: -2px 0; }
+}
 /* A segmented control: <div class="seg" role="radiogroup"> of <button role="radio" aria-checked>. Labels only inside.
    The chosen one is raised in place; a fill that slides between them is optional (antheo-motion recipe 36). */
 .seg { display: inline-grid; grid-auto-flow: column; grid-auto-columns: 1fr; padding: 2px; border-radius: var(--r-full); background: var(--well); box-shadow: var(--well-edge); }
@@ -251,7 +282,8 @@ a { color: inherit; text-decoration: underline; text-decoration-thickness: 1px; 
 .seg > button[aria-checked="true"] { background: var(--raised); color: var(--text); box-shadow: var(--sh-control); }
 @media (hover: hover) and (pointer: fine) { .seg > button:hover { color: var(--text); } }
 .seg > button:active { scale: var(--scale-press); }
-/* A dialog: the native element, opened with showModal(). On a phone it is a sheet on the bottom edge. */
+/* A dialog: the native element, opened with showModal(). It fades and grows from 0.96 in 200ms and leaves in 150ms.
+   On a phone it is a sheet: it slides its whole height from the bottom edge, opaque all the way, 300ms in, 200ms out. */
 dialog {
   width: min(var(--w-form), 100% - 2 * var(--gutter)); max-height: calc(100dvh - 2 * var(--gutter)); overflow: auto; padding: var(--s-6);
   border: 1px solid transparent; border-radius: var(--r-card); background: var(--surface); color: var(--text); box-shadow: var(--sh-dialog);
@@ -267,13 +299,26 @@ dialog[open]::backdrop { opacity: 1; }
 @media (max-width: 47.99rem) {
   dialog {
     width: 100%; max-width: 100%; margin: auto 0 0; border-radius: var(--r-sheet) var(--r-sheet) 0 0;
-    padding-block-end: max(var(--s-6), env(safe-area-inset-bottom)); scale: 1; translate: 0 var(--dist-lg);
+    padding-block-end: max(var(--s-6), env(safe-area-inset-bottom));
+    opacity: 1; scale: 1; translate: 0 100%; transition-duration: var(--dur-base);
   }
-  dialog[open] { translate: 0 0; }
-  @starting-style { dialog[open] { scale: 1; translate: 0 var(--dist-lg); } }
+  dialog[open] { translate: 0 0; transition-duration: var(--dur-slow); }
+  @starting-style { dialog[open] { opacity: 1; scale: 1; translate: 0 100%; } }
+}
+/* More contrast, when the reader asks for it: wells get a full edge, and hairlines and card edges become lines
+   anyone can see. */
+@media (prefers-contrast: more) {
+  /* each selector is doubled so it outranks the theme rules above, which set the same names */
+  :root:root, [data-theme][data-theme] { --well-edge: inset 0 0 0 1px var(--text-2); --line: var(--text-3); --edge: 0 0 0 1px var(--text-3); }
 }
 /* Reduced motion: travel and scale go, a short fade stays. */
 @media (prefers-reduced-motion: reduce) {
   :root { --dist-xs: 0px; --dist-sm: 0px; --dist-md: 0px; --dist-lg: 0px; --scale-press: 1; --scale-pop: 1; --scale-tip: 1; --scale-leave: 1; --ease-spring: var(--ease-out); }
   .btn { transition: background-color var(--dur-fast) var(--ease-out); }
+  /* the sheet stops sliding and fades in place */
+  @media (max-width: 47.99rem) {
+    dialog { opacity: 0; translate: none; }
+    dialog[open] { opacity: 1; translate: none; }
+    @starting-style { dialog[open] { opacity: 0; translate: none; } }
+  }
 }

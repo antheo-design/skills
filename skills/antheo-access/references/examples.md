@@ -16,3 +16,7 @@ Real builds by coding agents with these skills, judged by people beside the refe
 |---|---|
 | A radio that lost its city and station name under the text-spacing override, because its screen had a fixed height (round 3) | The screen grows; each odometer digit centred in its own cell |
 | A "See more insights" button wired to nothing (round 3, two agents) | Wire it, or show its result; the probe presses every button |
+
+## When the default is wrong
+
+A toy or a game whose whole point is a drag or a gesture keeps it, and adds the one-press or keyboard way beside it. A prototype for a usability test can leave the full manual pass for later; names, keyboard reach and visible focus cannot wait. The 44px target is a house default: where a dense desktop tool needs smaller, WCAG's 24px (or its spacing exception) is the floor.

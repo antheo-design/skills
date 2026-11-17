@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Low Tide · three nights of films on the pier</title>
+<!-- A Brand page in the Poster direction (antheo-direction). What it shows:
+     - the idea comes from the nouns: the sea at dusk (one deep blue field), the sun going down (one orange), paper
+     - the type is the image: one display face, sized to the window, checked at 320px; everything read is the text face
+     - the craft does not change: one content edge, real content, one primary action, every control answers, 4.5:1 text
+     - a poster keeps its own palette in light and dark, so the page pins its theme and defines its colours once -->
+<!-- The display face is the page's weight, so it is one family in one weight, cut down to the characters set in
+     it (the text= list: add to it when the headline, the dates or the film titles change) and asked for early.
+     In production, self-host that one file and preload it; an example that opens from disk links the font service. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,800&display=swap&text=%2001246ADEGHIJLMOPRTWaceglnorstuwy">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400..600&display=swap">
+<link rel="stylesheet" href="../../../antheo-build/references/quiet.css">
+<style>
+  :root {
+    --field: oklch(0.31 0.15 264);   /* the sea after sunset: the page's one colour field */
+    --paper: oklch(0.96 0.03 95);    /* the text on it, and the programme's ground */
+    --sun: oklch(0.74 0.17 55);      /* used twice: the sun, and the one action */
+    --night: oklch(0.2 0.05 264);    /* text on paper and on the sun */
+    --side: clamp(16px, 4vw, 56px);  /* the one content edge, shared by every block */
+    --display: "Bricolage Grotesque", var(--font);
+  }
+  html { background: var(--field); }
+  body { background: var(--field); color: var(--paper); font-size: 1.0625rem; line-height: 1.5; }
+  :focus-visible { outline-color: var(--paper); }
+
+  .poster { position: relative; min-height: 100svh; display: grid; grid-template-rows: auto 1fr auto; overflow: clip; }
+  .bar { display: flex; justify-content: space-between; gap: var(--s-4); padding: var(--s-5) var(--side); font-weight: var(--w-strong); }
+  h1 {
+    align-self: end; margin: 0; padding: 0 var(--side); position: relative; z-index: 1;
+    font-family: var(--display); font-size-adjust: none; font-weight: 800; text-transform: uppercase;
+    /* the middle value keeps a rem part, so the headline still grows when someone zooms */
+    font-size: clamp(5rem, 1.5rem + 24vw, 26rem); line-height: 0.8; letter-spacing: -0.045em;
+  }
+  h1 span { display: block; }
+  /* the sun: half set behind the horizon, on the side the headline leaves free */
+  .sun {
+    position: absolute; inset-inline-end: var(--side); inset-block-end: var(--horizon, 0px); translate: 0 50%;
+    inline-size: clamp(7rem, 24vw, 22rem); aspect-ratio: 1; border-radius: 50%; background: var(--sun);
+  }
+  .strip {
+    position: relative; z-index: 2; margin-block-start: clamp(var(--s-6), 5vw, var(--s-16));
+    display: grid; grid-template-columns: minmax(0, 14rem) minmax(0, 34rem) 1fr; gap: var(--s-4) var(--s-10); align-items: start;
+    padding: var(--s-6) var(--side) var(--s-8); background: var(--paper); color: var(--night);
+  }
+  .when { font-family: var(--display); font-size-adjust: none; font-weight: 800; font-size: 1.75rem; line-height: 1.05; letter-spacing: -0.02em; }
+  .go { justify-self: end; font-weight: var(--w-strong); }
+  .strip a:focus-visible, .programme :focus-visible { outline-color: var(--night); }
+
+  .programme { background: var(--paper); color: var(--night); padding: var(--s-12) var(--side) var(--s-24); display: grid; gap: var(--s-8); }
+  h2 { font-family: var(--display); font-size-adjust: none; font-weight: 800; font-size: clamp(2.5rem, 1rem + 6vw, 6rem); line-height: 0.9; letter-spacing: -0.035em; text-transform: uppercase; }
+  ol { margin: 0; padding: 0; list-style: none; }
+  li { display: grid; grid-template-columns: minmax(0, 14rem) minmax(0, 1fr) auto; gap: var(--s-2) var(--s-10); align-items: baseline; padding-block: var(--s-5); border-block-start: 2px solid var(--night); }
+  li:last-child { border-block-end: 2px solid var(--night); }
+  .day { font-weight: var(--w-strong); }
+  .film { font-family: var(--display); font-size-adjust: none; font-weight: 800; font-size: 1.75rem; line-height: 1.1; letter-spacing: -0.02em; }
+  .note { grid-column: 2; max-inline-size: 34rem; }
+  .time { font-variant-numeric: tabular-nums; font-weight: var(--w-strong); }
+  .book { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-4) var(--s-6); }
+  .ticket {
+    display: inline-flex; align-items: center; height: 3.5rem; padding: 0 var(--s-8); border: 0; border-radius: var(--r-full);
+    background: var(--sun); color: var(--night); font: inherit; font-weight: var(--w-strong); cursor: pointer;
+    transition: scale var(--dur-instant) var(--ease-out), background-color var(--dur-fast) var(--ease-out);
+  }
+  @media (hover: hover) and (pointer: fine) { .ticket:hover { background: color-mix(in oklch, var(--sun) 88%, var(--night)); } }
+  .ticket:active { scale: var(--scale-press); }
+
+  /* one bold entrance, once: the words come up out of the water, the sun follows */
+  @media (prefers-reduced-motion: no-preference) {
+    h1 span { animation: rise var(--dur-page) var(--ease-out) both; }
+    h1 span + span { animation-delay: 80ms; }
+    .sun { animation: sun var(--dur-page) var(--ease-out) 160ms both; }
+    @keyframes rise { from { opacity: 0; translate: 0 0.18em; } }
+    @keyframes sun { from { translate: 0 72%; } }
+  }
+
+  @media (max-width: 47.99rem) {
+    .strip { grid-template-columns: 1fr; }
+    .go { justify-self: start; }
+    li { grid-template-columns: 1fr auto; }
+    .film { grid-column: 1; grid-row: 2; }
+    .note { grid-column: 1 / -1; }
+    .sun { inset-block-end: auto; inset-block-start: 5.5rem; translate: 0 0; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <section class="poster" aria-labelledby="title">
+    <p class="bar"><span>Low Tide Film Weekend</span><span>Margate Pier</span></p>
+    <h1 id="title"><span>Low</span><span>Tide</span></h1>
+    <div class="sun" aria-hidden="true"></div>
+    <div class="strip">
+      <p class="when">14 to 16 August 2026</p>
+      <p>Three nights of films about the sea, shown on the pier once the water has gone out. Bring a blanket.</p>
+      <a class="go" href="#programme">See the programme</a>
+    </div>
+  </section>
+
+  <section class="programme" id="programme" aria-labelledby="programme-title">
+    <h2 id="programme-title">Programme</h2>
+    <ol>
+      <li><span class="day">Friday 14 August</span><span class="film">Local Hero</span><span class="time">21:00</span>
+        <span class="note">An oil man is sent to buy a Scottish village and falls for the beach instead. 1983.</span></li>
+      <li><span class="day">Saturday 15 August</span><span class="film">Jaws</span><span class="time">21:00</span>
+        <span class="note">The one that kept a generation out of the water, with the real thing a few metres away. 1975.</span></li>
+      <li><span class="day">Sunday 16 August</span><span class="film">Ponyo</span><span class="time">20:30</span>
+        <span class="note">A goldfish wants to be a girl. Starts early, for anyone with school in September. 2008.</span></li>
+    </ol>
+    <div class="book">
+      <button class="ticket" type="button" id="book">Book a seat</button>
+      <p id="held" role="status">£9 a night, or £22 for all three.</p>
+    </div>
+  </section>
+</main>
+<script>
+  // the horizon is the top of the paper strip: the sun sits half behind it
+  const poster = document.querySelector('.poster'), strip = document.querySelector('.strip');
+  const level = () => poster.style.setProperty('--horizon', `${strip.offsetHeight}px`);
+  new ResizeObserver(level).observe(strip); level();
+  // a demo has no box office, so the button says what it would do
+  document.getElementById('book').addEventListener('click', () => {
+    document.getElementById('held').textContent = 'A seat is held for you for ten minutes. (This is an example page: nothing was booked.)';
+  });
+</script>
+</body>
+</html>

@@ -47,10 +47,10 @@ the still exactly and leaving it motionless is not matching it.
 
 | Token | Value | Takes |
 |---|---|---|
-| `--dur-instant` | 100ms | colour and opacity feedback |
-| `--dur-fast` | 150ms | press, hover in and out, a menu or tooltip opening |
-| `--dur-base` | 200ms | things leaving, a dialog closing, a value or text swap, a toast arriving |
-| `--dur-open` | 250ms | a dialog opening, tabs, an accordion, a card resizing |
+| `--dur-instant` | 100ms | a press, colour and opacity feedback |
+| `--dur-fast` | 150ms | hover in and out, a menu or tooltip opening, a dialog closing |
+| `--dur-base` | 200ms | a dialog opening, a sheet leaving, a value or text swap, a toast |
+| `--dur-open` | 250ms | tabs, an accordion, a card resizing |
 | `--dur-slow` | 300ms | a sheet or drawer rising, a marker sliding across |
 | `--dur-page` | 400ms | a page or shared-element transition |
 
@@ -61,9 +61,9 @@ run `linear`.
 
 | Thing | Opens | Closes |
 |---|---|---|
-| Menu, popover, select | 150ms, from `scale(0.97)` and a fade, at the trigger | 120ms |
+| Menu, popover, select | 150ms, from `scale(0.96)` (`--scale-pop`) and a fade, at the trigger | 120ms |
 | Tooltip | 400ms delay, then a 150ms fade; at once within 300ms of another closing | at once |
-| Dialog | 250ms: 8px rise, fade, scale from 0.96 | 200ms |
+| Dialog | 200ms: a fade and a scale from 0.96, in place | 150ms |
 | Sheet, drawer | 300ms from its edge, fully opaque throughout (no fade, no blur) | 200ms |
 | Toast | 200ms, 12px rise | 200ms, out the way it came |
 | Accordion, height reveal | 250ms, `grid-template-rows: 0fr` to `1fr` | 200ms |
@@ -78,8 +78,9 @@ for something thrown away for good. Exits are quicker than entrances and travel 
 
 ## Small distances, never from zero
 
-Travel 4px for a value swap or a popover, 8px for a dialog, 12px for a toast, 24px for a hero part; the full edge only
-for a sheet. Enter from `scale(0.96)` (`0.97` for menus, `0.98` for tooltips) with opacity 0, never from `scale(0)`.
+Travel 4px for a value swap or a popover, 12px for a toast, 24px for a hero part; a dialog grows in place, and only a
+sheet travels its whole edge. Enter from `scale(0.96)` (`0.98` for tooltips) with opacity 0, never from `scale(0)`.
+These are the style block's values (`quiet.css`): when a number here and the block disagree, the block is right.
 Blur 4px on a text or icon swap, 8px on a large surface, 2px on a crossfade under 200ms.
 
 ## What may animate
@@ -195,7 +196,7 @@ is a finding whatever the style.
 
 - `references/examples.md`: what goes wrong and the fix, from the skills page and from real builds; when the default is wrong
 - `scripts/filmstrip.mjs`: films one motion at 0.1× into a sheet of frames, with the time under each
-- `references/recipes.md`: the index of 36 copy-ready recipes, one file each in `references/recipes/`, from press and
+- `references/recipes.md`: the index of 37 copy-ready recipes, one file each in `references/recipes/`, from press and
   popover to number rolls and streaming text
 - `references/why.md`: the reason behind every rule, for when a value looks arbitrary or someone wants to break it
 - `references/gestures.md`: drag, swipe, sheets, snap points, momentum, rubber banding (phone feel: antheo-mobile)

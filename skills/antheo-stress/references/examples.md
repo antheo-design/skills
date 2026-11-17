@@ -15,3 +15,7 @@ Real builds by coding agents with these skills, judged by people beside the refe
 | What went wrong | What fixed it |
 |---|---|
 | A jelly filter bar that looked perfect with three options broke with two and with five (round 4) | Render the counts that will happen (1, 2, realistic, many) and look at each |
+
+## When the default is wrong
+
+A one-line fix runs only the axes its change touched, not the full set (`axes.md`). A list the product caps (five payment methods) is stressed at its cap, not at ten times, and a fixed-format value (a 6-digit code) never needs the long or right-to-left fixtures. A component that cannot be mounted alone (it needs a session, a router or a server) is stressed on its real page with mocked data, instead of being rebuilt in a harness. When the project keeps stories or examples, the states move there and are not thrown away.

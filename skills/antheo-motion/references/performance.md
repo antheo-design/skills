@@ -40,7 +40,7 @@ layout, paint and compositing. Stay inside it by choosing what you animate and w
 3. **Layer borders** (Rendering panel): an animated element should get its own layer while moving.
 4. On a real mid-range Android phone if possible: open the menu, scroll the list, drag the sheet, 10 times each.
 5. The page check (**antheo-review**) flags transitions on layout properties, `transition: all`, more than six
-   elements animating on load, and motion longer than 450ms (the page token).
+   elements animating on load, and motion longer than 400ms (the page token).
 
 ## Symptoms and causes
 

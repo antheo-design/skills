@@ -193,7 +193,7 @@ A `role="status"` region that already exists in the DOM; insert the message into
 
 ### Tooltip
 
-Tooltip = short, non-interactive, supplementary text. `role="tooltip"` on the bubble, `aria-describedby` on the trigger (not `aria-labelledby`: the trigger already needs its own name). Opens on hover **and** focus, closes on Escape (without moving focus), stays open while the pointer is over the bubble (1.4.13), delay 400ms in, 0 out. Touch: no tooltip, put the text on screen. Never put links or buttons in a tooltip; use a popover/dialog instead.
+Tooltip = short, non-interactive, supplementary text. `role="tooltip"` on the bubble, `aria-describedby` on the trigger (not `aria-labelledby`: the trigger already needs its own name). Opens on hover **and** focus, closes on Escape (without moving focus), stays open while the pointer is over the bubble (1.4.13), delay 400ms in, 0 out. Touch: no hover tooltip. What matters goes on screen as text; a tip that explains becomes a toggletip (an info button with `aria-expanded` that opens it on tap, closes on a tap outside or Escape); a tip that only names an icon button is not shown. Never put links or buttons in a tooltip; use a popover/dialog instead.
 
 ### Popover (native)
 

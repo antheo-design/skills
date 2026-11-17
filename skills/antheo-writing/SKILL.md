@@ -12,6 +12,9 @@ glossary across a whole app to **antheo-system**.
 
 ## Decide the words before writing any
 
+In an existing product, read what is there first: the strings and locale files, the casing on buttons and menus, the
+words already chosen. New copy joins that system; a change to it is proposed, never slipped in.
+
 List every noun the product shows and every verb people do, pick one word for each, and record the rejected ones:
 
 | Concept | Use | Never | Why |
@@ -21,7 +24,8 @@ List every noun the product shows and every verb people do, pick one word for ea
 | out of a list only | remove | delete | the thing still exists |
 
 Use the people's word, not the database's. Then three voice traits from the subject, each with a do and a don't.
-Voice stays; tone moves with the moment: errors steady, destructive actions plain, success brief.
+Voice stays; tone moves with the stakes: errors steady, destructive actions plain, money, health and legal steps exact
+and unhurried, success brief.
 
 ## Every string answers four things
 
@@ -49,7 +53,8 @@ Every type with before-and-after pairs: `references/strings.md`.
 A reversible, frequent action happens at once and offers Undo ("Project archived. Undo"). Confirm only what is
 irreversible, affects many items or other people. A confirmation names the thing and the loss ("Delete Q4 plan? Its
 12 tasks are deleted too. This can't be undone."), with a verb-and-object button ("Delete plan") and Cancel. Deleting
-a workspace, account or repository asks the person to type its name, with the button off until it matches.
+a workspace, account or repository asks the person to type its name, with the button off until it matches (the one
+time a primary button is off, and the line above it says why).
 
 ## Toggles name what "on" means
 
@@ -80,7 +85,8 @@ a workspace, account or repository asks the person to type its name, with the bu
 
 ## The mechanics
 
-1. Sentence case everywhere.
+1. Sentence case everywhere, as the house default. A product that already uses title case on buttons and menus
+   keeps it; either way, one casing per kind of element.
 2. Front-load the word people scan for: "Billing history", not "View your history of billing".
 3. Plain words: about a 12-year-old's reading level, 20 words or fewer a sentence, active voice, "you".
 4. No hype or filler: seamless, powerful, unlock, effortless, supercharge, "Welcome to X!".
@@ -88,7 +94,8 @@ a workspace, account or repository asks the person to type its name, with the bu
 6. Device words: "select" when it could be either, "tap" on touch, "click" only where there is always a pointer.
    Never point by position or colour ("the green button on the right").
 7. Real characters: curly quotes, `…`, an en dash in ranges (9–5), `×`, `−`, a no-break space between a number and
-   its unit. **No em dashes in interface text**: a colon, a comma or a full stop instead.
+   its unit. **No em dashes in interface text** (a house default: they read as generated and break badly in narrow columns): a
+   colon, a comma or a full stop instead.
 8. Contractions in a consumer voice; "cannot" and "do not" in legal, health, finance and government flows.
 
 The full style, the hype list and inclusive language: `references/mechanics.md`.

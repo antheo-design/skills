@@ -18,6 +18,7 @@ words to **antheo-writing**, names and focus to **antheo-access**. The ship deci
 3. **Fixtures:** real-shaped content for every text, number and image slot.
 4. **Push:** each fixture through each slot, at each width the component is used.
 5. **Record:** one line per case, held or broken, then hand each break to its owner.
+6. **Take down:** the harness and its fixtures come out in one step, and a search shows nothing is left.
 
 ## Every state, on one page
 
@@ -39,6 +40,12 @@ Recipe: `references/harness.md`.
 
 A fixed-width badge has no container axis: skip it and say why, rather than forgetting it.
 
+**Each axis runs on a cue,** so a small change does not run everything. Length: a slot filled by people or data.
+Quantity: anything drawn from an array. Container: more than one width of use. Right to left: an icon that points,
+or start and end padding. Zoom: a fixed height, truncation or `nowrap`. Forced colours: a state shown only by a
+fill or a shadow. Reduced motion, slow CPU: something moves. Slow network: it fetches. No cue in the component or
+in what the change touched: skip the axis and name it in the result. All 17 cues: `references/axes.md`.
+
 ## Mock data is shaped like the product
 
 Real-sounding names, plausible amounts and dates, sentences an editor would write. Lists come at the count people
@@ -46,6 +53,11 @@ really have, then ten times that. Never "Lorem ipsum", "Test 1", "foo@bar.com" o
 hide every length and wrapping bug. Keep the fixtures list ready (long and accented names, right-to-left names, emoji,
 a 64-character email local part, seven-digit and negative amounts, zero, broken and odd-shaped images, the counts 0,
 1, 99, 100 and 1000) and push it through every slot. The list: `references/harness.md`.
+
+**Fixtures go in at the data boundary:** the component's props, its loader, or a mocked response. Never by editing
+the component's insides (a string typed over, a fetch commented out): then what was tested is not what ships.
+Proof: `git status` shows no change to the component's files. A component rendered on the server gets its fixture
+on the server: a browser-side mock never sees a request the server makes (`references/data-boundary.md`).
 
 ## A disclosure shows its cue
 
@@ -59,7 +71,9 @@ detail view). If the cue is missing at any length or count, it is a break.
 node <antheo-review>/scripts/check-page.mjs "<harness>?state=all" --stress --shots ./stress
 ```
 
-`--stress` fills every text slot with long and right-to-left text, multiplies lists, breaks images and zooms to 200%.
+`--stress` rewrites the live page three ways (every text made long and accented; a 38-letter word and a 58-character
+name pushed in; the page turned right to left), then takes one pass in forced colours, and reports what newly
+overflows, spills, clips or disappears. Counts, broken images and 200% zoom are the harness's job, by hand.
 Run it once per state when `?state=all` is too long to read. Look at every screenshot; the script finds overflow, not
 ugliness.
 
@@ -69,9 +83,17 @@ ugliness.
 long name · 320px · light   held: wraps to two lines, avatar stays top-aligned
 10× rows  · 1280px          broke: header scrolls away, totals row lost  → antheo-layout
 rtl       · 390px · dark    broke: the chevron points the wrong way      → antheo-layout
+skipped: container (fixed 24px badge) · slow network (no fetch)
 ```
 
 Every break names its owner. Nothing is "fine" without a screenshot behind it.
+
+## Take the harness down
+
+The harness lives in one folder, and any line outside it carries one marker, so when the last re-run is recorded
+it comes out in one step. A search proves it: `git grep -i "stress-harness"` prints nothing, and no route, import,
+flag or fixture file is left. If the project keeps a stories or examples folder, the states move there in its own
+format instead. The result says which (`references/teardown.md`).
 
 ## Cases from the contract
 
@@ -81,13 +103,15 @@ people always does. Small changes stress only what they touched; a new component
 
 ## Done
 
-- [ ] The axes chosen from the component's props; the skipped ones named with a reason
+- [ ] The axes chosen from the component's props, each on its cue; the skipped ones named with a reason
 - [ ] Every state is rendered from the real component on one page, selectable with `?state=`
 - [ ] Mock data is product-shaped; lists at the realistic count and ten times that; no lorem
+- [ ] Fixtures entered through props, a loader or a mocked response; the component's files unchanged by the run
 - [ ] Every fixture is pushed through every slot at every real container width
 - [ ] Every disclosure shows its cue; truncated text reaches its full value
 - [ ] `check-page.mjs --stress` run; every screenshot looked at
 - [ ] One line per case, every break handed to its owner
+- [ ] The harness removed in one step and the search clean, or moved to the project's stories; the result says which
 - [ ] Reported in antheo-review's format (`references/report.md` there): Block or Approve first, then Seen, Why
       and Fix with the value before and after
 
@@ -95,5 +119,8 @@ people always does. Small changes stress only what they touched; a new component
 
 - `references/examples.md`: what goes wrong and the fix, from the skills page and from real builds; when the default is wrong
 - `references/harness.md`: the state switcher, the variant picker, scenario axes and the full fixtures list
-- `antheo-review/scripts/check-page.mjs --stress`: long and right-to-left text, multiplied lists, broken images,
-  200% zoom
+- `scripts/harness.mjs`: for a component that is only HTML and CSS: writes the state switcher page from a small JSON
+- `references/axes.md`: open when choosing axes, above all for a small change: the cue to run or skip each one
+- `references/data-boundary.md`: open when the component loads, fetches or renders on a server: where fixtures go in
+- `references/teardown.md`: open when building the harness and when done: one-step removal and the searches
+- `antheo-review/scripts/check-page.mjs --stress`: long text, long words, right to left and forced colours, measured

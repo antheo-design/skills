@@ -37,8 +37,12 @@ gone. Can't reproduce it: say so and ask for the steps, the width and the theme.
 node <this-skill>/scripts/audit-values.mjs src --json design/audit.json
 ```
 
-It lists every hard-coded colour, font size, spacing value, radius, shadow, duration and z-index with counts and
-places, and merges colours closer than ΔE 2.
+It lists every hard-coded colour (hex, every colour function, named colours), font size, line height, spacing
+value, radius, control height, shadow, duration and z-index with counts and places. **ΔE here is one formula:** the
+straight-line distance between two colours in OKLab, times 100. It is not CIE76 or CIEDE2000, so a figure from
+another tool does not compare. **Exact** is ΔE under 0.5 at the same alpha, or 0px. **Close** is ΔE 2 or under with
+alpha within 0.02, or within 2px (1px for a font size or line height). **Stray** is anything further. Close colours
+merge into one group. A form it cannot convert is counted and marked "not compared", never dropped.
 
 | Kind | Becomes |
 |---|---|
@@ -59,9 +63,12 @@ node <this-skill>/scripts/audit-values.mjs src --tokens src/styles/tokens.css --
 
 | Class | Means | Do |
 |---|---|---|
-| **exact** | the token's value | swap it |
-| **close** | within ΔE 2, or 2px | swap, then look |
+| **exact** | the token's value: ΔE under 0.5 at the same alpha, or 0px apart | swap it |
+| **close** | ΔE 2 or under, or within 2px (1px for a font size or line height) | swap, then look |
 | **stray** | matches nothing | used 3 or more times across 2 or more files: a gap, so propose a token; fewer: a mistake, so correct it; ask when unsure |
+
+A literal in a dark block, or behind a Tailwind `dark:` variant, is mapped to the token file's dark values. The
+token file itself is never audited. The token names it reads by kind are in the script's header.
 
 A token is picked for its job, never because its value happens to match: a border on `--color-text-subtle` because the grey matched breaks the
 day the text colour changes. Payload values are not drift: colours in code samples, data URIs, third-party brand
@@ -79,6 +86,12 @@ missing tokens", and list the three largest gaps instead of mapping row by row.
 
 ## Migrate without visible change
 
+**Baseline before the first edit.** Capture each screen read-only and keep it: `check-page.mjs <url> --shots
+design/baseline/<screen>` (phone, 1280 and widest, light and dark) and the role and name of every control
+(antheo-access `a11y-probe.mjs <url> --no-triggers --json`). Capture twice and diff the two at `--max 0`: a baseline
+that differs from itself proves nothing. From then on "no visible change" is a diff against that folder, never a
+claim. Commands, file names and the comparison: `references/baseline.md`.
+
 1. **Exact swaps:** shots of the key screens before and after with `antheo-review/scripts/check-page.mjs --shots`,
    then `node <antheo-review>/scripts/pixdiff.mjs before after --max 0 --out diffs`. Any changed pixel is a mistake
    or a swap that was not really exact.
@@ -87,13 +100,22 @@ missing tokens", and list the three largest gaps instead of mapping row by row.
 3. **Components:** one screen per change. First write a **behaviour contract** for the component being replaced
    (props and slots, states, keys, focus, events, strings; template in `references/design-folder.md`), then check
    the new one against every row. A row it fails is fixed or raised with the person, never silently dropped. The old
-   component stays as a thin wrapper until nothing uses it.
+   component stays as a thin wrapper until nothing uses it. Then the **parity audit** (`references/parity.md`): every
+   prop and variant in use accounted for; names, keys, focus and visible strings unchanged; the hardest call sites
+   moved first. For a form or anything that writes, the request sent for the same input is identical before and
+   after, date and number formats included.
 4. **Strays:** one decision each, recorded in `design/system.md`.
-5. **Lock it:** store the audit as the baseline; CI runs `audit-values.mjs src --baseline design/audit.json
-   --fail-on-increase`, which exits 1 when any kind of raw value goes up. When counts drop, store the new baseline.
+5. **Lock it:** store the audit as the baseline; CI runs `audit-values.mjs src --tokens <the token file>
+   --baseline design/audit.json --fail-on-increase`, which exits 1 when any kind of raw value goes up. When counts drop, store the new baseline.
+   A check counts only once it has been seen failing: for the ratchet and every lint rule or script added, plant
+   one violation, see it caught (exit 1), remove it (`references/baseline.md`).
 
 Never mix a migration with a redesign. More surfaces than one agent can hold: coordinator, worker and verifier briefs
 in `references/parallel.md`, one owner per surface and per shared file.
+
+**Git.** Start on a clean tree from a checkpoint commit; one screen or one component per commit, staged by path, so
+each can be reverted alone. Never (a requirement: it destroys someone's work): `reset --hard`, a force-push, a stash
+or discard of work you did not make, unrelated files bundled in. A dirty tree and the commands: `references/git.md`.
 
 ## Is a swap a visible change?
 
@@ -102,7 +124,7 @@ in `references/parallel.md`, one owner per surface and per shared file.
 | Colour | ΔE ≤ 2 | |
 | Spacing, size, radius | ≤ 2px apart | |
 | Font size | ≤ 1px apart | |
-| Line height | ≤ 0.05 apart | |
+| Line height | ≤ 0.05 apart as a ratio, ≤ 1px as a length | |
 | Opacity | ≤ 0.02 apart | |
 | Duration, delay | ≤ 30ms apart | |
 | Border width, font weight, font family, easing | | yes |
@@ -154,18 +176,25 @@ every change has an owner, and adoption is measured by the screens moved, not th
 - [ ] `taste.md` and `system.md` read (or created) before building; readiness gaps planned first
 - [ ] Audit run; counts before and after shown; the three decisions asked, not guessed
 - [ ] Mapped by role; strays sorted into gaps and mistakes; payload values exempt by element
+- [ ] A baseline in `design/baseline/<screen>` before the first edit: shots, `controls.txt`, stable twice
 - [ ] Migration in order, each step through pixdiff; every swap classified; visible changes listed
-- [ ] A behaviour contract met before each component replacement
-- [ ] The ratchet runs in CI
+- [ ] A behaviour contract met and the parity audit done before each component replacement; request diffs empty
+- [ ] The ratchet runs in CI, and it and every added check has been seen failing once
+- [ ] One screen or component per commit from a logged checkpoint; nothing from the never-list run
 - [ ] Every correction recorded as a scoped rule in the person's words
 - [ ] Checked against every habit in `references/habits.md`
 
 ## Files
 
 - `references/examples.md`: what goes wrong and the fix, from the skills page and from real builds; when the default is wrong
-- `scripts/audit-values.mjs`: finds hard-coded values, merges colours under ΔE 2, maps values to tokens (exact,
-  close, stray), `--baseline <audit.json> --fail-on-increase` for CI
+- `scripts/audit-values.mjs`: finds hard-coded values, merges close colours, maps light and dark literals to the
+  tokens of their theme (exact, close, stray), `--baseline <audit.json> --fail-on-increase` for CI
 - `references/design-folder.md`: templates for `system.md`, `taste.md`, `migration.md` and the behaviour contract
 - `references/parallel.md`: coordinator, worker and verifier briefs for a migration split across agents
-- uses `antheo-review/scripts/check-page.mjs` and `pixdiff.mjs` for every before and after
+- `references/baseline.md`: open before the first edit on a screen, and when adding a check: capture, compare,
+  and proving a check by seeing it fail
+- `references/parity.md`: open before replacing a component: the audit at every call site, and request parity
+- `scripts/requests.mjs`: `capture` writes what a screen tries to send, with nothing sent; `diff` compares two captures field by field
+- `references/git.md`: open before the first commit, or when the tree is not as you left it: the never-list
+- uses antheo-review's `check-page.mjs`, `pixdiff.mjs` and `beside.mjs`, and antheo-access's `a11y-probe.mjs`
 - `references/habits.md`: what agents get wrong in an existing app, each with its fix

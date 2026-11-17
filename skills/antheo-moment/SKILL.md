@@ -39,8 +39,8 @@ follow that work: a step is shown when it really happens, never on a timer.
 
 | Beat | What it does | Typical |
 |---|---|---|
-| Anticipation | hints that something will happen | on hover or focus, the trigger's glow, an arrow's nudge |
-| Response | the press is felt at once | `scale(0.97)` in 150ms; the light born at the pressed point |
+| Anticipation | a quiet hint on the trigger before the press; not the moment, which only the event starts | on hover or focus, the trigger's glow, an arrow's nudge |
+| Response | the press is felt at once | `scale(0.97)` in 100ms; the light born at the pressed point |
 | Alive | while work happens, it breathes | colours drift slowly; a status line rolls |
 | Progress | real steps, not a timer | each step named as it happens; a part fills only when its work is done |
 | Finish | the peak: it worked | a tick draws itself; a short burst in the moment's colours; a sheen passes once |
@@ -77,6 +77,8 @@ slides home, the dial settles, the ticket tears off), still only on the rare eve
 - [ ] The screen-record, frame and meaning tests pass
 - [ ] The finish under 1s, once, skippable, with no added delay; reduced motion keeps the finish as a crossfade
 - [ ] Filmed at 0.1× (antheo-motion `scripts/filmstrip.mjs`), every frame read, and repeated twenty times
+- [ ] Smooth where it will run: antheo-review `scripts/latency-probe.mjs <url> --play "<the trigger>" --cpu 4` passes
+      (no frame over 33ms on a CPU slowed four times)
 
 ## Files
 

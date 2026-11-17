@@ -89,7 +89,9 @@
 ## Performance
 
 - [✓] No console errors
-- [✓] Interaction feedback within 100ms of the press (`latency-probe.mjs`); [ ] INP ≤ 200ms
+- [✓] Interaction feedback within 100ms of the press (`latency-probe.mjs`)
+- [✓] The load, on a first visit: CLS ≤ 0.1 and LCP ≤ 2.5s (`check-page.mjs` reports both; a local LCP is a floor)
+- [ ] On the deployed page, from real visits: INP ≤ 200ms, LCP ≤ 2.5s, CLS ≤ 0.1 at the 75th percentile (the field data in PageSpeed Insights or the site's own monitoring; no local tool can stand in for it)
 - [ ] Images sized and `loading="lazy"` below the fold; `aspect-ratio` reserved (no layout shift)
 - [ ] Fonts: ≤ 3 weights loaded, `font-display: swap`, fallback metrics adjusted
 - [ ] Animations only on transform/opacity; smooth at 4× CPU throttle

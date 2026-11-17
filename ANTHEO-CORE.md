@@ -39,38 +39,23 @@ object's commonest failure.
 
 Every rule and check in these skills proves that nothing is broken. None of them proves the work is good: a page can
 pass the gate at 100 and still be forgettable. So, for anything meant to be kept (a component for a library, a
-product screen, anything creative), also:
+product screen, anything creative), also do these ten; `references/aim-higher.md` has each one in full.
 
-1. **One thing at a time.** Several components in one pass each get a fraction of the attention. Build one, finish
-   it, then the next.
-2. **Start from a reference.** The person's, if they have one; otherwise name one or two real things it should feel
-   like (a product, an object, a photo) and say so. With no target, the result drifts to the average.
-3. **Directions before detail, when the look is open.** For an object or a creative piece, three quick directions on
-   the real page (Variants, below); the person picks; then build that one fully. With nobody to ask (a brief run
-   unattended, several finished components wanted), write the three in one line each, pick one, say which and why,
-   and build only that one.
-4. **The main thing first, in its setting, on a stage that fits.** Make the component itself excellent before
-   drawing its other states. On a component's page it comes first, alone, and the stage hugs it: 48 to 64px of room
-   around it, never a small control adrift in a page-wide empty card. A control that is small in real use (a like
-   button, a toggle, a chip) is shown in the smallest true setting that makes it readable: the like button under a
-   photo, the toggle in its settings row, the empty state inside its inbox frame. The setting is demo content, one
-   believable piece, kept out of the component and its props. The states sheet comes after.
-5. **Watch it move.** Film every motion (antheo-motion, "Watch it") and read the frames; a still screenshot can't
-   judge motion.
-6. **Put it beside the reference, zoomed** (antheo-review `scripts/beside.mjs`), and name what is missing (light, a detail, proportion, how it moves).
-   Measure a few ratios in both (an icon to its button, a figure to its card) and match them; copy its one or two
-   signature details exactly (drawn edges on 3D type, the gloss strip on candy). Fix, and look again. Two or three of
-   these rounds is where quality comes from.
-7. **Go past a still.** A still reference shows the thing at rest, never its life. Design what it implies, from how
-   the real thing behaves: every control answers its press, every change of state moves (values roll, panels slide,
-   a needle settles), the object has an idle life if the real one does, and the main action gets one bigger beat.
-   Find the one thing people would do with it for fun (tune through the static, squash the candy) and make that the
-   richest part (**antheo-creative**); never trim it to fit the app timing rules, which are for chrome. Then film it.
-8. **Every control does something,** in a demo too: a button with nothing behind it at least shows its result
-   ("Opened the readers report"). The access probe presses each one and reports those that answer with nothing.
-9. **Most of the effort goes into the thing.** The gate, the evidence and the notes are the last part of the work,
-   not the work: a component that passes every check and lost its charm has failed.
-10. **Say honestly where it stands:** what passed, what was compared, and what still falls short of the reference.
+1. **One thing at a time:** build one, finish it, then the next.
+2. **Start from a reference:** the person's, or one or two real things you name. With no target, work drifts to the average.
+3. **Directions before detail, when the look is open:** three quick ones on the real page, and the person picks.
+4. **The main thing first, in its setting, on a stage that fits.** On a component's page it comes first, alone, and
+   the stage hugs it: 48 to 64px of room, never a small control adrift in a page-wide empty card. A control that is
+   small in real use is shown in its smallest true setting (the like button under a photo, the toggle in its
+   settings row, the empty state inside its inbox frame). The states sheet comes after.
+5. **Watch it move:** film every motion and read the frames (antheo-motion, "Watch it").
+6. **Put it beside the reference, zoomed** (antheo-review `scripts/beside.mjs`): name what is missing, match a few
+   ratios and its one or two signature details, fix, look again. Two or three rounds is where quality comes from.
+7. **Go past a still:** give a still reference the life it implies, and make the one thing people would fiddle with
+   the richest part (**antheo-creative**); never trim it to fit the app timing rules, which are for chrome.
+8. **Every control does something,** in a demo too. The access probe presses each one.
+9. **Most of the effort goes into the thing,** not the gate, the evidence and the notes.
+10. **Say honestly where it stands:** what passed, what was compared, what still falls short of the reference.
 
 ## Match the person
 
@@ -105,13 +90,13 @@ it goes in React, Vue, Svelte, Angular, Astro, Django, Rails, Laravel and the re
 --bg --surface --raised --well --hover --line      the page, cards, white controls, fields, hover, a hairline
 --text --text-2 --text-3 --primary --accent --danger   main text, help, icons, the filled button, "on", danger
 --accent-soft --accent-text                        a highlight tag: the saving, the recommended plan
---t-meta 12 · --t-body 13 · --t-title 15 · --t-page 20 · --t-num 28 · --t-display 36   (each with --l-* and --k-*)
+--t-meta 12 · --t-body 13 · --t-title 15 · --t-page 20 · --t-num 28 · --t-display 36   (px at a 16px root; set in rem; each with --l-* and --k-*)
 --w-text 450 · --w-strong 550                      the only two weights
 --r-tag 4 · --r-control 6 · --r-card 10 · --r-full the only corners
 --sh-control --sh-card --sh-lift --sh-dialog       the only shadows
 --h-control 32 · --h-cta 36 · --h-row 40 · --pad-card 20 · --gap-section 32
 --dur-fast 150ms · --dur-base 200ms · --ease-out   the motion variables (antheo-motion's recipes read them)
-.card  .field  .btn  .btn-primary  .btn-quiet  .tag  .tag-accent  .switch  .seg  dialog  a
+.card  .field  .btn  .btn-primary  .btn-quiet  .chip  .tag  .tag-accent  .switch  .seg  dialog  a
 .t-meta  .t-title  .t-page  .t-num  .t-display  .muted
 ```
 
@@ -129,7 +114,8 @@ it goes in React, Vue, Svelte, Angular, Astro, Django, Rails, Laravel and the re
 4. **Cards have no outline.** A card is `.card`: the surface on the page, a faint edge and a soft drop. Never a
    visible border, never a coloured edge, never a card inside a card.
 5. **Almost no lines.** A hairline (`--line`) only between repeating rows of a list or table. Never under a card's
-   header, between sections, between a price and its features, or under a top bar.
+   header, between sections, between a price and its features, or under a top bar at rest (a sticky bar takes one
+   once content has scrolled under it).
 6. **Three corners.** Cards, dialogs, menus and tables `--r-card`; buttons, fields and chips `--r-control`; tags
    and the logo tile `--r-tag`. Fully round only for switches, avatars and a segmented control, and those don't
    count as a fourth size. No pill buttons.
@@ -145,7 +131,7 @@ it goes in React, Vue, Svelte, Angular, Astro, Django, Rails, Laravel and the re
 9. **One primary action.** The only `.btn-primary`, after what it acts on, always enabled (while it is sending
    it stays focusable with `aria-disabled="true"` and ignores a second press). A recommended plan is its
    filled button, a `.tag-accent` "Recommended" and `--sh-lift`, at exactly its neighbours' size.
-10. **Fields are wells.** `.field`, with its label above (`--t-body`, `--w-strong`, `--text`), 6px apart. A helper
+10. **Fields are wells.** `.field` (a borderless fill with one line along its bottom edge), with its label above (`--t-body`, `--w-strong`, `--text`), 6px apart. A helper
     line only for a constraint or a consequence ("JPG or PNG, up to 2 MB"; "At least 8 characters"), in `--t-meta`
     `--text-2`, 4px under. An error is the red inner edge and a short message under the field naming the fix (antheo-writing).
 11. **Chrome only as named.** A "section", a "component" or a page that shows components gets no site header, footer
@@ -193,12 +179,10 @@ it goes in React, Vue, Svelte, Angular, Astro, Django, Rails, Laravel and the re
     checker's score is not a look.
 21. **Arm the gate, and pass it.** At the start, arm antheo-review's gate on every page the work touches
     (`gate.mjs arm <url-or-file> --copy <source folder>`, plus `--preset none` when the project has its own system,
-    and `--ref <images>` when the work is built from references, so it asks for the comparisons and a filmstrip);
-    before saying done, `gate.mjs check` must say PASS, or after three rounds DONE, UNRESOLVED with what is left, told
-    to the person (each further reference adds a round; a page of several components can ask for more with
-    `--max`). How much to check beyond the gate depends on the size of the change (antheo-review, "How much to
-    check"). Setup for each agent: antheo-review `references/gate.md`. A PASS is the floor, not the finish: it says
-    nothing measured is broken, never that the work is good ("Correct is the floor; aim higher").
+    and `--ref <images>` when the work is built from references); before saying done, `gate.mjs check` must say
+    PASS, or after its rounds DONE, UNRESOLVED with what is left, told to the person. Rounds, setup and how much to
+    check beyond the gate: antheo-review `references/gate.md` and "How much to check". A PASS is the floor, not the
+    finish.
 
 ## The traps that look finished and break in use
 
@@ -275,18 +259,20 @@ and hairlines against the rules above, press every control, and read the console
   --backdrop:   oklch(0.2 0.006 80 / 0.32);
   --wash:       oklch(var(--ink) / 0.05);  /* laid over any fill on hover, when the fill itself must stay */
 
-  /* Type: six sizes exist, a screen uses four or five. Two weights. */
+  /* Type: six sizes exist, a screen uses four or five. Two weights. Sizes, line heights and the heights that hold
+     text are in rem, so they follow the reader's own browser font size; each comment gives the px at the usual 16px.
+     (A project that resets the root size, html { font-size: 62.5% }, scales all of them: set it back or convert.) */
   --font: "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
   --w-text: 450;
   --w-strong: 550;
-  --t-meta: 12px;    --l-meta: 16px;    --k-meta: 0em;       /* help, footnotes, table headers */
-  --t-body: 13px;    --l-body: 20px;    --k-body: 0em;       /* everything read or pressed */
-  --t-title: 15px;   --l-title: 22px;   --k-title: -0.01em;  /* a card, plan, dialog or section title */
-  --t-page: 20px;    --l-page: 28px;    --k-page: -0.015em;  /* an app page's title: the largest text in an app */
-  --t-num: 28px;     --l-num: 32px;     --k-num: -0.02em;    /* a price or key figure */
-  --t-display: 36px; --l-display: 40px; --k-display: -0.025em; /* a marketing headline: the largest text anywhere */
-  --t-field: 13px;
+  --t-meta: 0.75rem;     --l-meta: 1rem;        --k-meta: 0em;         /* 12/16px: help, footnotes, table headers */
+  --t-body: 0.8125rem;   --l-body: 1.25rem;     --k-body: 0em;         /* 13/20px: everything read or pressed */
+  --t-title: 0.9375rem;  --l-title: 1.375rem;   --k-title: -0.01em;    /* 15/22px: a card, plan, dialog or section title */
+  --t-page: 1.25rem;     --l-page: 1.75rem;     --k-page: -0.015em;    /* 20/28px: an app page's title, the largest text in an app */
+  --t-num: 1.75rem;      --l-num: 2rem;         --k-num: -0.02em;      /* 28/32px: a price or key figure */
+  --t-display: 2.25rem;  --l-display: 2.5rem;   --k-display: -0.025em; /* 36/40px: a marketing headline, the largest text in the preset */
+  --t-field: 0.8125rem;
 
   /* Shape: three corner sizes. */
   --r-tag: 4px; --r-control: 6px; --r-card: 10px; --r-sheet: 14px; --r-full: 999px;
@@ -299,8 +285,8 @@ and hairlines against the rules above, press every control, and read the console
   --gap-label: 6px; --gap-inline: var(--s-2); --gap-item: var(--s-3); --gap-field: var(--s-4); --gap-group: var(--s-6);
 
   /* Sizes. */
-  --h-control: 32px; --h-small: 28px; --h-cta: 36px; --h-row: 40px; --h-tag: 20px; --h-bar: 48px;
-  --sw-w: 32px; --sw-h: 20px; --sw-knob: 16px; --sw-knob-fill: oklch(1 0 0);
+  --h-control: 2rem; --h-small: 1.75rem; --h-cta: 2.25rem; --h-row: 2.5rem; --h-tag: 1.25rem; --h-bar: 3rem;   /* 32, 28, 36, 40, 20, 48px */
+  --sw-w: 2rem; --sw-h: 1.25rem; --sw-knob: 1rem; --sw-knob-fill: oklch(1 0 0);                                  /* 32 by 20px, a 16px knob */
   --w-form: 400px; --w-settings: 680px; --w-pricing: 1040px; --w-data: 1120px;
   --measure: 65ch;                           /* the longest line of running text */
   /* A whole marketing page only: its container and the space between its sections. */
@@ -343,14 +329,21 @@ and hairlines against the rules above, press every control, and read the console
 
 /* Phones: only these values change; nothing else in a build is re-sized by hand. */
 @media (max-width: 47.99rem) {
+  :root { --t-display: 1.75rem; --l-display: 2rem; --pad-card: 16px; --gutter: 16px; }   /* a 28/32px headline */
+}
+/* Touch: at phone width, and wherever the main pointer is a finger at any width (a tablet), text steps up and
+   controls are 44px tall. A switch, an icon button and a segment stay smaller to the eye and are pressed through a
+   44px area, added further down. (A laptop with a trackpad and a touch screen reports a fine pointer and keeps the
+   desktop sizes.) */
+@media (max-width: 47.99rem), (pointer: coarse) {
   :root {
-    --t-meta: 13px; --l-meta: 18px; --t-body: 15px; --l-body: 22px; --t-title: 17px; --l-title: 24px;
-    --t-page: 22px; --l-page: 28px; --t-display: 28px; --l-display: 32px;
-    --h-control: 44px; --h-small: 36px; --h-cta: 44px; --h-row: 52px; --pad-card: 16px; --gutter: 16px;
-    --sw-w: 44px; --sw-h: 26px; --sw-knob: 22px;
+    --t-meta: 0.8125rem; --l-meta: 1.125rem; --t-body: 0.9375rem; --l-body: 1.375rem;   /* 13/18, 15/22px */
+    --t-title: 1.0625rem; --l-title: 1.5rem; --t-page: 1.375rem; --l-page: 1.75rem;     /* 17/24, 22/28px */
+    --h-control: 2.75rem; --h-small: 2.25rem; --h-cta: 2.75rem; --h-row: 3.25rem;       /* 44, 36, 44, 52px */
+    --sw-w: 2.75rem; --sw-h: 1.625rem; --sw-knob: 1.375rem;                             /* 44 by 26px, a 22px knob */
   }
 }
-@media (pointer: coarse) { :root { --t-field: 16px; } }
+@media (pointer: coarse) { :root { --t-field: 1rem; } }   /* 16px: under that, iOS zooms the page into a focused field */
 
 /* One theme for one part of the page, whatever the system's: put data-theme="dark" or "light" on any element (the
    page, a card, one half of a side-by-side). Everything inside follows. */
@@ -405,7 +398,7 @@ html { background: var(--bg); -webkit-text-size-adjust: 100%; text-size-adjust: 
 body {
   margin: 0; background: var(--bg); color: var(--text);
   font: var(--w-text) var(--t-body) / var(--l-body) var(--font); letter-spacing: var(--k-body);
-  -webkit-font-smoothing: antialiased; font-synthesis: none;
+  -webkit-font-smoothing: antialiased; font-synthesis: style;   /* never a faked bold or small caps; an <em> may be slanted where the face ships no italic */
 }
 h1, h2, h3 { margin: 0; font-weight: var(--w-strong); text-wrap: balance; }
 p { margin: 0; text-wrap: pretty; }
@@ -425,10 +418,14 @@ a { color: inherit; text-decoration: underline; text-decoration-thickness: 1px; 
 .card { background: var(--surface); border: 1px solid transparent; border-radius: var(--r-card); box-shadow: var(--sh-card); padding: var(--pad-card); }
 .field {
   height: var(--h-control); width: 100%; padding: 0 var(--s-3); border: 1px solid transparent; border-radius: var(--r-control);
-  background: var(--well); box-shadow: var(--well-edge); font-size: var(--t-field);
+  /* a borderless well with one line anyone can see along its bottom edge: a field told apart only by a faint fill
+     needs 3:1 (WCAG 1.4.11), and a single --text-3 line gives it without boxing the field in. The fully faint
+     field is an opt-out a product takes knowingly: .field { --field-edge: var(--well-edge); } */
+  --field-edge: var(--well-edge), inset 0 -1px 0 var(--text-3);
+  background: var(--well); box-shadow: var(--field-edge); font-size: var(--t-field);
 }
 .field::placeholder { color: var(--text-2); opacity: 1; } /* a placeholder is text someone reads: 4.5:1, which --text-3 does not reach */
-.field:focus-visible { outline: 2px solid transparent; outline-offset: 2px; box-shadow: var(--well-edge), 0 0 0 2px var(--focus); } /* the transparent border and outline turn visible in forced colours, where shadows are dropped */
+.field:focus-visible { outline: 2px solid transparent; outline-offset: 2px; box-shadow: var(--field-edge), 0 0 0 2px var(--focus); } /* the transparent border and outline turn visible in forced colours, where shadows are dropped */
 .field[aria-invalid="true"] { box-shadow: inset 0 0 0 1px var(--danger); }
 .field[aria-invalid="true"]:focus-visible { box-shadow: inset 0 0 0 1px var(--danger), 0 0 0 2px var(--focus); } /* in error and focused: both */
 .btn {
@@ -448,6 +445,17 @@ a { color: inherit; text-decoration: underline; text-decoration-thickness: 1px; 
   background: var(--well); color: var(--text-2); font-size: var(--t-meta); line-height: var(--l-meta);
 }
 .tag-accent { background: var(--accent-soft); color: var(--accent-text); font-weight: var(--w-strong); } /* the one thing to notice: a saving, the recommended plan */
+/* A chip: one of several choices that can each be on. <button class="chip" aria-pressed="true"> with a tick drawn
+   before the label when it is on: the accent fill is never the only cue. */
+.chip {
+  display: inline-flex; align-items: center; gap: var(--s-1); height: var(--h-control); padding: 0 var(--s-3); border: 1px solid transparent;
+  border-radius: var(--r-control); background: var(--well); box-shadow: var(--well-edge); color: var(--text-2); font-weight: var(--w-strong);
+  white-space: nowrap; cursor: pointer;
+  transition: scale var(--dur-instant) var(--ease-out), background-color var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+}
+@media (hover: hover) and (pointer: fine) { .chip:hover { color: var(--text); } }
+.chip:active { scale: var(--scale-press); }
+.chip:is([aria-pressed="true"], [aria-checked="true"]) { background: var(--accent); color: var(--on-accent); box-shadow: none; }
 /* A button with no chrome: a row action, "Show", a close button. Use with .btn; add .icon for a square one. */
 .btn-quiet { background: transparent; box-shadow: none; color: var(--text-2); }
 .btn-quiet.icon { width: var(--h-small); height: var(--h-small); padding: 0; color: var(--text-3); }
@@ -468,12 +476,19 @@ a { color: inherit; text-decoration: underline; text-decoration-thickness: 1px; 
    highlight, so a switch or a chosen segment stays visible (not while focused, so the focus ring wins) */
 .switch:not(:focus-visible), .seg > button:not(:focus-visible) { outline: 1px solid transparent; outline-offset: -1px; }
 @media (forced-colors: active) {
-  .switch[aria-checked="true"], .seg > button[aria-checked="true"] { background-color: Highlight; color: HighlightText; }
+  .switch[aria-checked="true"], .seg > button[aria-checked="true"], .chip:is([aria-pressed="true"], [aria-checked="true"]) { background-color: Highlight; color: HighlightText; }
   .switch::after { background: CanvasText; }
   .switch[aria-checked="true"]::after { background: HighlightText; }
 }
 .switch[aria-checked="true"]::after { translate: calc(var(--sw-w) - var(--sw-knob) - 4px) 0; }
 .switch[aria-checked="true"]:dir(rtl)::after { translate: calc(-1 * (var(--sw-w) - var(--sw-knob) - 4px)) 0; }
+/* On touch, a switch, an icon button and a segment keep their drawn size and are pressed through an area 44px tall
+   (and 44px wide for the first two), centred on them. */
+@media (max-width: 47.99rem), (pointer: coarse) {
+  .btn-quiet.icon, .seg > button { position: relative; }
+  .switch::before, .btn-quiet.icon::before { content: ""; position: absolute; top: 50%; left: 50%; width: max(100%, 2.75rem); height: max(100%, 2.75rem); translate: -50% -50%; }
+  .seg > button::before { content: ""; position: absolute; inset: -2px 0; }
+}
 /* A segmented control: <div class="seg" role="radiogroup"> of <button role="radio" aria-checked>. Labels only inside.
    The chosen one is raised in place; a fill that slides between them is optional (antheo-motion recipe 36). */
 .seg { display: inline-grid; grid-auto-flow: column; grid-auto-columns: 1fr; padding: 2px; border-radius: var(--r-full); background: var(--well); box-shadow: var(--well-edge); }
@@ -485,7 +500,8 @@ a { color: inherit; text-decoration: underline; text-decoration-thickness: 1px; 
 .seg > button[aria-checked="true"] { background: var(--raised); color: var(--text); box-shadow: var(--sh-control); }
 @media (hover: hover) and (pointer: fine) { .seg > button:hover { color: var(--text); } }
 .seg > button:active { scale: var(--scale-press); }
-/* A dialog: the native element, opened with showModal(). On a phone it is a sheet on the bottom edge. */
+/* A dialog: the native element, opened with showModal(). It fades and grows from 0.96 in 200ms and leaves in 150ms.
+   On a phone it is a sheet: it slides its whole height from the bottom edge, opaque all the way, 300ms in, 200ms out. */
 dialog {
   width: min(var(--w-form), 100% - 2 * var(--gutter)); max-height: calc(100dvh - 2 * var(--gutter)); overflow: auto; padding: var(--s-6);
   border: 1px solid transparent; border-radius: var(--r-card); background: var(--surface); color: var(--text); box-shadow: var(--sh-dialog);
@@ -501,14 +517,27 @@ dialog[open]::backdrop { opacity: 1; }
 @media (max-width: 47.99rem) {
   dialog {
     width: 100%; max-width: 100%; margin: auto 0 0; border-radius: var(--r-sheet) var(--r-sheet) 0 0;
-    padding-block-end: max(var(--s-6), env(safe-area-inset-bottom)); scale: 1; translate: 0 var(--dist-lg);
+    padding-block-end: max(var(--s-6), env(safe-area-inset-bottom));
+    opacity: 1; scale: 1; translate: 0 100%; transition-duration: var(--dur-base);
   }
-  dialog[open] { translate: 0 0; }
-  @starting-style { dialog[open] { scale: 1; translate: 0 var(--dist-lg); } }
+  dialog[open] { translate: 0 0; transition-duration: var(--dur-slow); }
+  @starting-style { dialog[open] { opacity: 1; scale: 1; translate: 0 100%; } }
+}
+/* More contrast, when the reader asks for it: wells get a full edge, and hairlines and card edges become lines
+   anyone can see. */
+@media (prefers-contrast: more) {
+  /* each selector is doubled so it outranks the theme rules above, which set the same names */
+  :root:root, [data-theme][data-theme] { --well-edge: inset 0 0 0 1px var(--text-2); --line: var(--text-3); --edge: 0 0 0 1px var(--text-3); }
 }
 /* Reduced motion: travel and scale go, a short fade stays. */
 @media (prefers-reduced-motion: reduce) {
   :root { --dist-xs: 0px; --dist-sm: 0px; --dist-md: 0px; --dist-lg: 0px; --scale-press: 1; --scale-pop: 1; --scale-tip: 1; --scale-leave: 1; --ease-spring: var(--ease-out); }
   .btn { transition: background-color var(--dur-fast) var(--ease-out); }
+  /* the sheet stops sliding and fades in place */
+  @media (max-width: 47.99rem) {
+    dialog { opacity: 0; translate: none; }
+    dialog[open] { opacity: 1; translate: none; }
+    @starting-style { dialog[open] { opacity: 0; translate: none; } }
+  }
 }
 ```

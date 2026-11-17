@@ -37,7 +37,8 @@ node <this-skill>/scripts/scan-motion.mjs src --json motion.json --all
 node <this-skill>/scripts/scan-motion.mjs src --strict        # exit 1 on any high, for CI
 ```
 
-It prints the distinct durations and curves (drift shows as a long tail), files with no reduced-motion handling, and
+It prints the distinct durations and curves (drift shows as a long tail), files with no reduced-motion handling, each
+reduced-motion block as one that keeps a fade or one that removes motion (a blanket removal is a high finding), and
 lines that break a rule. It reads source, so its flags are candidates: confirm each one in the code and on screen.
 
 ## Block on sight
@@ -60,7 +61,7 @@ For every surface: how often it is seen, whether it should move, and if so exact
 
 ```
 Account menu · opened daily
-Move: 150ms in from scale(0.97) and a fade at the trigger, 120ms out. No stagger.
+Move: 150ms in from scale(0.96) and a fade at the trigger, 120ms out. No stagger.
 Command palette · opened many times a day
 Stay still: appears at once; only the highlighted row fades its fill.
 ```
@@ -102,7 +103,7 @@ conversation:
 ## 1. Unify menu motion (14 menus, one shared component)
 Where: src/components/ui/menu.tsx, popover.tsx
 Now: 4 durations (200 to 350ms), 3 curves, two grow from scale(0)
-Change: opacity and scale from 0.97, 150ms in / 120ms out, var(--ease-out), origin at the trigger
+Change: opacity and scale from 0.96 (`--scale-pop`), 150ms in / 120ms out, var(--ease-out), origin at the trigger
 Done when: scan-motion shows one duration pair for menus; every menu opens from its trigger at 0.25× speed
 Risk: menus in the editor use a custom portal; check the origin there
 ```

@@ -43,7 +43,8 @@ A ship verdict with measured findings belongs to **antheo-review**; explaining h
 
 ## The lenses
 
-Run them together, quietly; tag each point with the one that saw it.
+Run them together, quietly; tag each point with the one that saw it. When a lens finds something and its one line
+is too blunt to say what, `references/questions.md` has the sharper questions for that lens.
 
 | Lens | Asks | Owner |
 |---|---|---|
@@ -86,6 +87,11 @@ Try
 At most seven facts and questions together; at most three experiments. Be direct and warm: no hedging, no generic
 praise ("clean", "modern"); when something works, explain what makes it work. Don't speak for anyone or quote real designers.
 
+## A second look
+
+When a new version comes back, start from the last round: say which points are settled, which remain, and only then
+what is new. Never re-open a point the person decided, and never grow the list: the cap of seven still holds.
+
 ## After the person chooses
 
 Hand the chosen direction to the owning skill (antheo-build routes it), and the finished result to antheo-review for
@@ -98,8 +104,9 @@ the verdict. Record a correction or a praise in `design/taste.md` (antheo-system
 - [ ] System checked before style
 - [ ] Facts stated, questions asked, each tagged with its owner; estimates labelled
 - [ ] At most seven points and three experiments; something that works named, with why
-- [ ] Nothing redesigned before the person chose
+- [ ] Nothing redesigned before the person chose; a second round starts from the first
 
 ## Files
 
 - `references/examples.md`: what goes wrong and the fix, from the skills page and from real builds; when the default is wrong
+- `references/questions.md`: three to five sharper questions for each lens, each with an answer you can see

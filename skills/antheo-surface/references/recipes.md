@@ -16,6 +16,8 @@ resolve to a lighter fill and a faint light edge, so nothing here changes per th
 .s-menu   { background: var(--surface); box-shadow: var(--sh-lift);    border: 1px solid transparent; border-radius: var(--r-card); padding: var(--s-1); }
 .s-dialog { background: var(--surface); box-shadow: var(--sh-dialog);  border: 1px solid transparent; border-radius: var(--r-card); }
 .s-well   { background: var(--well);    box-shadow: var(--well-edge);  border: 1px solid transparent; border-radius: var(--r-control); }
+/* a well someone types in needs a boundary at 3:1 (WCAG 1.4.11): one line along its bottom edge, as the block's .field has */
+.s-field  { background: var(--well);    box-shadow: var(--well-edge), inset 0 -1px 0 var(--text-3); border: 1px solid transparent; border-radius: var(--r-control); }
 ```
 
 `border: 1px solid transparent` costs nothing on screen and keeps an edge in forced-colours mode, which drops every

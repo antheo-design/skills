@@ -2,7 +2,8 @@
 
 A component that was only ever seen with its happy-path sample is unreviewed. Build a small harness so every state,
 variant and awkward input can be looked at, measured and compared. The harness is a throwaway page (or a route
-behind a dev flag); it never ships.
+behind a dev flag); it never ships. Build it so it comes out in one step (`teardown.md`), and feed it at the
+component's data boundary, never by editing the component (`data-boundary.md`).
 
 ## 1. The state switcher
 
@@ -38,6 +39,9 @@ Rules:
   only; no chrome that changes the layout.
 - A state that cannot be produced from props (a network error, a slow load) is produced by the harness: a fake
   fetch that rejects or waits, selected by the same `?state=`.
+- For a component that is only HTML and CSS, `node <this-skill>/scripts/harness.mjs card.harness.json` writes this
+  page from a small JSON of states, then pushes the fixtures of section 4 through each slot. A component that lives
+  in a framework still gets a harness route written by hand, through its real props.
 - `check-page.mjs <harness>?state=long --stress --shots` and the same for every other state gives one report per state.
 
 ## 2. The variant picker on the real page
@@ -63,13 +67,14 @@ Don't use a generic matrix. Read the component's props and slots, and pick the a
 |---|---|---|
 | Content length | shortest real value, typical, longest real value, 3x longest, one unbroken word | wrapping, ellipsis with the full value reachable, overflow, a button pushed off the row |
 | Shape | the optional parts present or absent: no image, no subtitle, no icon, one action vs three | gaps left behind, misaligned baselines, a collapsed row |
-| Quantity | 0, 1, many (50+) for every list, table, tab set, chip row | empty state, singular wording, scroll or pagination, layout jump |
+| Quantity | 0, 1, 2, realistic, ten times realistic for every list, table, tab set, chip row | empty state, singular wording, scroll or pagination, layout jump, slow rendering |
 | Container width | the width the component gets in each place it is used: 240, 320, 480, 768, full | breakpoints inside the component (use a container query, not the viewport) |
 | State | the seven states above, plus hover, focus, pressed, selected, expanded | one family of states; nothing jumps between them |
 | Environment | light and dark, reduced motion, right-to-left, 200% zoom, forced colors, a slow 4x CPU | contrast, mirrored icons and padding, motion that stops, text that reflows |
 
 Name the axes you chose and the ones you skipped (with the reason) in the report. An axis the component cannot vary
-on (a fixed-width badge has no container-width axis) is skipped, not forgotten.
+on (a fixed-width badge has no container-width axis) is skipped, not forgotten. The cue that decides each one:
+`axes.md`.
 
 ## 4. The fixtures list
 

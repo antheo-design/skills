@@ -27,8 +27,8 @@ word belongs to **antheo-writing**; keyboard, names and hit-area minimums to **a
 Most weak components start at step 5. Work down; each step limits the next.
 
 1. **The job.** Name the one thing a person does here. That is the one primary action, or there is none.
-2. **The least content that does the job.** One clear number is worth more than six small ones. Lists show 5 to 6 rows, then
-   "View all". Leave out what is empty, finished or not relevant yet.
+2. **The least content that does the job.** One clear number is worth more than six small ones. A list that is a summary (a card on a
+   dashboard) shows 5 to 6 rows, then "View all"; a list that is the screen's job fills the first screen (antheo-build). Leave out what is empty, finished or not relevant yet.
 3. **The component.** Use the project's own first. Plain rows for lists, a card for one thing and its details, a table
    for many records, a dialog only for a focused task or a confirm.
 4. **The surface.** What it sits on, then raised or sunk: decided with **antheo-surface**. A component that stands for
@@ -59,7 +59,7 @@ text on touch screens so phones don't zoom.
 
 ## Equal padding, 2px less on the icon side
 
-Inline padding is `12px` on a `32px` button, `10px` on `28px`, `16px` on `44px`, the same on both sides. A leading or
+Inline padding is `--s-3` (12px) at every height, the same on both sides, as the block's `.btn` draws it. A leading or
 trailing icon takes `2px` off its own side, because the icon's box carries its own air.
 
 ## Few actions in view
@@ -81,14 +81,15 @@ for every component; never invent a shadow or radius here.
 
 ## Pressed things squeeze
 
-`scale: 0.97` over `150ms` with `cubic-bezier(0.23, 1, 0.32, 1)`, starting on pointer-down; `0.92` for targets of 24px, `0.99` for cards. A
+`scale: 0.97` (`--scale-press`) over `100ms` (`--dur-instant`) with `--ease-out`, starting on pointer-down; `0.92` for targets of 24px, `0.99` for cards. A
 disabled control never squeezes. Under reduced motion, drop the scale and keep the colour change.
 
 ## One primary per surface, filled with ink
 
 The primary button is filled with the text colour; secondaries are raised white; tertiary actions are text. It sits
 after what it acts on (a form: after the last field) and never looks disabled: keep it enabled and validate on
-submit, because a grey filled button reads as broken. A destructive trigger is the raised surface with danger-red
+submit, because a grey filled button reads as broken. The one exception is a type-to-confirm delete, whose confirm
+stays off until the typed name matches, with the line above it saying so (antheo-writing). A destructive trigger is the raised surface with danger-red
 text; only its final confirm is filled red.
 
 ## Text: two tones, two weights
@@ -128,12 +129,16 @@ Member, Guest, they recognise it.
 
 ## Every state, drawn
 
-Controls: default, hover (pointer only, `@media (hover: hover)`), focus-visible, pressed, disabled, loading, selected,
+Controls: default, hover (pointer only, `@media (hover: hover) and (pointer: fine)`), focus-visible, pressed, disabled, loading, selected,
 error. Data: loading (a skeleton after `200ms`), empty first use, empty no results, error with Retry, very long content,
 success. Write the CSS in that order: hover never removes a focus ring, error and focus outrank hover, hover skips
-disabled controls, and a control in error that has focus shows both (the danger edge and the focus ring). A loading button keeps its width; its label turns into the -ing form of the same verb ("Sending…") with a spinner
-before it, never a spinner alone. A selected thing is unmistakable at a glance and has a cue besides
-colour: a chosen chip or option is ink-filled with a check, never a faint tint; an unavailable one says why inside
+disabled controls, and a control in error that has focus shows both (the danger edge and the focus ring). A loading button keeps its width and stays readable: in the preset its label turns into the -ing form of the same verb
+("Sending…") with a spinner before it; a project that keeps the label and only adds the spinner is as right. Never a
+spinner alone. Anything that shows a wait appears only after `200ms` and then stays at least `300ms`, so a fast answer
+never flashes a loader. A selected thing is unmistakable at a glance and has a cue besides
+colour. There is one answer per kind: a switch that is on takes the accent; a chosen chip is the accent fill with a
+tick (`.chip`); a chosen segment is raised in place; a chosen row or option takes the `--selected` fill and a tick.
+Never a faint tint alone; an unavailable one says why inside
 it ("Full"), not only with a strikethrough. A choice that carries a description (an option with a line under it, a
 plan card, a list choice) shows its chosen state on the whole item, a `--selected` fill across it as well as its own
 dot or tick, so the choice reads before the mark is found. Disabled is the well fill with its label in `--text-2` and no shadow, as the block draws it
@@ -155,6 +160,15 @@ triggers it. Hairlines between rows, no card per state. Force the pointer states
 forced state is a picture of that state, so make its row `inert`: it leaves the tab order, and a keyboard user never
 lands on a control that already looks focused and changes nothing.
 
+## It behaves like the web
+
+- **The address holds the state.** The open tab, the filters, the sort, the page and the open item are in the URL, so
+  a reload, Back and a shared link all land on the same view. State that lives only in memory is lost by all three.
+- **Navigation is a link.** Anything that goes somewhere is an `<a href>`, so Cmd or Ctrl-click, middle-click and
+  "open in a new tab" work. A `div` or a button with a click handler that changes the page takes those away.
+- **Focus on arrival, with care.** A dialog or a single-purpose screen may focus its first field on a desktop. Never
+  on touch (the keyboard opens and the page jumps), and never when there is something to read first.
+
 ## Quick to answer, one moment at most
 
 A control answers within `100ms` and settles within `150 to 200ms`. The more often something is used, the less it moves:
@@ -173,6 +187,7 @@ control wired to nothing.
 
 - [ ] antheo-build's fundamentals hold; the order was followed: one job, the least content, the project's own component
 - [ ] Built from the style block: heights 32/28/36 (44 on touch), equal padding; depth, corners and icons from antheo-surface
+- [ ] The view survives a reload and Back; everything that navigates is a real link; no loader flashes
 - [ ] Two text tones, two weights, one grotesk; colour only for "on", one highlight and content
 - [ ] Everything you can press looks pressable, nothing else does; known choices are shown, not typed from memory
 - [ ] Every state seen in light and dark at 100% and 200% zoom, with long, empty and error content

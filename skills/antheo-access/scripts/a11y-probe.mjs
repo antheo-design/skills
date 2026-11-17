@@ -7,6 +7,7 @@
  *   node a11y-probe.mjs http://localhost:3000/settings
  *   node a11y-probe.mjs ./signup.html --json out.json
  *   node a11y-probe.mjs <url> --max-tabs 150 --no-triggers --quiet
+ *   node a11y-probe.mjs <url> --allow-writes     (let the presses send what they send; see Writes below)
  *
  * Needs playwright-core (npm i -D playwright-core) and Chrome or Edge (tries channel "chrome" first).
  * Run it from the project folder so `playwright` resolves. Closes the browser when done, always.
@@ -20,6 +21,12 @@
  *          7 Controls that do nothing: each enabled button is pressed once; no change, focus move, navigation or
  *            request means it is wired to nothing (links and submits are cancelled; skip with --no-triggers)
  * Verdict:  BROKEN (any blocker) · NOT READY (any serious or moderate finding) · CLEAN
+ *
+ * Writes: the probe presses real buttons, and on a live app a real Delete or Send would fire. So while it runs, every
+ * request the page makes that is not a GET, HEAD or OPTIONS is held back: stopped before it leaves the browser, named
+ * in one line at the end and listed in the JSON (heldBack). The press that tried to send it counts as answered, and
+ * service workers are off so none can send it behind the probe. --allow-writes lets every request through: use it only
+ * on a page whose data you can lose. Not held back either way: a GET that changes data, and messages on a WebSocket.
  */
 import { createRequire } from 'node:module';
 import { pathToFileURL } from 'node:url';
@@ -31,7 +38,7 @@ const VALUE_FLAGS = ['--json', '--max-tabs'];
 const target = argv.find((a, i) => !a.startsWith('--') && !VALUE_FLAGS.includes(argv[i - 1]));
 const flag = (name) => { const i = argv.indexOf(`--${name}`); return i < 0 ? undefined : argv[i + 1] ?? true; };
 if (!target) {
-  console.error('usage: node a11y-probe.mjs <url or html file> [--json out.json] [--max-tabs 200] [--no-triggers] [--quiet]');
+  console.error('usage: node a11y-probe.mjs <url or html file> [--json out.json] [--max-tabs 200] [--no-triggers] [--allow-writes] [--quiet]');
   process.exit(2);
 }
 // a local file may carry a query or hash (page.html?state=error): keep it out of the path
@@ -40,6 +47,7 @@ const url = /^https?:|^file:/.test(target) ? target : pathToFileURL(resolve(file
 const MAX_TABS = Number(flag('max-tabs')) || 200;
 const jsonOut = typeof flag('json') === 'string' ? resolve(flag('json')) : null;
 const quiet = !!flag('quiet');
+const allowWrites = !!flag('allow-writes');
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 
 async function loadChromium() {
@@ -396,8 +404,11 @@ async function deadScan() {
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   let signal = false;
   const mark = () => { signal = true; };
+  // the probe calls this when the write guard holds a request back: a press that tried to send something answered
+  window.__probeWrite = mark;
   const f = window.fetch; window.fetch = function (...a) { mark(); return f.apply(this, a); };
   const xs = XMLHttpRequest.prototype.send; XMLHttpRequest.prototype.send = function (...a) { mark(); return xs.apply(this, a); };
+  try { const sb = navigator.sendBeacon?.bind(navigator); if (sb) navigator.sendBeacon = (...a) => { mark(); return sb(...a); }; } catch { /* read-only here */ }
   window.open = () => { mark(); return null; };
   // going back or forward is an answer too, and must not leave the page mid-check
   for (const k of ['back', 'forward', 'go', 'pushState', 'replaceState']) { try { history[k] = () => mark(); } catch { /* read-only here */ } }
@@ -443,13 +454,36 @@ const SEV = { blocker: 3, serious: 2, moderate: 1, info: 0 };
 const findings = [];
 const add = (severity, area, el, message, fix) => findings.push({ severity, area, element: el || '', message, fix: fix || '' });
 const report = { url, tabStops: [], inventory: null, triggers: [], reflow: [] };
+const READS = ['GET', 'HEAD', 'OPTIONS'];
+const writes = new Map(); // "POST https://host/path" → { method, url, count }: held back, or sent with --allow-writes
 
 const chromium = await loadChromium();
 let browser;
 try {
   browser = await launchBrowser(chromium);
-  const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 } });
+  // with the guard on, service workers are off: a worker's own requests never pass through the route below
+  const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 }, ...(allowWrites ? {} : { serviceWorkers: 'block' }) });
   const page = await ctx.newPage();
+  /* the write guard: a request that would change something (not GET, HEAD or OPTIONS) is stopped before it leaves the
+     browser and remembered; the page is told, so the press that tried to send it counts as answered. A form posted by
+     script is stopped the same way, and "aborted" leaves the page where it was. With --allow-writes nothing is
+     stopped, and what went out is remembered instead. */
+  const noteWrite = (req) => {
+    let where = req.url().split('#')[0].split('?')[0];
+    try { const u = new URL(req.url()); where = u.origin === 'null' ? u.pathname : u.origin + u.pathname; } catch { /* keep the address as given */ }
+    const k = `${req.method()} ${where}`;
+    writes.set(k, { method: req.method(), url: where, count: (writes.get(k)?.count ?? 0) + 1 });
+  };
+  if (allowWrites) ctx.on('request', (req) => { if (!READS.includes(req.method())) noteWrite(req); });
+  else await ctx.route('**/*', async (route) => {
+    const req = route.request();
+    // a request still in the air when the page or the browser closes has nothing left to answer: not an error
+    if (READS.includes(req.method())) return route.continue().catch(() => {});
+    noteWrite(req);
+    // told at once, and never waited on for long: a page between loads has nobody to tell
+    await Promise.race([page.evaluate(() => window.__probeWrite?.()).catch(() => {}), wait(300)]);
+    return route.abort('aborted').catch(() => {});
+  });
   // a page that doesn't load is a tool error (exit 4), never probed as if it were the page
   const open = async () => {
     const res = await page.goto(url, { waitUntil: 'load', timeout: 30000 });
@@ -707,6 +741,10 @@ uniq.sort((a, b) => SEV[b.severity] - SEV[a.severity]);
 const count = (s) => uniq.filter((f) => f.severity === s).length;
 const verdict = count('blocker') ? 'BROKEN' : (count('serious') || count('moderate')) ? 'NOT READY' : 'CLEAN';
 report.findings = uniq; report.verdict = verdict;
+// what the presses tried to send: a list beside the findings, never one of them
+report.allowWrites = allowWrites;
+report.heldBack = allowWrites ? [] : [...writes.values()];
+if (allowWrites) report.sentWrites = [...writes.values()];
 report.summary = { blocker: count('blocker'), serious: count('serious'), moderate: count('moderate'), info: count('info'), tabStops: report.tabStops.length, focusable: report.candidates };
 
 const L = [];
@@ -722,6 +760,16 @@ if (!quiet) {
   L.push('Landmarks: ' + (report.inventory.landmarks.map((l) => l.role + (l.name ? `("${l.name}")` : '')).join(', ') || 'none'));
   L.push('Headings:  ' + (report.inventory.headings.map((h) => `h${h.level} ${h.text}`).slice(0, 14).join(' | ') || 'none'));
   L.push('Live:      ' + (report.inventory.live.map((l) => `${l.kind}${l.live ? '=' + l.live : ''}`).join(', ') || 'none (async results will not be announced)'));
+}
+if (writes.size) {
+  // method and a short path (the page's own origin left off), each once, eight at most
+  const origin = (() => { try { return new URL(url).origin; } catch { return ''; } })();
+  const names = [...writes.values()].map((w) => `${w.method} ${(w.url.startsWith(origin + '/') ? w.url.slice(origin.length) : w.url).slice(0, 60)}${w.count > 1 ? ` (${w.count} times)` : ''}`);
+  const list = names.slice(0, 8).join(', ') + (names.length > 8 ? `, and ${names.length - 8} more (see --json)` : '');
+  L.push('');
+  L.push(allowWrites
+    ? `[INFO] writes: --allow-writes was on, so the presses really sent ${list}.`
+    : `[INFO] writes: held back ${list}. Nothing was sent; each press that tried counts as answered. --allow-writes lets them through (only on a page whose data you can lose).`);
 }
 console.log(L.join('\n'));
 if (jsonOut) writeFileSync(jsonOut, JSON.stringify(report, null, 2));

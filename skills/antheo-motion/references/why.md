@@ -52,7 +52,7 @@ noticing motion when it all behaves the same way.
 ## Small distances, never from zero
 
 Nothing in the physical world appears from nothing. A popover that grows from `scale(0)` looks like it is being
-inflated; one that starts at `0.97` and fades in looks like it was always there and just became visible. Short
+inflated; one that starts at `0.96` and fades in looks like it was always there and just became visible. Short
 travel (4 to 12px) gives direction without making the eye chase the element across the screen.
 
 ## Grow from the trigger

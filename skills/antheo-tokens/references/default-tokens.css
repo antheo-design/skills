@@ -1,5 +1,5 @@
 /* Antheo default tokens (product register: near-neutral greys, the ink for the primary button, the brand for
-   selection, Geist, 14px body; brand #5d6b2f): the fallback when the generator can't run. For a brand page the
+   selection, Geist, 13px body; brand #5d6b2f): the fallback when the generator can't run. For a brand page the
    person asked for, run the generator with --register expressive instead. To rebrand by hand, change --color-brand*,
    then check each pair with antheo-color/scripts/contrast.mjs. Use the semantic names (--color-text, --color-accent…),
    never the hex.
@@ -9,41 +9,41 @@
   --font-sans: "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --font-display: var(--font-sans);
   --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
-  --text-xs: 0.750rem; /* 12px */
+  --text-xs: 0.75rem; /* 12px */
   --leading-xs: 1.5;
   --tracking-xs: 0.01em;
-  --text-sm: 0.813rem; /* 13px */
+  --text-sm: 0.8125rem; /* 13px */
   --leading-sm: 1.5;
   --tracking-sm: 0em;
   --text-base: 0.875rem; /* 14px */
   --leading-base: 1.55;
   --tracking-base: 0em;
-  --text-lg: 1.063rem; /* 17px */
+  --text-lg: 1.0625rem; /* 17px */
   --leading-lg: 1.55;
   --tracking-lg: 0em;
-  --text-xl: 1.250rem; /* 20px */
+  --text-xl: 1.25rem; /* 20px */
   --leading-xl: 1.45;
   --tracking-xl: -0.01em;
-  --text-2xl: 1.500rem; /* 24px */
+  --text-2xl: 1.5rem; /* 24px */
   --leading-2xl: 1.35;
   --tracking-2xl: -0.01em;
-  --text-3xl: 1.813rem; /* 29px */
+  --text-3xl: 1.8125rem; /* 29px */
   --leading-3xl: 1.25;
   --tracking-3xl: -0.02em;
-  --text-4xl: clamp(1.563rem, 1.318rem + 1.087vw, 2.188rem); /* 35px */
+  --text-4xl: clamp(1.5625rem, 1.3179rem + 1.087vw, 2.1875rem); /* 35px */
   --leading-4xl: 1.15;
   --tracking-4xl: -0.02em;
-  --text-5xl: clamp(1.813rem, 1.495rem + 1.413vw, 2.625rem); /* 42px */
+  --text-5xl: clamp(1.8125rem, 1.4946rem + 1.413vw, 2.625rem); /* 42px */
   --leading-5xl: 1.15;
   --tracking-5xl: -0.025em;
   /* display: the hero headline, big statements, numerals as image, in --font-display at --weight-display */
-  --text-display-1: clamp(2.500rem, 1.717rem + 3.478vw, 4.500rem); /* 40 to 72px */
+  --text-display-1: clamp(2.5rem, 1.7174rem + 3.478vw, 4.5rem); /* 40 to 72px */
   --leading-display-1: 1;
   --tracking-display-1: -0.035em;
-  --text-display-2: clamp(2.000rem, 1.682rem + 1.413vw, 2.813rem); /* 32 to 45px */
+  --text-display-2: clamp(2rem, 1.6821rem + 1.413vw, 2.8125rem); /* 32 to 45px */
   --leading-display-2: 1.05;
   --tracking-display-2: -0.028em;
-  --text-display-num: clamp(4.063rem, 2.302rem + 7.826vw, 8.563rem); /* 65 to 137px */
+  --text-display-num: clamp(4.0625rem, 2.3016rem + 7.826vw, 8.5625rem); /* 65 to 137px */
   --leading-display-num: 0.9;
   --tracking-display-num: -0.04em;
   --weight-display: 500;
@@ -290,12 +290,26 @@
   --r-tag: var(--radius-xs); --r-control: var(--radius-sm); --r-card: var(--radius-md); --r-sheet: var(--radius-lg); --r-full: var(--radius-full);
   --s-1: var(--space-1); --s-2: var(--space-2); --s-3: var(--space-3); --s-4: var(--space-4); --s-5: var(--space-5); --s-6: var(--space-6); --s-8: var(--space-8); --s-10: var(--space-10); --s-12: var(--space-12); --s-16: var(--space-16); --s-24: var(--space-24);
   --gap-section: var(--gap-group); --gutter: var(--page-gutter);
-  --h-control: var(--control-md); --h-small: var(--control-sm); --h-cta: var(--control-md); --h-row: 40px; --h-tag: 20px; --h-bar: 48px;
-  --sw-w: 32px; --sw-h: 20px; --sw-knob: 16px;
+  --h-control: var(--control-md); --h-small: var(--control-sm); --h-cta: var(--control-md); --h-row: 2.5rem; --h-tag: 1.25rem; --h-bar: 3rem;
+  --sw-w: 2rem; --sw-h: 1.25rem; --sw-knob: 1rem; --sw-knob-fill: oklch(1 0 0);
   --w-form: 400px; --w-settings: 680px; --w-pricing: 1040px; --w-data: 1120px;
   --ease-move: var(--ease-out);
 }
-@media (pointer: coarse) { :root { --t-field: 16px; } }
+/* Phones and touch, as the style block does it. Phones: the block's 28/32px headline, cards and the gutter at 16px.
+   Touch (phone width, or a finger at any width): text steps up to the block's own sizes (13/18, 15/22, 17/24 and
+   22/28px), controls are 44px, small ones 36px, rows 52px, and the switch is 44 by 26px with a 22px knob. */
+@media (max-width: 47.99rem) {
+  :root { --t-display: 1.75rem; --l-display: 2rem; --pad-card: var(--space-4); --gutter: var(--space-4); }
+}
+@media (max-width: 47.99rem), (pointer: coarse) {
+  :root {
+    --t-meta: 0.8125rem; --l-meta: 1.125rem; --t-body: 0.9375rem; --l-body: 1.375rem;
+    --t-title: 1.0625rem; --l-title: 1.5rem; --t-page: 1.375rem; --l-page: 1.75rem;
+    --h-control: var(--control-lg); --h-small: var(--control-md); --h-cta: var(--control-lg); --h-row: 3.25rem;
+    --sw-w: 2.75rem; --sw-h: 1.625rem; --sw-knob: 1.375rem;
+  }
+}
+@media (pointer: coarse) { :root { --t-field: 1rem; } }
 
 /* The style block's element rules and classes, unchanged. */
 *, *::before, *::after { box-sizing: border-box; }
@@ -308,7 +322,7 @@ html { background: var(--bg); -webkit-text-size-adjust: 100%; text-size-adjust: 
 body {
   margin: 0; background: var(--bg); color: var(--text);
   font: var(--w-text) var(--t-body) / var(--l-body) var(--font); letter-spacing: var(--k-body);
-  -webkit-font-smoothing: antialiased; font-synthesis: none;
+  -webkit-font-smoothing: antialiased; font-synthesis: style;   /* never a faked bold or small caps; an <em> may be slanted where the face ships no italic */
 }
 h1, h2, h3 { margin: 0; font-weight: var(--w-strong); text-wrap: balance; }
 p { margin: 0; text-wrap: pretty; }
@@ -328,10 +342,14 @@ a { color: inherit; text-decoration: underline; text-decoration-thickness: 1px; 
 .card { background: var(--surface); border: 1px solid transparent; border-radius: var(--r-card); box-shadow: var(--sh-card); padding: var(--pad-card); }
 .field {
   height: var(--h-control); width: 100%; padding: 0 var(--s-3); border: 1px solid transparent; border-radius: var(--r-control);
-  background: var(--well); box-shadow: var(--well-edge); font-size: var(--t-field);
+  /* a borderless well with one line anyone can see along its bottom edge: a field told apart only by a faint fill
+     needs 3:1 (WCAG 1.4.11), and a single --text-3 line gives it without boxing the field in. The fully faint
+     field is an opt-out a product takes knowingly: .field { --field-edge: var(--well-edge); } */
+  --field-edge: var(--well-edge), inset 0 -1px 0 var(--text-3);
+  background: var(--well); box-shadow: var(--field-edge); font-size: var(--t-field);
 }
 .field::placeholder { color: var(--text-2); opacity: 1; } /* a placeholder is text someone reads: 4.5:1, which --text-3 does not reach */
-.field:focus-visible { outline: 2px solid transparent; outline-offset: 2px; box-shadow: var(--well-edge), 0 0 0 2px var(--focus); } /* the transparent border and outline turn visible in forced colours, where shadows are dropped */
+.field:focus-visible { outline: 2px solid transparent; outline-offset: 2px; box-shadow: var(--field-edge), 0 0 0 2px var(--focus); } /* the transparent border and outline turn visible in forced colours, where shadows are dropped */
 .field[aria-invalid="true"] { box-shadow: inset 0 0 0 1px var(--danger); }
 .field[aria-invalid="true"]:focus-visible { box-shadow: inset 0 0 0 1px var(--danger), 0 0 0 2px var(--focus); } /* in error and focused: both */
 .btn {
@@ -351,6 +369,17 @@ a { color: inherit; text-decoration: underline; text-decoration-thickness: 1px; 
   background: var(--well); color: var(--text-2); font-size: var(--t-meta); line-height: var(--l-meta);
 }
 .tag-accent { background: var(--accent-soft); color: var(--accent-text); font-weight: var(--w-strong); } /* the one thing to notice: a saving, the recommended plan */
+/* A chip: one of several choices that can each be on. <button class="chip" aria-pressed="true"> with a tick drawn
+   before the label when it is on: the accent fill is never the only cue. */
+.chip {
+  display: inline-flex; align-items: center; gap: var(--s-1); height: var(--h-control); padding: 0 var(--s-3); border: 1px solid transparent;
+  border-radius: var(--r-control); background: var(--well); box-shadow: var(--well-edge); color: var(--text-2); font-weight: var(--w-strong);
+  white-space: nowrap; cursor: pointer;
+  transition: scale var(--dur-instant) var(--ease-out), background-color var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+}
+@media (hover: hover) and (pointer: fine) { .chip:hover { color: var(--text); } }
+.chip:active { scale: var(--scale-press); }
+.chip:is([aria-pressed="true"], [aria-checked="true"]) { background: var(--accent); color: var(--on-accent); box-shadow: none; }
 /* A button with no chrome: a row action, "Show", a close button. Use with .btn; add .icon for a square one. */
 .btn-quiet { background: transparent; box-shadow: none; color: var(--text-2); }
 .btn-quiet.icon { width: var(--h-small); height: var(--h-small); padding: 0; color: var(--text-3); }
@@ -367,15 +396,23 @@ a { color: inherit; text-decoration: underline; text-decoration-thickness: 1px; 
 @media (hover: hover) and (pointer: fine) { .switch:hover { background-image: linear-gradient(var(--wash), var(--wash)); } }
 .switch:active::after { scale: 0.9; }
 .switch[aria-checked="true"] { background-color: var(--accent); } /* the colour only: the shorthand would wipe the hover wash */
-/* forced colours: a transparent outline turns into the system's edge, and "on" takes the system highlight */
-.switch:not(:focus-visible) { outline: 1px solid transparent; outline-offset: -1px; }
+/* forced colours drop fills and shadows: a transparent outline turns into the system's edge, and "on" takes the system
+   highlight, so a switch or a chosen segment stays visible (not while focused, so the focus ring wins) */
+.switch:not(:focus-visible), .seg > button:not(:focus-visible) { outline: 1px solid transparent; outline-offset: -1px; }
 @media (forced-colors: active) {
-  .switch[aria-checked="true"] { background-color: Highlight; }
+  .switch[aria-checked="true"], .seg > button[aria-checked="true"], .chip:is([aria-pressed="true"], [aria-checked="true"]) { background-color: Highlight; color: HighlightText; }
   .switch::after { background: CanvasText; }
   .switch[aria-checked="true"]::after { background: HighlightText; }
 }
 .switch[aria-checked="true"]::after { translate: calc(var(--sw-w) - var(--sw-knob) - 4px) 0; }
 .switch[aria-checked="true"]:dir(rtl)::after { translate: calc(-1 * (var(--sw-w) - var(--sw-knob) - 4px)) 0; }
+/* On touch, a switch, an icon button and a segment keep their drawn size and are pressed through an area 44px tall
+   (and 44px wide for the first two), centred on them. */
+@media (max-width: 47.99rem), (pointer: coarse) {
+  .btn-quiet.icon, .seg > button { position: relative; }
+  .switch::before, .btn-quiet.icon::before { content: ""; position: absolute; top: 50%; left: 50%; width: max(100%, 2.75rem); height: max(100%, 2.75rem); translate: -50% -50%; }
+  .seg > button::before { content: ""; position: absolute; inset: -2px 0; }
+}
 /* A segmented control: <div class="seg" role="radiogroup"> of <button role="radio" aria-checked>. Labels only inside.
    The chosen one is raised in place; a fill that slides between them is optional (antheo-motion recipe 36). */
 .seg { display: inline-grid; grid-auto-flow: column; grid-auto-columns: 1fr; padding: 2px; border-radius: var(--r-full); background: var(--well); box-shadow: var(--well-edge); }
@@ -387,7 +424,8 @@ a { color: inherit; text-decoration: underline; text-decoration-thickness: 1px; 
 .seg > button[aria-checked="true"] { background: var(--raised); color: var(--text); box-shadow: var(--sh-control); }
 @media (hover: hover) and (pointer: fine) { .seg > button:hover { color: var(--text); } }
 .seg > button:active { scale: var(--scale-press); }
-/* A dialog: the native element, opened with showModal(). On a phone it is a sheet on the bottom edge. */
+/* A dialog: the native element, opened with showModal(). It fades and grows from 0.96 in 200ms and leaves in 150ms.
+   On a phone it is a sheet: it slides its whole height from the bottom edge, opaque all the way, 300ms in, 200ms out. */
 dialog {
   width: min(var(--w-form), 100% - 2 * var(--gutter)); max-height: calc(100dvh - 2 * var(--gutter)); overflow: auto; padding: var(--s-6);
   border: 1px solid transparent; border-radius: var(--r-card); background: var(--surface); color: var(--text); box-shadow: var(--sh-dialog);
@@ -403,13 +441,26 @@ dialog[open]::backdrop { opacity: 1; }
 @media (max-width: 47.99rem) {
   dialog {
     width: 100%; max-width: 100%; margin: auto 0 0; border-radius: var(--r-sheet) var(--r-sheet) 0 0;
-    padding-block-end: max(var(--s-6), env(safe-area-inset-bottom)); scale: 1; translate: 0 var(--dist-lg);
+    padding-block-end: max(var(--s-6), env(safe-area-inset-bottom));
+    opacity: 1; scale: 1; translate: 0 100%; transition-duration: var(--dur-base);
   }
-  dialog[open] { translate: 0 0; }
-  @starting-style { dialog[open] { scale: 1; translate: 0 var(--dist-lg); } }
+  dialog[open] { translate: 0 0; transition-duration: var(--dur-slow); }
+  @starting-style { dialog[open] { opacity: 1; scale: 1; translate: 0 100%; } }
+}
+/* More contrast, when the reader asks for it: wells get a full edge, and hairlines and card edges become lines
+   anyone can see. */
+@media (prefers-contrast: more) {
+  /* each selector is doubled so it outranks the theme rules above, which set the same names */
+  :root:root, [data-theme][data-theme] { --well-edge: inset 0 0 0 1px var(--text-2); --line: var(--text-3); --edge: 0 0 0 1px var(--text-3); }
 }
 /* Reduced motion: travel and scale go, a short fade stays. */
 @media (prefers-reduced-motion: reduce) {
   :root { --dist-xs: 0px; --dist-sm: 0px; --dist-md: 0px; --dist-lg: 0px; --scale-press: 1; --scale-pop: 1; --scale-tip: 1; --scale-leave: 1; --ease-spring: var(--ease-out); }
   .btn { transition: background-color var(--dur-fast) var(--ease-out); }
+  /* the sheet stops sliding and fades in place */
+  @media (max-width: 47.99rem) {
+    dialog { opacity: 0; translate: none; }
+    dialog[open] { opacity: 1; translate: none; }
+    @starting-style { dialog[open] { opacity: 0; translate: none; } }
+  }
 }

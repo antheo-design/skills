@@ -74,7 +74,8 @@ left-aligned heading above a centred grid, or the reverse.
 
 Sections of one page share one container (all cards, or none), one padding, one heading style and one gap; the last
 section is not special (a danger zone is a section like the others). Cards in a row share width, height, padding,
-radius and the order of what is inside, with actions pinned to the bottom so buttons line up across cards. Controls in
+radius and the order of what is inside, with actions pinned to the bottom so buttons line up across cards (`subgrid`
+on the cards' rows lines up titles, prices and lists across them too). Controls in
 a row share one height. Before review, list each set of siblings and check them against each other.
 
 ## Widths
@@ -110,22 +111,25 @@ first, deciding each region:
 
 Components that live at different widths use **container queries**; the page uses media queries, with breakpoints
 where the content breaks, not at device sizes. Things that trap layouts: a `container-type` flex item with no
-definite width collapses to nothing; `width: 100vw` causes sideways scroll; an overflowing grid item in a
+definite width collapses to nothing; `width: 100vw` causes sideways scroll; a page that jumps sideways when a
+scrollbar appears needs `scrollbar-gutter: stable`; an overflowing grid item in a
 fixed-height grid is squashed (use `grid-auto-rows: max-content`); centring a scroller hides its top (use
 `align-content: safe center`). More in `references/responsive.md`.
 
 ## The platform details
 
 - No sideways scroll at 320px (WCAG 1.4.10): `min-width: 0` on flex and grid children that hold text.
-- A word never breaks mid-word: labels, values, buttons and headings get room or `white-space: nowrap`; only strings
+- A word never breaks mid-word: labels, values and buttons stay on one line and get room; a heading wraps between
+  words; only strings
   people typed (emails, links, IDs) take `overflow-wrap: anywhere` (`.long-text`).
 - A number keeps its unit beside it, on one baseline (`.figure`), never in a reserved fixed-width box.
 - Full-height layouts use `100dvh` (or `100svh` for a hero), never `100vh`.
 - Bottom bars and sheets respect safe areas: `padding-bottom: max(16px, env(safe-area-inset-bottom))`.
 - `overscroll-behavior: contain` in sheets and scrolling panels; `touch-action: manipulation` on controls.
 - Sticky headers never cover the focused element (WCAG 2.4.11): `scroll-padding-top` equal to the header's height.
-- A sticky or fixed bar is opaque with a hairline, and the content gets bottom padding equal to its height; a short
-  form keeps its button in the flow (antheo-mobile).
+- A bar fixed to the bottom that holds an action is opaque with a hairline above it (a tab bar may be translucent,
+  antheo-surface), and the content gets bottom padding equal to its height; a short form keeps its button in the flow (antheo-mobile). A top bar has no line at rest and takes one once
+  content has scrolled under it (antheo-surface).
 - Show that more exists: a scroller lets the next card peek by 16 to 32px; a collapsed list says what and how many.
 - What you see is the order it reads in: never rearrange with `order`, `row-reverse` or grid placement, because
   keyboard and screen-reader order follow the markup. Move the markup instead.

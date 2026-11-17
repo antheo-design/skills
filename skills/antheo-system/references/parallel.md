@@ -38,7 +38,7 @@ Do: <the migration step for this surface, e.g. replace exact raw values with tok
 Tolerance: color dE <= 2; spacing, size, radius <= 2px; font size <= 1px; line height <= 0.05; opacity <= 0.02;
 duration <= 30ms; border width, font weight, font family and easing exactly. Anything outside is a "visible change":
 list it, don't hide it.
-After, capture after shots into after/<surface>, then
+After, capture after shots with the same command and the same flags, into after/<surface>, then
   node <antheo-review>/scripts/pixdiff.mjs before/<surface> after/<surface> --out diffs/<surface>
 and run audit-values.mjs on your files: the count must not go up.
 Do not touch: <other surfaces>, tokens, shared components, tests you were not asked to change, anything under
@@ -53,10 +53,13 @@ and why.
 ```
 You verify the migration of <surface>, done by <worker>. You do not fix it; you accept or send it back.
 
-Run, on the worker's branch:
-  node <antheo-review>/scripts/check-page.mjs <url> --stress --shots after-verify/<surface>
+Run, on the worker's branch. The first capture uses the flags the before shots were made with, so both folders hold
+the same file names; pixdiff fails on a file that exists on one side only:
+  node <antheo-review>/scripts/check-page.mjs <url> --shots after-verify/<surface> --widths 390,1280
   node <antheo-review>/scripts/pixdiff.mjs before/<surface> after-verify/<surface> --tolerance 2 --max <limit> --out diffs-verify
-  node <antheo-system>/scripts/audit-values.mjs <surface files> --baseline design/audit.json --fail-on-increase
+  node <antheo-review>/scripts/check-page.mjs <url> --stress --shots stress-verify/<surface>
+  node <antheo-system>/scripts/audit-values.mjs <the folder the baseline was stored from> --baseline design/audit.json --fail-on-increase
+The stress shots go in their own folder and are looked at, never diffed: the before shots have no stress run.
 Check: every pixdiff region is on the worker's list of visible changes; each listed change is within the tolerance
 table, or approved by the person; the behaviour contract rows are all yes or decided; keyboard path and focus
 unchanged; no file outside the surface changed (git diff --name-only).

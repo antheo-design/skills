@@ -6,7 +6,7 @@ Contents: 1 case and punctuation, 2 numbers, 3 dates and times, 4 money and unit
 
 ## 1. Case and punctuation
 
-- **Sentence case** for page titles, headings, buttons, tabs, menu items, labels, column headers, toasts. Capitals: first word, proper nouns (Figma, London), acronyms (PDF).
+- **Sentence case** (the house default; a product that already uses title case on buttons and menus keeps it, one casing per kind of element) for page titles, headings, buttons, tabs, menu items, labels, column headers, toasts. Capitals: first word, proper nouns (Figma, London), acronyms (PDF).
 - Product feature names: capitalize only if they are real proper names and used the same way everywhere. Otherwise lowercase ("the invoice editor").
 - **No end punctuation** on buttons, labels, tabs, menu items, short headings, table headers. Full stops on sentences, including help text and errors.
 - **Colons:** a label may end with a colon in a dense form; no colon after a heading. Do not put a colon before a list of one line.

@@ -113,9 +113,11 @@ Written: <date> · Used in: <n> places (<the 3 to 5 main ones>)
 | Strings shown | none of its own; loading adds `aria-busy`, no visible text | | |
 | Accessible name | from the label; icon-only requires `aria-label` | | |
 | Layout | min height 40px; does not shrink below its label | | |
+| Form and request | `type="submit"` by default; Enter in a field sends the form; `name` passed to the input | | |
 ```
 
 A "no" is fixed in the new component, absorbed by a wrapper, or written up as a decision. Do not delete the old
-component until every row is yes or decided.
+component until every row is yes or decided. How to prove each row at every call site, and that a form still sends
+the same request: `references/parity.md`.
 
 Splitting a large migration across agents: `references/parallel.md`.

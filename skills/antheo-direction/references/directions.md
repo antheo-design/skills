@@ -50,6 +50,8 @@ For events, launches, culture, bold consumer brands.
 - **Image:** the type is the image.
 - **Sections:** few; one colour field for the page.
 - **Motion:** one bold entrance, maybe a marquee that pauses on hover and stops for reduced motion.
+- **A finished one:** `pages/poster.html`, a film weekend on a pier: one blue field, one orange used twice, the
+  headline sized to the window, the programme in the text face.
 
 ### Playful object
 For consumer apps, kids, games, hobbies.
@@ -73,7 +75,7 @@ For local services, outdoors, travel, food made by hand, community projects.
 For internal tools, finance, settings, admin: work people repeat every day.
 - **Type:** one neutral sans (Hanken Grotesk, Figtree, Source Sans 3) in 3 sizes and 3 tones; mono for IDs.
 - **Color:** tinted neutrals, one accent in under 3 places per screen, status colors only for status.
-- **Image:** none needed. The memorable part is **one detail** (see App screens below).
+- **Image:** none needed. The memorable part is **one detail** (see "The signature" below).
 - **Sections:** hairlines and space instead of cards; label-left/control-right rows.
 - **Motion:** state changes under 200ms; nothing that repeats daily animates.
 
@@ -89,7 +91,7 @@ from one of these:
 | **A diagram of the mechanism** | What actually happens, drawn: nodes, arrows, labels, 1.5px strokes, two colors plus ink. Explaining beats decorating. | Product stage, Field notes |
 | **A pattern from the subject's primitive** | Repeat one unit from the subject's world (route tape stripes, calendar days, a stamp shape, a tread pattern) in 2 to 3 colors as a field or a band. | Poster, Catalogue |
 | **Type as image** | One word or number at 18 to 30vw, cropped by the edge, or behind content at 8 to 15% contrast. Once per page. | Poster, Editorial |
-| **An Antheo art piece** | When the registry has art whose mood truly matches (`/r/art/scenes.json`, or `pick_scene` in the MCP), use it as the one level-4 visual. Never force one that doesn't fit the subject. | Any, for the hero or a large empty state |
+| **An Antheo art piece** | When the project has Antheo art whose mood truly matches, use it as the one level-4 visual. Never force one that doesn't fit the subject. | Any, for the hero or a large empty state |
 
 
 ```html

@@ -78,9 +78,13 @@ A sheet on a phone uses `--r-sheet` (14px) on its top corners. A shape inside an
 
 ## Wells sink
 
-A field is a well, not an outlined box: the block's `.field` (`--well` with the faint inner `--well-edge`), a shade
+A field is a well, not an outlined box: the block's `.field` (`--well`, the faint inner `--well-edge` and one
+`--text-3` line along its bottom edge), a shade
 deeper than what it sits on in light, and a shade brighter in dark. A form is then a column of quiet fills, not a stack of
 frames. Focus adds the 2px `--focus` ring; an error swaps the inner edge for `--danger`, and with focus it shows both.
+The well's fill is too faint to find a field by (about 1.1:1), so the block draws one `--text-3` line along its
+bottom edge: the least that meets 1.4.11 without boxing the field in (antheo-color). Under `prefers-contrast: more`
+the block turns that into a full edge, and hairlines and card edges into lines anyone can see.
 
 A small control whose edge is its only shape (an empty checkbox or radio, a switch's off track, a slider's track)
 needs 3:1 against what it sits on (WCAG 1.4.11). A 1px `--text-3` edge is the lightest in the block that passes (3.7
@@ -107,8 +111,10 @@ A little confirmation that opens where its button is, without a backdrop, uses t
 
 ## Translucent chrome, only over moving content
 
-Blur and translucency are for chrome that content scrolls under (a sticky header, a toolbar, a phone tab bar):
-the surface at 80% with `backdrop-filter: blur(12px) saturate(1.4)`. Never on cards, menus or dialogs. Give a solid
+A bar is opaque by default. Blur and translucency are a choice, only for chrome that content scrolls under (a
+sticky header, a toolbar, a phone tab bar): the surface at 80% with `backdrop-filter: blur(12px) saturate(1.4)`.
+Never on cards, menus or dialogs, and never on a bar that holds a form's action (antheo-mobile keeps that one
+opaque). Give a solid
 fallback under `@supports not (backdrop-filter: blur(1px))` and `@media (prefers-reduced-transparency: reduce)`, and
 measure its text against the worst spot behind it (antheo-color).
 
@@ -160,7 +166,7 @@ meaning the same thing everywhere: higher is closer.
 - [ ] Only the block's four shadows; no card outlined in any theme; emphasis is `--sh-lift`
 - [ ] Dark checked: lighter is higher, a faint light edge, no drops on cards
 - [ ] Rings as box-shadows over a transparent border; no size changes between themes
-- [ ] Three corner sizes (10, 6, 4) and fully round only for switches and avatars
+- [ ] Three corner sizes (10, 6, 4) and fully round only for switches, avatars and a segmented control
 - [ ] Hairlines only between repeating rows and under a scrolled sticky bar
 - [ ] Rows fill in place; picked options keep a check
 - [ ] Translucent chrome has a solid fallback; images outlined; icons sized and mirrored correctly

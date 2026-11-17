@@ -53,7 +53,7 @@ Add one where the content breaks. Typical page-level ones: `40rem` (640px: phone
 - Inputs at 16px or larger (iOS zooms smaller ones). `inputmode` and `autocomplete` on every field.
 - Hover doesn't exist on touch: wrap hover-only effects in `@media (hover: hover) and (pointer: fine)` so a tap doesn't leave something stuck "hovered".
 - Primary actions: after the last field on a short form; on a form longer than about a screen and a half, a bottom bar that is opaque with a hairline, with the content padded by its height so nothing is covered (antheo-mobile).
-- Sticky headers: keep them ≤ 56px and hide on scroll down / show on scroll up for long pages; reserve `scroll-padding-top` equal to their height so anchors don't hide under them.
+- Sticky headers: `--h-bar` tall; on a long page they may hide on scroll down / show on scroll up for long pages; reserve `scroll-padding-top` equal to their height so anchors don't hide under them.
 
 ## Test widths
 

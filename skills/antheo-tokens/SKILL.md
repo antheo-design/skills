@@ -41,7 +41,8 @@ node <this-skill>/scripts/block.mjs --accent "#c2412d" --neutral cool --font "In
 It prints `contrast: all 26 pairs pass` or names each pair that fails, and a `note:` for a choice to look at (an
 accent near the danger hue, a nearly grey accent). By hand, change the same three things and measure the same
 pairs with antheo-color's `contrast.mjs`. The sizes, weights, corners, shadows and heights stay as they are: they
-are what makes it look designed. A brand colour that already passes with white text is kept exactly.
+are what makes it look designed. Type sizes, line heights and control heights are written in rem, so they follow the
+reader's browser font size; space, corners and shadows stay in px. A brand colour that already passes with white text is kept exactly.
 
 **Both themes at once** (a theme preview, a spec, a side-by-side): put `data-theme="light"` and `data-theme="dark"`
 on two sibling elements of the same size; each draws its own ground, whatever the system setting. Never copy the dark
@@ -74,7 +75,10 @@ No Node: copy `references/default-tokens.css` (the generator's product set) and 
 
 **Which one?** A screen, a component or a small product: the style block, rebranded with `block.mjs`. A design
 system that needs a Tailwind theme, W3C JSON, a full type ramp or the expressive register: the generator. Either
-way components read the block's short names, so nothing is rewritten when a product moves from one to the other.
+way components read the block's short names, so no markup is rewritten when a product moves from one to the other.
+The generated product set is close to the block, not identical: controls are 36px tall (the block's are 32), titles
+17px (15), weights 400 and 500 (450 and 550), card padding 16px (20). Meta, body and page sizes, the corners, the
+small, row and bar heights, and every touch size (44px controls, the switch, 16px fields) are the same.
 
 ## Two tiers, named for the job
 

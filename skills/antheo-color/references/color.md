@@ -58,7 +58,7 @@ Chart palettes (one measure in one colour, categories, sequential and diverging 
 - Text: L ~0.93 to 0.96, never #fff.
 - Saturated colors look brighter on dark: reduce chroma 10 to 20% and raise lightness.
 - Elevation: each layer up gets ~0.04 lighter.
-- Shadows mostly disappear; a raised thing gets a single 0.5px line all round, lighter than its fill (1px at lower contrast on 1× screens).
+- Shadows mostly disappear; a raised thing gets one faint line all round, lighter than its fill (the block: 1px of white at 6 to 9%; a 0.5px line can vanish on 1× screens).
 - Re-check every pair; a palette that passes in light can fail in dark.
 
 ## Sources
@@ -74,7 +74,7 @@ Minimums keep text readable; bands keep the page from going flat. Each role has 
 |---|---|---|
 | `--text` on `--bg` | 12 to 21:1 | 10 to 16.5:1 (higher glares on dark) |
 | `--text-2` | 4.5 to 7.5:1 | 4.5 to 8:1 |
-| `--text-3` (icons, placeholders, disabled) | 3 to 4.5:1 | 3 to 4.5:1 |
+| `--text-3` (icons, ticks, an off track; a placeholder is text and takes `--text-2`) | 3 to 4.5:1 | 3 to 4.5:1 |
 | a control's edge (the ring in `--sh-control`, an off switch track) | 1.6 to 3.5:1 | 1.6 to 3.5:1 |
 | `--line` (hairlines between rows) | 1.15 to 1.6:1 | 1.15 to 1.6:1 |
 | Dark surfaces, each step | none | 0.03+ in OKLCH lightness |

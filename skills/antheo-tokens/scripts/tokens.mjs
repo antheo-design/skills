@@ -7,7 +7,8 @@
  * Writes into --out:
  *   tokens.css           CSS custom properties: light, dark (by prefers-color-scheme and by [data-theme])
  *   tokens.tailwind.css  the same as a Tailwind v4 @theme block
- *   tokens.json          the W3C Design Tokens format ($value / $type)
+ *   tokens.json          the Design Tokens format, 2025.10 (designtokens.org): a colour is its colour space and
+ *                        components with a 6-digit hex fallback, a shadow is its layers, a font family is a list
  *   motion.css           the motion kit: hover, press and focus on every control, one entrance, open/close, reduced motion
  *   layout.css           the layout kit: one page grid, splits, auto grids, stacks: fluid from 320px to 2560px
  *   preview.html         a specimen page: palette, type, spacing, radii, shadows, motion, components
@@ -201,6 +202,11 @@ function theme(dark) {
   // laid over any control on hover: darkens in light, lightens in dark
   t.wash = dark ? 'oklch(1 0 0 / 0.08)' : `oklch(0.2 0.02 ${Math.round(hue)} / 0.07)`;
   t.ring = dark ? 'oklch(1 0 0 / 0.1)' : `oklch(0.25 0.02 ${Math.round(hue)} / 0.08)`;
+  // the brand by name, in both registers: the block's --accent (a switch that is on, the chosen chip) reads these.
+  // In the expressive register the accent is the brand; the product look below turns the accent into the ink.
+  t.brand = t.accent;
+  t['brand-fg'] = t['accent-fg'];
+  t['brand-text'] = t['accent-text'];
   if (register === 'product') productLook(t, dark);
   return t;
 }
@@ -212,9 +218,6 @@ function theme(dark) {
  */
 function productLook(t, dark) {
   const g = (L, c = 0.003) => oklchToHex([L, c, 80]); // near-neutral: enough hue to feel of a piece, never beige
-  t.brand = t.accent;
-  t['brand-fg'] = t['accent-fg'];
-  t['brand-text'] = t['accent-text'];
   t.bg = dark ? g(0.17, 0.003) : g(0.98, 0.002);
   t.surface = dark ? g(0.215) : '#ffffff';
   t['surface-2'] = dark ? g(0.248) : g(0.972, 0.002);
@@ -281,12 +284,12 @@ const type = Object.fromEntries(
     // the biggest steps scale down on phones: clamp from ~70% at 360px to full at 1280px
     const min = Math.round(px * 0.7);
     const slope = (px - min) / 920; // px of type per px of viewport, between 360 and 1280 wide
-    const size = px >= 32 ? `clamp(${(min / 16).toFixed(3)}rem, ${((min - slope * 360) / 16).toFixed(3)}rem + ${(slope * 100).toFixed(3)}vw, ${(px / 16).toFixed(3)}rem)` : `${(px / 16).toFixed(3)}rem`;
+    const size = px >= 32 ? `clamp(${+(min / 16).toFixed(4)}rem, ${+((min - slope * 360) / 16).toFixed(4)}rem + ${(slope * 100).toFixed(3)}vw, ${+(px / 16).toFixed(4)}rem)` : `${+(px / 16).toFixed(4)}rem`;
     return [k, { px, size, lh: lineHeight(px), tracking: tracking(px) }];
   }),
 );
 // display sizes sit outside the UI scale: a hero headline 2.5× body or more, set tight. Phones get ~44 to 48%.
-const fluid = (px, minPx) => { const slope = (px - minPx) / 920; return `clamp(${(minPx / 16).toFixed(3)}rem, ${((minPx - slope * 360) / 16).toFixed(3)}rem + ${(slope * 100).toFixed(3)}vw, ${(px / 16).toFixed(3)}rem)`; };
+const fluid = (px, minPx) => { const slope = (px - minPx) / 920; return `clamp(${+(minPx / 16).toFixed(4)}rem, ${+((minPx - slope * 360) / 16).toFixed(4)}rem + ${(slope * 100).toFixed(3)}vw, ${+(px / 16).toFixed(4)}rem)`; };
 const DISPLAY = {
   'display-1': { px: M.display, min: Math.round(Math.max(40, M.display * 0.46)), lh: 1.0, tracking: displayIsSerif ? '-0.02em' : '-0.035em' },
   'display-2': { px: Math.round(M.display * 0.62), min: Math.round(Math.max(32, M.display * 0.4)), lh: 1.05, tracking: displayIsSerif ? '-0.015em' : '-0.028em' },
@@ -592,12 +595,31 @@ const scaleVars = () =>
 // The style block's six type roles, as steps of this scale; and its element rules and classes (.card, .field, .btn,
 // .tag…), read from the block itself so there is one copy. Its font-size-adjust is Geist's, so it only stays for Geist.
 const BLOCK_TYPE = { meta: 'xs', body: register === 'product' ? 'sm' : 'base', title: 'lg', page: 'xl', num: '3xl', display: '4xl' };
-const BLOCK_RULES = (() => {
+// On touch the block's text steps up (meta 13/18, body 15/22, title 17/24, page 22/28px), and at phone width its
+// headline is 28/32px. The product register takes exactly those: the same rem values the block writes, read from the
+// block so there is one copy (the values below stand in when the block is not beside this script). The expressive
+// register has its own scale, so there a role takes the next step of that scale when it sits under the block's touch
+// size for the role: a 12px meta steps up, a 16px body is already past 15px and stays.
+const BLOCK_TOUCH_PX = { meta: 13, body: 15, title: 17, page: 22 };
+const BLOCK_FILE = (() => {
   const here = dirname(fileURLToPath(import.meta.url));
   const file = [join(here, '..', '..', 'antheo-build', 'references', 'quiet.css'), join(here, '..', 'references', 'quiet.css')].find((f) => existsSync(f));
-  if (!file) return '';
-  const block = readFileSync(file, 'utf8');
-  const rules = block.slice(block.indexOf('*, *::before, *::after'));
+  return file ? readFileSync(file, 'utf8') : '';
+})();
+const fromBlock = (media, fallback) => {
+  const body = BLOCK_FILE.match(media)?.[1] ?? '';
+  return Object.entries(fallback).map(([n, v]) => `${n}: ${body.match(new RegExp(`${n}:\\s*([^;]+);`))?.[1].trim() ?? v};`);
+};
+const TOUCH_BLOCK = fromBlock(/@media \(max-width: 47\.99rem\), \(pointer: coarse\) \{\s*:root \{([^}]*)\}/, { '--t-meta': '0.8125rem', '--l-meta': '1.125rem', '--t-body': '0.9375rem', '--l-body': '1.375rem', '--t-title': '1.0625rem', '--l-title': '1.5rem', '--t-page': '1.375rem', '--l-page': '1.75rem' });
+const PHONE_BLOCK = fromBlock(/@media \(max-width: 47\.99rem\) \{\s*:root \{([^}]*)\}/, { '--t-display': '1.75rem', '--l-display': '2rem' });
+const TOUCH_TYPE = Object.entries(BLOCK_TOUCH_PX).flatMap(([b, px]) => {
+  const next = Object.keys(STEPS)[Object.keys(STEPS).indexOf(BLOCK_TYPE[b]) + 1];
+  return type[BLOCK_TYPE[b]].px < px && next ? [[b, next]] : [];
+});
+const role = ([b, k]) => `--t-${b}: var(--text-${k}); --l-${b}: var(--leading-${k}); --k-${b}: var(--tracking-${k});`;
+const BLOCK_RULES = (() => {
+  if (!BLOCK_FILE) return '';
+  const rules = BLOCK_FILE.slice(BLOCK_FILE.indexOf('*, *::before, *::after'));
   const geist = /"Geist"/.test(stack.sans);
   return `\n/* The style block's element rules and classes, unchanged. */\n${geist ? rules : rules.replace(/\s*font-size-adjust:[^;]+;/, '').replace(/\/\* font-size-adjust:[\s\S]*?\*\/\n/, '')}`;
 })();
@@ -653,12 +675,27 @@ ${Object.entries(BLOCK_TYPE).map(([b, k]) => `  --t-${b}: var(--text-${k}); --l-
   --r-tag: var(--radius-xs); --r-control: var(--radius-sm); --r-card: var(--radius-md); --r-sheet: var(--radius-lg); --r-full: var(--radius-full);
   ${[1, 2, 3, 4, 5, 6, 8, 10, 12, 16, 24].map((k) => `--s-${k}: var(--space-${k});`).join(' ')}
   --gap-section: var(--gap-group); --gutter: var(--page-gutter);
-  --h-control: var(--control-md); --h-small: var(--control-sm); --h-cta: var(--control-md); --h-row: 40px; --h-tag: 20px; --h-bar: 48px;
-  --sw-w: 32px; --sw-h: 20px; --sw-knob: 16px;
+  --h-control: var(--control-md); --h-small: var(--control-sm); --h-cta: var(--control-md); --h-row: 2.5rem; --h-tag: 1.25rem; --h-bar: 3rem;
+  --sw-w: 2rem; --sw-h: 1.25rem; --sw-knob: 1rem; --sw-knob-fill: oklch(1 0 0);
   --w-form: 400px; --w-settings: 680px; --w-pricing: 1040px; --w-data: 1120px;
   --ease-move: var(--ease-out);
 }
-@media (pointer: coarse) { :root { --t-field: 16px; } }
+${register === 'product' ? `/* Phones and touch, as the style block does it. Phones: the block's 28/32px headline, cards and the gutter at 16px.
+   Touch (phone width, or a finger at any width): text steps up to the block's own sizes (13/18, 15/22, 17/24 and
+   22/28px), controls are ${control.lg}px, small ones ${control.md}px, rows 52px, and the switch is 44 by 26px with a 22px knob. */`
+    : `/* Phones and touch, as the style block does it, in these names. Phones: the headline takes the numeral's step, cards
+   and the gutter go to 16px. Touch (phone width, or a finger at any width): small text steps up, controls are
+   ${control.lg}px, small ones ${control.md}px, rows 52px, and the switch is 44 by 26px with a 22px knob. */`}
+@media (max-width: 47.99rem) {
+  :root { ${register === 'product' ? PHONE_BLOCK.join(' ') : role(['display', BLOCK_TYPE.num])} --pad-card: var(--space-4); --gutter: var(--space-4); }
+}
+@media (max-width: 47.99rem), (pointer: coarse) {
+  :root {
+${register === 'product' ? `    ${TOUCH_BLOCK.slice(0, 4).join(' ')}\n    ${TOUCH_BLOCK.slice(4).join(' ')}\n` : TOUCH_TYPE.length ? `    ${TOUCH_TYPE.map(role).join('\n    ')}\n` : ''}    --h-control: var(--control-lg); --h-small: var(--control-md); --h-cta: var(--control-lg); --h-row: 3.25rem;
+    --sw-w: 2.75rem; --sw-h: 1.625rem; --sw-knob: 1.375rem;
+  }
+}
+@media (pointer: coarse) { :root { --t-field: 1rem; } }
 ${BLOCK_RULES}`;
 
 const tw = `/* ${name} tokens as a Tailwind v4 theme. Import after "tailwindcss" and after tokens.css. */
@@ -676,21 +713,54 @@ ${[1, 2, 3, 4].map((k) => `  --shadow-${k}: var(--shadow-${k});`).join('\n')}
 }
 `;
 
+// tokens.json, in the Design Tokens format 2025.10 (designtokens.org/tr/2025.10/format and /color). Every value is read
+// from the same strings tokens.css is written from, so the two files cannot disagree.
+// A colour is an object: its colour space, its components, an alpha when it has one, and a 6-digit hex fallback. A hex
+// from the palette is sRGB (components 0 to 1); the translucent washes and shadow tints stay in OKLCH, as written.
+const r4 = (n) => +n.toFixed(4);
+function dtcgColor(v) {
+  if (/^#[0-9a-f]{6}$/i.test(v)) return { colorSpace: 'srgb', components: hexToRgb(v).map(r4), hex: v.toLowerCase() };
+  const m = v.match(/^(rgb|oklch)\(\s*([\d.]+)\s+([\d.]+)\s+([\d.]+)(?:\s*\/\s*([\d.]+))?\s*\)$/);
+  if (!m) throw new Error(`tokens.json: cannot read the colour "${v}"`);
+  const n = m.slice(2, 5).map(Number);
+  const alpha = m[5] === undefined ? {} : { alpha: +m[5] };
+  if (m[1] === 'rgb') return { colorSpace: 'srgb', components: n.map((c) => r4(c / 255)), ...alpha, hex: rgbToHex(n.map((c) => c / 255)) };
+  const lch = [n[0], n[1], n[2] % 360]; // the format wants a hue from 0 up to, not including, 360
+  return { colorSpace: 'oklch', components: lch, ...alpha, hex: oklchToHex(lch) };
+}
+const dtcgPx = (v) => ({ value: parseFloat(v), unit: 'px' });
+// a shadow is a list of layers, front to back: "0 4px 8px -2px <colour>" is offsetX, offsetY, blur, spread, colour
+const dtcgShadow = (css) => css.split(/,\s*(?![^(]*\))/).map((layer) => {
+  const m = layer.match(/^(\S+) (\S+) (\S+) (?:(-?[\d.]+px) )?(\w+\(.+\))$/);
+  if (!m) throw new Error(`tokens.json: cannot read the shadow layer "${layer}"`);
+  return { color: dtcgColor(m[5]), offsetX: dtcgPx(m[1]), offsetY: dtcgPx(m[2]), blur: dtcgPx(m[3]), spread: dtcgPx(m[4] ?? '0') };
+});
+// a font family is a list of names, most wanted first; the display face is an alias when it is the text face
+const dtcgFamily = (css) => css.split(',').map((n) => n.trim().replace(/^["']|["']$/g, ''));
+const group = (o, fn) => Object.fromEntries(Object.entries(o).map(([k, v]) => [String(k).replace('.', '_'), fn(v, k)]));
 const dtcg = {
-  $description: `${name} design tokens (brand ${brandHex}, ${mood}, ${shape}, ${density}). W3C Design Tokens format.`,
+  $description: `${name} design tokens (brand ${brandHex}, ${mood}, ${shape}, ${density}). Design Tokens format 2025.10.`,
   color: {
-    light: Object.fromEntries(Object.entries(light).map(([k, v]) => [k, { $type: 'color', $value: v }])),
-    dark: Object.fromEntries(Object.entries(dark).map(([k, v]) => [k, { $type: 'color', $value: v }])),
+    light: group(light, (v) => ({ $type: 'color', $value: dtcgColor(v) })),
+    dark: group(dark, (v) => ({ $type: 'color', $value: dtcgColor(v) })),
   },
   font: {
-    family: { sans: { $type: 'fontFamily', $value: stack.sans }, display: { $type: 'fontFamily', $value: stack.display }, mono: { $type: 'fontFamily', $value: stack.mono } },
-    size: Object.fromEntries([...Object.entries(type), ...Object.entries(DISPLAY)].map(([k, t]) => [k, { $type: 'dimension', $value: { value: t.px, unit: 'px' } }])),
-    weight: { display: { $type: 'fontWeight', $value: displayWeight } },
+    family: {
+      sans: { $type: 'fontFamily', $value: dtcgFamily(stack.sans) },
+      display: { $type: 'fontFamily', $value: displayFont === sansFont ? '{font.family.sans}' : dtcgFamily(stack.display) },
+      mono: { $type: 'fontFamily', $value: dtcgFamily(stack.mono) },
+    },
+    size: group({ ...type, ...DISPLAY }, (t) => ({ $type: 'dimension', $value: dtcgPx(t.px) })),
+    weight: { text: { $type: 'fontWeight', $value: 400 }, strong: { $type: 'fontWeight', $value: 500 }, display: { $type: 'fontWeight', $value: displayWeight } },
   },
-  space: Object.fromEntries(Object.entries(SPACE).map(([k, v]) => [String(k).replace('.', '_'), { $type: 'dimension', $value: { value: v, unit: 'px' } }])),
-  radius: Object.fromEntries(Object.entries(radius).map(([k, v]) => [k, { $type: 'dimension', $value: { value: v, unit: 'px' } }])),
+  space: group(SPACE, (v) => ({ $type: 'dimension', $value: dtcgPx(v) })),
+  radius: group(radius, (v) => ({ $type: 'dimension', $value: dtcgPx(v) })),
+  shadow: {
+    light: group(sh(false), (v) => ({ $type: 'shadow', $value: dtcgShadow(v) })),
+    dark: group(sh(true), (v) => ({ $type: 'shadow', $value: dtcgShadow(v) })),
+  },
   duration: Object.fromEntries(Object.entries(motion).filter(([k]) => k.startsWith('dur')).map(([k, v]) => [k, { $type: 'duration', $value: { value: parseInt(v, 10), unit: 'ms' } }])),
-  easing: Object.fromEntries(['ease-out', 'ease-in', 'ease-in-out'].map((k) => [k, { $type: 'cubicBezier', $value: motion[k].match(/[\d.]+/g).map(Number) }])),
+  easing: Object.fromEntries(['ease-out', 'ease-in', 'ease-in-out'].map((k) => [k, { $type: 'cubicBezier', $value: motion[k].match(/-?[\d.]+/g).map(Number) }])),
 };
 
 // contrast report: the pairs people actually read

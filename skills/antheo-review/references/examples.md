@@ -15,3 +15,7 @@ Real builds by coding agents with these skills, judged by people beside the refe
 | What went wrong | What fixed it |
 |---|---|
 | The gate passed while a filter bar wrapped out of its pill with five options (round 4) | The page check now catches a control spilling out of the shape that holds it; render every state with 1, 2 and many items |
+
+## When the default is wrong
+
+A one-line change does not need seven widths and two reviewers: use the "Small change" level and say so. A reference-led or branded build is checked with `--preset none`: the Quiet counts do not apply; access, layout and broken things always do.

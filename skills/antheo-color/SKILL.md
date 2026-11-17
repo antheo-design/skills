@@ -39,15 +39,32 @@ accent's hue and keep its lightness and chroma, then measure the pairs again.
 |---|---|
 | Body text, labels, placeholders people must read | 4.5:1 |
 | Large text (24px, or 18.66px bold) | 3:1 |
-| Input borders, icons that carry meaning, chart lines, any state indicator | 3:1 against what is next to it |
+| A control's edge when the edge is all that shows it (an empty checkbox, a switch's off track, an outlined field), icons that carry meaning, chart lines, any state indicator | 3:1 against what is next to it |
 | A focus ring | 3:1 against every colour it crosses |
 | Disabled controls, decoration | none, so never put information there |
 
 Check any pair: `node <this-skill>/scripts/contrast.mjs "#6b6b6b" "#ffffff"` (it takes hex and `oklch()`).
 
+**The Quiet field passes with one line.** A field told apart only by a faint fill needs 3:1 against what is beside
+it (W3C's own example for 1.4.11), and the well's fill is about 1.1:1. So the block's `.field` carries a single
+`--text-3` line along its bottom edge (3:1 or more on every surface, light and dark): the field stays a borderless
+well and is still found by someone with low vision. Under `prefers-contrast: more` it gets a full edge. A product
+may take the line off (`.field { --field-edge: var(--well-edge); }`); that is a known access risk, said out loud,
+and antheo-review's page check reports it: a field whose edge and fill are both under 3:1 is a high finding.
+
+**Colours outside sRGB.** The sRGB value is the default, and the one contrast is measured on. A more vivid value
+goes inside `@media (color-gamut: p3)`, so only a screen that can show it gets it; a bare `oklch()` beyond sRGB is
+mapped down by the browser to a colour nobody chose. (A hex written before an `oklch()` only covers a browser that
+cannot read `oklch()`; it does nothing for gamut.)
+
+**A ramp, when a product needs one** (50 to 950): one hue in OKLCH, lightness in even steps with finer ones at the
+light end where tints are used most, chroma highest in the middle and falling toward both ends. The brand colour
+sits unchanged on the step its lightness matches; the rest are built around it.
+
 ## WCAG 2.2 decides; APCA is a second look
 
-The ratio above is pass or fail (WCAG 2.1 AA is what the European Accessibility Act enforces). APCA is optional, a
+The ratio above is pass or fail (the European Accessibility Act's standard, EN 301 549, is built on WCAG 2.1 AA;
+meeting 2.2 AA covers it). APCA is optional, a
 second look at thin text and dark mode only (about Lc 75 for body text, 60 for other text). It was dropped from the
 WCAG 3 draft, whose contrast method is still undecided, so never call it "WCAG 3".
 
@@ -90,10 +107,10 @@ the colour on its background, never on its label alone; one filled button per vi
 
 | Part | Value |
 |---|---|
-| Ground | off-black, OKLCH lightness 0.15 to 0.20 (never `#000`) |
+| Ground | off-black, OKLCH lightness 0.14 to 0.20 (never `#000`; the block's is 0.145) |
 | Text | lightness 0.93 to 0.96 (never `#fff`) |
 | Each layer up | about 0.03 to 0.04 lighter; elevation is lightness, not shadow |
-| Raised edge | a single 0.5px line all round, lighter than the fill (1px at lower contrast on 1× screens, where 0.5px can vanish) |
+| Raised edge | one faint line all round, lighter than the fill: the block draws 1px of white at 6 to 9%, which holds on every screen (0.5px can vanish at 1×) |
 | Accents | lightness raised, chroma lowered 10 to 20% so they don't vibrate; every pair re-checked |
 | Drawn objects and illustrations | a reference's artwork keeps its palette in both themes; a drawn material may adapt to the dark ground (antheo-surface `references/objects.md`); say which was chosen |
 | Page | `color-scheme: dark` and a matching `<meta name="theme-color">` |

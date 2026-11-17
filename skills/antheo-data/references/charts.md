@@ -27,7 +27,7 @@ Avoid: pies with many slices, 3D anything, radial gauges, dual y-axes, area char
 ## Color
 
 - One measure = one color (the accent). Comparison period = the same hue at lower contrast, dashed, or gray.
-- Categories (≤ 6): hues evenly spaced at equal lightness; never rely on red/green alone.
+- Categories (5 to 7 at most): hues spread round the wheel with the lightness stepped too (neighbours at least 0.08 apart in OKLCH), and a second cue on each series (a direct label, a dash, a marker); never red against green alone.
 - Highlight to make a point: one series in accent, the rest gray.
 - Chart marks need 3:1 contrast against the background (WCAG 1.4.11).
 

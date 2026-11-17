@@ -9,7 +9,7 @@ A phone layout is not the desktop squeezed. It follows the habits of the phone i
 pointer; sheets from the bottom; actions stacked where the thumb reaches; presses that answer at once. This skill
 starts from what feels wrong, fixes the cause, then sets the phone's own layout.
 
-Type sizes belong to **antheo-type** (15px on touch, 16px in fields); target sizes to **antheo-access**; drag physics
+Type sizes belong to **antheo-type** (15px on touch and at phone width, 16px in fields); target sizes to **antheo-access**; drag physics
 and sheet timing to **antheo-motion**; surfaces to **antheo-surface**; breakpoints and containers to
 **antheo-layout**. This skill applies them to phones and holds what only phones need.
 
@@ -28,15 +28,17 @@ and sheet timing to **antheo-motion**; surfaces to **antheo-surface**; breakpoin
 | The page zooms when a field is tapped | field text under 16px | fields at `16px` wherever the pointer is coarse (`@media (pointer: coarse)`) |
 | Hover styles stay after a tap | hover not gated | hover under `@media (hover: hover) and (pointer: fine)`; show the hover look on `:active` instead |
 | Grey flash on tap | the browser's tap highlight | `-webkit-tap-highlight-color: transparent` and a real `:active` press |
-| Taps feel slow | double-tap-to-zoom wait | `touch-action: manipulation` on controls |
+| Taps feel slow | the handler does heavy work, or the screen waits for the network before it answers. (The old 300ms double-tap wait is gone on any page with `width=device-width`; a page without that meta still has it) | show the press on pointer-down and the result at once, then confirm in the background; move heavy work out of the handler. `touch-action: manipulation` on controls, so a double tap never zooms them |
+| The keyboard has the wrong keys, or its Enter key says nothing | no hints on the field | `inputmode` and `autocomplete` (antheo-access `references/forms.md`), and `enterkeyhint` (`next`, `done`, `search`, `send`) |
+| Back leaves the page while a sheet or menu is open | the layer is a styled `div` the system knows nothing about | a native `<dialog>` or `popover` (Android's back gesture closes those first), or `CloseWatcher` for a custom layer; where neither exists, add a history entry when it opens |
 | Long press selects a button's label | selection on controls | `user-select: none; -webkit-touch-callout: none` on controls only; content stays selectable |
 | Content hides under the browser bars | `100vh` | `100dvh` (`100svh` for a hero that must not jump) |
 | Content behind the notch or home indicator | no safe areas | `viewport-fit=cover` and `env(safe-area-inset-*)` padding on every bar, sheet and pinned action |
-| Fixed bottom actions hidden by the keyboard | the layout viewport ignores it | both: `interactive-widget=resizes-content` in the viewport meta (Android) and the `visualViewport` script (iPhone, which ignores the meta) |
+| Fixed bottom actions hidden by the keyboard | the layout viewport ignores it | both: `interactive-widget=resizes-content` in the viewport meta (Chrome and Firefox on Android) and the `visualViewport` script (iPhone, where Safari ignores the meta) |
 | The page behind a sheet scrolls | scroll chaining | `overscroll-behavior: contain` on sheets, drawers and chat panes |
 | The whole page bounces or reloads on pull | default overscroll on an app screen | `overscroll-behavior-y: none` on the app shell; keep pull-to-refresh only on feeds |
-| Something only appears on hover | hover-only information | tips open on tap; a disabled control explains why in a line of text beneath it |
-| Small icons hard to hit | the drawn size is the hit size | a 44px hit area round the icon (`::after`), look unchanged; hit areas never overlap |
+| Something only appears on hover | hover-only information | what matters is on screen as text; a tip that explains becomes an info button that opens on tap; a disabled control explains why in a line of text beneath it |
+| Small icons hard to hit | the drawn size is the hit size | a 44px hit area round the icon (a pseudo-element; the block adds one to `.switch` and `.btn-quiet.icon`), look unchanged; hit areas never overlap |
 | A horizontal scrollbar on a phone | something wider than the screen | find it (`* { outline: 1px solid red }`), usually a fixed width, `100vw`, a long word or a table; give it `min-width: 0` or let it scroll inside its own box |
 | Text tiny, or huge after rotating | text inflation | `-webkit-text-size-adjust: 100%; text-size-adjust: 100%` on `html` |
 | Jank while scrolling a list | heavy paint on scroll | antheo-motion `references/performance.md` |
@@ -48,9 +50,9 @@ and sheet timing to **antheo-motion**; surfaces to **antheo-surface**; breakpoin
 
 | Thing | On a phone |
 |---|---|
-| Buttons, fields, selects | `44px` tall (`--h-control` on a phone, from antheo-build's style block) |
+| Buttons, fields, selects | `44px` tall: `--h-control` at phone width and wherever the main pointer is a finger (a tablet); the style block does both, and steps the text up with it |
 | Rows in a list | `52px` (`--h-row`); at least `44px` |
-| Switch | track `44×26`, knob `22px` (`--sw-*`) |
+| Switch | track `44×26`, knob `22px` (`--sw-*`), pressed through a `44px` area the block adds (as it does for an icon button and a segment) |
 | Icon buttons and small marks | drawn at their normal size, hit at `44px` |
 | Side gutter | `--gutter` from antheo-layout (16px at phone width); each block keeps its own sides |
 | Type | the block's phone values: body `15px`, titles `17px`, a page title `22px`, a headline `28px`; fields `16px` |
@@ -77,16 +79,17 @@ rows.
 ## A screen in a phone app
 
 A full screen in an app (a "New contact", an "Edit profile", a checkout step) is built like the platform builds one,
-not like a web page squeezed narrow. On an iPhone (393 × 852pt, the size to check first):
+not like a web page squeezed narrow. On an iPhone (check at 393 × 852pt first; the newest are 402 × 874, and 375
+wide is still in use):
 
 - **Viewport:** `<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover,
-  interactive-widget=resizes-content">`, so safe areas have values, and on Android the layout shrinks when the
-  keyboard opens. Safari on iPhone ignores `interactive-widget`: there the page keeps its height and the keyboard
+  interactive-widget=resizes-content">`, so safe areas have values, and in Chrome and Firefox on Android the layout
+  shrinks when the keyboard opens. Safari on iPhone ignores `interactive-widget`: there the page keeps its height and the keyboard
   covers the bottom 336pt, so the action bar is moved up by script with `visualViewport` (`references/recipes.md`,
   section 5). Ship both.
   The screen is a grid of `100dvh`: bar, a content area that scrolls, action bar.
 - **Top:** the content starts below the status bar (`padding-top: env(safe-area-inset-top)`, about 59pt with the
-  Dynamic Island). A `44px` navigation bar holds Cancel or Back at the start (a text button, `44px` hit area) and the
+  Dynamic Island). The navigation bar (`--h-bar`) holds Cancel or Back at the start (a text button, `44px` hit area) and the
   screen's title, centred, in `--t-body` at `--w-strong`; or no title in the bar and a large title (28/34) under it.
   Never both.
 - **Save goes in one place.** A short edit of existing data puts Save at the end of the navigation bar. A screen whose
@@ -111,7 +114,7 @@ not like a web page squeezed narrow. On an iPhone (393 × 852pt, the size to che
 | A grid of columns | one column |
 | A segmented control that doesn't fit | one button showing the current choice; tapping it lists the rest in a sheet |
 | A row of filters | one line that scrolls sideways past the gutter, faded `20px` at each end; it never wraps. When each chip opens a menu, the chips wrap instead: a scrolling row clips the menu |
-| A tooltip | opens on tap |
+| A tooltip | one that only names an icon is gone (the name stays for assistive tech; label the icon if it is unclear); one that explains becomes an info button that opens on tap |
 | A dialog | a bottom sheet |
 | A table | scrolls sideways inside its frame, the first column sticky while at least `88px` stays beside it; tapping anywhere on a row opens it |
 | Flow actions | pinned to the bottom, one per line, the primary first |
@@ -153,7 +156,8 @@ checked on one, or said as unverified.
 - [ ] No field zooms; no hover sticks; no grey tap flash; taps answer at once
 - [ ] Nothing hidden behind the notch, the home indicator, the browser bars or the keyboard; no bar covering content in any state
 - [ ] No word split mid-word; the header and the content share their edges
-- [ ] Every target `44px`, no hit areas overlapping
+- [ ] Every target pressed through `44px` (a switch or an icon may be drawn smaller), no hit areas overlapping
+- [ ] Fields open the right keyboard with a useful Enter key; the back gesture closes the top layer first
 - [ ] No sideways scroll on the page; rows and tables scroll inside their own box
 - [ ] Sheets: tapping a row still works; a short drag or a flick dismisses; the handle works by keyboard
 - [ ] Light and dark, at 200% zoom, on a real phone (iOS Safari and Android Chrome)

@@ -10,6 +10,14 @@
  * Reads CSS, SCSS, JS, TS, JSX, TSX, Vue, Svelte, HTML and MDX. Finds CSS transitions, animations and keyframes,
  * Tailwind motion classes, element.animate(), and Motion / Framer props. No dependencies.
  *
+ * Reduced motion: every @media (prefers-reduced-motion: reduce) block is read and named as one of two things, with
+ * its file and line. "keeps": a fade or a colour change is left in place (a transition or animation on opacity or
+ * colour, a duration shortened but not zeroed, or only transforms and distances set to nothing). "removes": motion is
+ * switched off with nothing in its place. A blanket removal (a rule on * that sets transition: none, or a transition
+ * duration of 0 or about 1ms) is a high finding, R2: reduced motion turns travel into a short fade, it does not
+ * remove the feedback. A removal on named selectors only is a "check". In the JSON: reduced: [{ file, line, kind,
+ * blanket, why }]. Tailwind's motion-reduce: classes and JS guards are still only counted as a guard, not read.
+ *
  * It reads source text, so it finds candidates, not verdicts: every flag is checked by eye before it is reported.
  */
 import { readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
@@ -88,14 +96,64 @@ function durations(line) {
 }
 const curves = (line) => [...line.matchAll(/cubic-bezier\([^)]*\)|\bease(-in-out|-in|-out)?\b|\blinear\b|var\(--[\w-]*(?:ease|out|spring)[\w-]*\)/g)].map((m) => m[0].replace(/\s+/g, ''));
 
+/* What a reduced-motion block does. The block's rules are read one by one: which selector, and whether it stops
+   transitions, stops animations, or leaves a fade behind. */
+const SHORT = String.raw`(?:0(?:\.0+)?(?:m?s)?|0?\.\d+ms|1ms|0?\.00\d*s)`; // 0, 0s, 0.01ms, 1ms, 0.001s: gone to the eye
+const STOPS_TRANSITION = new RegExp(String.raw`\btransition\s*:\s*none\b|\btransition-property\s*:\s*none\b|\btransition(?:-duration)?\s*:\s*${SHORT}\s*(?:!important)?\s*(?:;|$)`, 'i');
+const STOPS_ANIMATION = new RegExp(String.raw`\banimation(?:-name)?\s*:\s*none\b|\banimation(?:-duration)?\s*:\s*${SHORT}\s*(?:!important)?\s*(?:;|$)`, 'i');
+const FADE = /\b(opacity|color|background(-color)?|border(-color)?|outline(-color)?|fill|stroke|box-shadow|text-decoration(-color)?)\b/i;
+function keepsFade(decls) {
+  for (const d of decls.split(';')) {
+    const m = d.match(/^\s*([\w-]+)\s*:\s*([\s\S]+?)\s*$/);
+    if (!m) continue;
+    const [, prop, value] = m;
+    const gone = durations(value).length > 0 && durations(value).every((ms) => ms <= 1);
+    if (/^transition(-property)?$/i.test(prop) && !/^none\b/i.test(value) && FADE.test(value) && !gone) return 'a transition on opacity or colour is left in place';
+    if (/^animation$/i.test(prop) && !/^none\b/i.test(value) && durations(value).some((ms) => ms > 1)) return 'an animation is kept, shortened';
+    if (/^(transition|animation)-duration$/i.test(prop) && durations(value).some((ms) => ms > 1)) return 'durations are shortened, not zeroed';
+    if (/^--[\w-]*dur[\w-]*$/i.test(prop) && durations(value).some((ms) => ms > 1)) return 'the duration tokens are shortened, not zeroed';
+  }
+  return null;
+}
+function reducedBlocks(text) {
+  // comments out, same length, so every index still points at the right line
+  const clean = text.replace(/\/\*[\s\S]*?\*\//g, (c) => c.replace(/[^\n]/g, ' '));
+  const out = [];
+  for (const m of clean.matchAll(/@media[^{};]*\(\s*prefers-reduced-motion\s*(?::\s*reduce\s*)?\)[^{};]*\{/g)) {
+    let depth = 1, i = m.index + m[0].length;
+    while (i < clean.length && depth > 0) { if (clean[i] === '{') depth++; else if (clean[i] === '}') depth--; i++; }
+    const body = clean.slice(m.index + m[0].length, i - 1);
+    const rules = [...body.matchAll(/([^{}]+)\{([^{}]*)\}/g)].map((r) => ({ selector: r[1].replace(/@[^{]*$/, '').trim(), decls: r[2] }));
+    const blanket = (sel) => sel.split(',').some((one) => /^(?:(?:html|body|:root)\s+)?\*(?:::?[\w-]+)?$/.test(one.trim()));
+    const kept = rules.map((r) => keepsFade(r.decls)).find(Boolean);
+    const wipes = rules.filter((r) => blanket(r.selector) && STOPS_TRANSITION.test(r.decls));
+    const stops = rules.filter((r) => STOPS_TRANSITION.test(r.decls) || STOPS_ANIMATION.test(r.decls));
+    let kind, why, sev = null;
+    if (wipes.length && !kept) { kind = 'removes'; sev = 'high'; why = `a blanket rule (${wipes[0].selector.replace(/\s+/g, ' ').slice(0, 40)}) stops every transition${STOPS_ANIMATION.test(wipes[0].decls) ? ' and animation' : ''}, with no fade left`; }
+    else if (kept) { kind = 'keeps'; why = kept; if (wipes.length) { sev = 'check'; why += '; a blanket rule in the same block stops transitions, so check the fade survives it'; } }
+    else if (rules.some((r) => blanket(r.selector) && STOPS_ANIMATION.test(r.decls))) { kind = 'keeps'; why = 'keyframe animations are cut to an instant on everything; transitions, so fades and colour changes, are untouched'; }
+    else if (stops.length) { kind = 'removes'; sev = 'check'; why = `motion is switched off on ${stops.length} rule${stops.length === 1 ? '' : 's'} (${stops.slice(0, 3).map((r) => r.selector.replace(/\s+/g, ' ').slice(0, 30)).join('; ')}) with no fade in its place`; }
+    else { kind = 'keeps'; why = 'only movement is set to nothing (transforms, distances, loops); fades and colour are untouched'; }
+    out.push({ line: clean.slice(0, m.index).split('\n').length, kind, blanket: wipes.length > 0, why, sev, code: m[0].replace(/\s+/g, ' ').trim().slice(0, 160) });
+  }
+  return out;
+}
+
 const files = walk(root);
 const items = [];
+const reduced = [];
 const filesWithMotion = new Set();
 const filesWithGuard = new Set();
 
 for (const f of files) {
   const text = readFileSync(f, 'utf8');
   if (REDUCE.test(text)) filesWithGuard.add(f);
+  for (const b of reducedBlocks(text)) {
+    const file = relative(process.cwd(), f).replaceAll('\\', '/');
+    reduced.push({ file, line: b.line, kind: b.kind, blanket: b.blanket, why: b.why });
+    // a removal is listed with the flagged lines (and read by the gate and --strict) like any other finding
+    if (b.sev) items.push({ file, line: b.line, code: b.code, durations: [], curves: [], reduced: true, flags: [{ id: 'R2', sev: b.sev, msg: b.sev === 'high' ? `reduced motion removes all motion (${b.why}): keep a short fade or a colour change, about 150ms, where things moved` : `reduced motion: ${b.why}` }] });
+  }
   const lines = text.split(/\r?\n/);
   lines.forEach((line, i) => {
     if (line.length > 2000 || !MOTION.some((re) => re.test(line))) return;
@@ -115,8 +173,12 @@ const allCurve = tally(items.flatMap((x) => x.curves));
 const flagged = items.filter((x) => x.flags.length);
 const bySev = (s) => flagged.filter((x) => x.flags.some((f) => f.sev === s)).length;
 
-console.log(`Motion in ${root}: ${items.length} animated lines in ${filesWithMotion.size} of ${files.length} files`);
+console.log(`Motion in ${root}: ${items.filter((x) => !x.reduced).length} animated lines in ${filesWithMotion.size} of ${files.length} files`);
 console.log(`Reduced motion: ${guardAnywhere ? `guarded in ${filesWithGuard.size} files; ${unguarded.length} animated files have no local guard (check a global one covers them)` : 'NO guard anywhere (high)'}`);
+if (reduced.length) {
+  console.log(`Reduced-motion blocks: ${reduced.length} (${reduced.filter((b) => b.kind === 'keeps').length} keep a fade or a colour change, ${reduced.filter((b) => b.kind === 'removes').length} remove motion)`);
+  for (const b of reduced) console.log(`   ${b.file}:${b.line}  ${b.kind}${b.blanket && b.kind === 'removes' ? ' (blanket)' : ''}: ${b.why}`);
+}
 console.log(`Durations (${allDur.length} distinct): ${allDur.slice(0, 12).map(([k, n]) => `${k}×${n}`).join('  ')}`);
 console.log(`Curves (${allCurve.length} distinct): ${allCurve.slice(0, 10).map(([k, n]) => `${k}×${n}`).join('  ')}`);
 console.log(`Flagged lines: ${flagged.length} (high ${bySev('high')}, medium ${bySev('medium')}, check ${bySev('check')})\n`);
@@ -127,5 +189,5 @@ for (const x of SHOW_ALL ? items : flagged) {
 }
 if (!guardAnywhere) console.log('\nHIGH   R1 no prefers-reduced-motion handling anywhere: travel, scale and blur must become a short fade');
 
-if (JSON_OUT) writeFileSync(JSON_OUT, JSON.stringify({ root, files: files.length, filesWithMotion: filesWithMotion.size, guardAnywhere, unguarded, durations: allDur, curves: allCurve, items }, null, 2));
+if (JSON_OUT) writeFileSync(JSON_OUT, JSON.stringify({ root, files: files.length, filesWithMotion: filesWithMotion.size, guardAnywhere, unguarded, reduced, durations: allDur, curves: allCurve, items }, null, 2));
 if (STRICT && (bySev('high') > 0 || !guardAnywhere)) process.exit(1);

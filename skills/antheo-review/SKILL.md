@@ -50,8 +50,10 @@ node <this-skill>/scripts/check-page.mjs <url or .html file> --shots ./shots --j
 
 It opens the page at 320, 390, 768, 1024, 1280, 1440 and 1920px in light and dark, plus reduced motion, tabs through
 it, and measures access, layout, craft, consistency, motion and robustness. Craft includes antheo-build's
-rules: more than five text sizes, more than two weights, more than three corner sizes or corners over 12px,
-outlined cards, colour on too many things; a word broken mid-word, a unit drifted from its number, a bar covering or showing content, tilted
+rules: more than four text sizes (five with a key figure), more than two weights, more than three corner sizes or corners over 12px,
+outlined cards, colour on too many things; a page that jumps while it loads (CLS over 0.1, with what moved) or
+shows its main content late (LCP over 2.5s; a local number is a floor, the deployed page is the real one); a word
+broken mid-word, a unit drifted from its number, a bar covering or showing content, tilted
 decoration, placeholder text, bands of backgrounds. It scores each area 0 to 100: a blocker
 caps the total at 49; one high finding at 79, three at 69, five at 59. Tells are listed, never scored, and a familiar
 layout is never a finding. Never pass `--no-dark`.
@@ -86,15 +88,19 @@ and its frames read, because these screenshots are all at rest.
 - A control with no accessible name; a keyboard trap; focus that is invisible, or lost after a dialog closes.
 - Text under its contrast ratio; colour as the only signal; a status colour used against its meaning.
 - Sideways scroll at any width; content cut off with no way to the full value; a word broken mid-word.
-- A bar covering content or letting it show through; a unit floating away from its number; siblings that don't match.
+- A bar covering content, or content showing sharp through a bar (see-through with no blur, or its text under
+  4.5:1 over what scrolls beneath); a unit floating away from its number; siblings that don't match.
 - Decoration nobody asked for (tilted notes, hand-drawn marks, colour bands); placeholder text; a different person
   or number between two states of one screen.
-- In the Quiet preset, styles invented outside the style block: an outlined card, a coloured edge, a corner over
-  12px, a headline over 36px, three weights, a divider inside a card. In any style: chrome the request never named (a
-  site header on a section, a sidebar of made-up destinations).
+- Chrome the request never named (a site header on a section, a sidebar of made-up destinations).
 - A leaked code value (`NaN`, `undefined`, `[object Object]`, `${…}`, lorem ipsum); an image that failed.
 - A submit that visibly does nothing; an error with no way to recover; a destructive action with no confirm or undo.
 - A change of state shown only by movement; a disclosure with no visible cue that it opens.
+
+**Medium, and only in the Quiet preset.** Styles invented outside the style block are house defaults, so they are
+never high and are not judged at all with `--preset none`, a reference or a project's own system: an outlined card,
+a coloured edge, a corner over 12px (a phone sheet's 14px aside), a headline over 36px, three weights, a divider
+inside a card.
 
 ## Two reviewers, kept apart
 
@@ -228,9 +234,12 @@ after a failed request; leftovers · a check that was quieted · only one browse
 - `scripts/check-block-names.mjs`: every variable a file reads is defined by the style block or in the file; given
   a folder, anywhere in the project (any stack)
 - `scripts/check-page.mjs`: seven widths × two themes; access, layout, craft, consistency, motion, tells, robustness;
-  `--stress`; `--shots`
-- `scripts/latency-probe.mjs`: real presses and drags; time to the first visible change, swallowed second presses,
-  drag drift
+  the load measured once (LCP, CLS, in the JSON as `vitals`); a text field with no boundary at 3:1; a chart
+  (`data-chart`) with no name or with series told apart by hue alone; `--stress` (long text, long words, right to left, forced colours); `--shots`
+- `scripts/latency-probe.mjs`: real presses and drags; time from the press to the control's own first visible
+  change (100ms or less; this is press feedback, not INP), swallowed second presses, drag drift; `--play <selector>`
+  times every frame of an animation or a toy for two seconds, `--cpu 4` on a slowed CPU. Writes are held back unless
+  `--allow-writes`
 - `scripts/beside.mjs`: puts a build next to its reference at the same height, with 3× close-ups of both (`--zoom
   x,y` aims them: the dial, the buttons); the sheets go to `.antheo/evidence/`, where the gate armed with `--ref`
   looks for them

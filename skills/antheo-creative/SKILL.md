@@ -102,9 +102,11 @@ physics layer come first; character and surprise make it memorable.
   state is in the states sheet. Sound and autoplay never start before a press: browsers block them, and so would the
   person in a quiet room.
 - **It's cheap:** `transform` and `opacity` for movement; noise and particles on a small canvas or a pre-made texture;
-  no layout animation; 60fps on a mid-range phone.
+  no layout animation; smooth on a mid-range phone, measured: `node <antheo-review>/scripts/latency-probe.mjs <url>
+  --play "<the toy's selector>" --cpu 4` presses it, times every frame for two seconds on a CPU slowed four times,
+  and passes (exit 0) only when no frame runs over 33ms and 95% are on time.
 - **Access holds:** every playful control is still a real control with a name, a role, keyboard use and a visible
-  focus ring; a character is `aria-hidden` and its state is said in words where it matters.
+  focus ring; anything done by dragging, flicking or shaking can also be done with one press or a key (2.5.7, 2.5.4); a character is `aria-hidden` and its state is said in words where it matters.
 - **The play lives in the thing.** The page around it stays calm (antheo-build).
 
 ## Test the fun
@@ -143,6 +145,7 @@ physics layer come first; character and surprise make it memorable.
 - [ ] Two to four layers of play, each done well; character or surprise where it fits
 - [ ] Answers within 100ms, never blocks, interruptible; reduced motion keeps the story; loops pause
 - [ ] It has a body: its own two to four colours, 96px or more on its stage, in its setting
+- [ ] The play measured with `latency-probe.mjs --play` at `--cpu 4`: no frame over 33ms
 - [ ] The first look invites a touch: the play hinted at rest, in its setting, with one line on what to try
 - [ ] The fiddle test, the twentieth time and the frame test passed; filmed and the frames read
 - [ ] Every playful control is still a real control (antheo-access)

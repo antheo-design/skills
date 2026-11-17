@@ -7,7 +7,7 @@ use the name in your plan, build it from the recipe.
 |---|---|---|
 | "the button shrinks a bit when I press it" | press feedback | `:active { scale: var(--scale-press) }`, 100ms (motion kit) |
 | "the menu grows out of the button" | origin-aware popover | `transform-origin` at the trigger, `--scale-pop` → 1 + fade (recipes #3) |
-| "the dialog fades and zooms in a little" | scale-fade enter | `@starting-style`, scale 0.97 → 1 (motion kit; `--scale-pop` in your own) |
+| "the dialog fades and zooms in a little" | scale-fade enter | `@starting-style`, scale 0.96 → 1 (`--scale-pop`) |
 | "the panel slides in from the side" | drawer / sheet | translate from its edge, 300ms in and 200ms out (recipes #5) |
 | "the underline slides to the tab I click" | shared indicator / glide | one indicator moved with translate (recipes #8, `.glide`) |
 | "the other items close the gap when I delete one" | layout animation / FLIP | `choreography.md` |

@@ -24,6 +24,12 @@ colours.
 
 Unsure which: Clean, and offer Brand as a variant.
 
+A Brand page still loads fast, because its headline and its image are the first thing anyone waits for: one display
+font file, subset and preloaded; the hero image sized, in a modern format, with its dimensions set and
+`fetchpriority="high"`; nothing above the fold waiting on a script. The headline paints within 2.5 seconds on a
+phone connection and nothing shifts after it (antheo-review's page check reports both). "One file" means one
+display family in one weight, cut to the characters the page sets in it; self-hosted and preloaded in production.
+
 ## In Clean, the subject is content, never ornament
 
 A parcel tracker does not draw a postal route; a booking picker does not wear a desk calendar; a pricing page for a
@@ -83,8 +89,9 @@ precisely, they are what people prefer.
    ideas competing at full volume is the failure, not the number of devices. When the person hasn't chosen, offer two
    or three coherent directions from the nouns, each a whole idea, and let them pick.
 4. **Type at the size of the idea.** The preset's 36px ceiling is for product pages. On a Brand page the headline
-   is often the image: `clamp(48px, 9vw, 120px)` is ordinary, a poster runs 120 to 200px, with tight tracking and
-   leading near 1. Check it at 320px: no word breaks, nothing scrolls sideways. Text people read stays at reading
+   is often the image: `clamp(48px, 9vw, 120px)` is ordinary, a poster runs 120 to 200px, and two or three words that
+   are the whole image may be sized to the window (`references/pages/poster.html`), with tight tracking and leading
+   near 1. Check it at 320px: no word breaks, nothing scrolls sideways. Text people read stays at reading
    size.
 
 The craft does not change: one content edge, matching siblings, the spacing scale, units beside their numbers,
@@ -110,3 +117,5 @@ ground has a reason (the closing section, a quote). Plan the sections with `refe
 - `references/slop.md`: the tells of generated and over-designed UI, each with what to do instead
 - `references/directions.md`: the directions for Brand pages, and the kinds of image made from the subject
 - `references/scenes.md`: planning a Brand page's sections, the hero, and the familiar parts done well
+- `references/pages/poster.html`: one finished Brand page (the Poster direction, an event) that passes the page
+  check with the preset off; open it to see the idea, the type size and the craft held together

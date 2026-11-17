@@ -24,12 +24,13 @@ question needs two views, it is two questions.
 | Cell padding | 16px inline (12px dense); the row height sets the rest; the first column is the human-readable name |
 | Text | starts at the start edge |
 | Numbers | at the end edge, `tabular-nums`, the same decimal places down a column, units in the header ("Amount, USD"), not in each cell |
-| Header | `--t-meta` at `--w-strong` in `--text-2`; sticky once the body scrolls; sortable headers are buttons with `aria-sort` |
+| Header | `--t-meta` at `--w-strong` in `--text-2`; sticky once the body scrolls; a sortable header holds a button, and `aria-sort` goes on the `th` of the sorted column only |
 | Lines | a 1px `--line` hairline between rows; no vertical lines; no zebra stripes on short tables |
-| IDs | mono; long ones truncate in the middle (`inv_8f2…91c`) with the full value on focus and hover |
+| IDs | mono; long ones truncate in the middle (`inv_8f2…91c`) with the full value on focus and hover, and in the row's detail on touch |
 | Row actions | at the row end, shown on hover **and** keyboard focus, always visible on touch |
 | Selection | a checkbox column first; the header box shows "some" as indeterminate |
-| Dates | relative in the row ("3 days ago"), the absolute date and time on hover and focus |
+| Dates | relative in the row ("3 days ago"), the absolute date and time on hover and focus and in the row's detail. A time names its zone when readers are in more than one; a day bucket says whose day it is; one chart never mixes zones |
+| Keys | a table people only read is a plain `<table>`, no arrow keys; one edited in place is a grid (antheo-access `references/patterns.md`) |
 | Empty | what would be here, why it is empty, one action; zero results suggests loosening the filters |
 
 On a phone, a table becomes a list of rows with the 2 to 3 key fields, or scrolls inside a labelled region with the
@@ -58,7 +59,9 @@ of a legend; more get a legend in the data's order. Date ticks as few as fit, ne
 ## Colour: one measure, one colour
 
 One measure is the accent; a comparison period is the same hue quieter, dashed or grey. Up to 5 to 7 categories get
-hues evenly spaced at equal lightness and chroma in OKLCH; to make a point, colour one series and grey the rest.
+hues spread round the wheel in OKLCH with the lightness stepped too (neighbours at least 0.08 apart): hues at one
+lightness look the same to someone who cannot tell red from green. Each series also carries a second cue (its label
+at the line's end, a dash, a marker shape). To make a point, colour one series and grey the rest.
 Sequential data is one hue from light to dark; diverging data is two hues meeting at a neutral. Marks reach 3:1
 against the background (WCAG 1.4.11), and red against green is never the only difference: vary lightness, add a
 label or a pattern.
@@ -87,6 +90,15 @@ A chart may animate once, when it first arrives: up to about 800ms, eased out, f
 frame. Updates after that move within 300ms and never replay the entrance (antheo-motion, "When more motion is
 right"). Mark the chart's root `data-chart`.
 
+## Prove it
+
+- In greyscale (DevTools, Rendering, "Emulate vision deficiencies": achromatopsia) every series is still told apart.
+- Tab reaches every sortable header, row action and chart point; each says its value.
+- One total is added up by hand from the rows shown, and matches.
+- The page check (antheo-review) passes at 390px: no sideways scroll, nothing clipped at an axis. On a chart marked
+  `data-chart` it also reports a chart with no name, and SVG series whose colours differ by hue alone (a canvas chart
+  is not read: check those by eye in greyscale).
+
 ## What generated dashboards get wrong
 
 Check each in `references/habits.md` before calling it done: a sparkline beside every figure · a pie for a ranking
@@ -105,7 +117,9 @@ and a percentage change only on a base big enough to mean something (say "from 3
 
 - [ ] The question written; the form picked from it
 - [ ] Tables: numbers at the end edge in tabular figures, units in headers, sticky sortable headers, actions on focus
-- [ ] Charts: zero baselines for bars, one colour per measure, direct labels, 3:1 marks, never colour alone
+- [ ] Charts: zero baselines for bars, one colour per measure, direct labels, 3:1 marks, never colour alone; told
+      apart in greyscale
+- [ ] Times name their zone where it matters; a total checked by hand
 - [ ] KPIs: the comparison stated, coloured by good or bad, proportional figures
 - [ ] A sentence and a keyboard path for every chart; a phone version for every table
 - [ ] Checked against every habit in `references/habits.md`

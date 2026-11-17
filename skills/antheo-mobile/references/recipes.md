@@ -65,7 +65,7 @@ Two `.hit` controls closer than 44px between centres overlap: space them, or gro
 ## 5. Safe areas and a bottom bar that clears the keyboard
 
 ```css
-.top-bar { padding-block-start: env(safe-area-inset-top); block-size: calc(56px + env(safe-area-inset-top)); }
+.top-bar { padding-block-start: env(safe-area-inset-top); block-size: calc(var(--h-bar) + env(safe-area-inset-top)); }
 .bottom-bar {
   position: fixed; inset-inline: 0; inset-block-end: 0;
   padding: 12px 16px max(16px, env(safe-area-inset-bottom));
@@ -74,7 +74,7 @@ Two `.hit` controls closer than 44px between centres overlap: space them, or gro
 .content { padding-block-end: calc(var(--bottom-bar) + 24px); }
 ```
 
-Safari on iPhone ignores `interactive-widget` (only Chrome on Android honours it): the page keeps its full height and
+Safari on iPhone ignores `interactive-widget` (Chrome and Firefox on Android honour it): the page keeps its full height and
 the keyboard simply covers the bottom 336pt. So on iPhone the bar must be moved by script, with the visual viewport.
 Ship both: the meta for Android, this for iPhone.
 
@@ -102,7 +102,7 @@ vv?.addEventListener('scroll', place);
 .sheet {
   inset-block: auto 0; inset-inline: 0; margin: 0; inline-size: 100%; max-inline-size: none;
   max-block-size: calc(100dvh - env(safe-area-inset-top) - 24px);
-  border-radius: 20px 20px 0 0; padding: 20px 20px 0;
+  border-radius: var(--r-sheet) var(--r-sheet) 0 0; padding: var(--s-5) var(--s-5) 0;
   border-block-end: env(safe-area-inset-bottom) solid transparent;     /* the home bar, outside the padding */
   box-shadow: 0 -0.5px 0 var(--line), 0 200px 0 var(--surface);    /* top hairline; colour runs on below */
   background: var(--surface); overflow: visible; touch-action: none;

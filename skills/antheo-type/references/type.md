@@ -14,7 +14,7 @@ Pick one family for text. Add a second only for display (headings over ~28px) an
 | editorial, luxury | Source Sans 3 or Figtree for text | Fraunces, Newsreader, Instrument Serif | serif display with a calm sans for UI text |
 | developer | Hanken Grotesk | JetBrains Mono, IBM Plex Mono | mono as display signals "built for builders" |
 
-All of these are free on Google Fonts. A plain face such as Inter is a fine choice for an interface: precise spacing and hierarchy matter more than the face. Check that a font has the weights you need (400, 500, 600) and `tnum` (tabular figures) if you show numbers.
+All of these are free on Google Fonts. A plain face such as Inter is a fine choice for an interface: precise spacing and hierarchy matter more than the face. Check that a font has the two weights you use (the preset's 450 and 550 need a variable weight axis; 400 and 500 otherwise) and `tnum` (tabular figures) if you show numbers.
 
 ## The scale
 
@@ -44,9 +44,12 @@ Always keep a `rem` part in the middle value. Pure `vw` breaks browser zoom (WCA
 
 ## Line height and tracking by size
 
+For a scale you derive yourself (another face, a Brand page). The Quiet block already pairs each of its sizes with a
+line height (12/16, 13/20, 15/22, 20/28, 28/32, 36/40) and tracks nothing under 15px: inside the preset, use those.
+
 | Size | line-height | letter-spacing |
 |---|---|---|
-| ≤ 13px (captions, labels) | 1.5 | +0.01em |
+| ≤ 13px (captions, labels) | 1.35 to 1.55 | 0 (up to +0.01em for a face that sets tight) |
 | 14 to 17px (body) | 1.5 to 1.6 | 0 |
 | 18 to 24px (lead, small headings) | 1.35 to 1.45 | −0.01em |
 | 28 to 40px (headings) | 1.15 to 1.25 | −0.02em |
@@ -71,7 +74,7 @@ Uppercase labels: +0.05em at 14px and under, `--t-meta`, `--w-strong`. Use them 
 
 ## Loading fonts without layout shift
 
-1. Load only the weights you use (usually 3). Prefer variable fonts.
+1. Load only the weights you use (two in the preset). Prefer variable fonts.
 2. `font-display: swap` for text fonts; `optional` for decorative display fonts when stability matters most.
 3. In Next.js use `next/font/google`; it self-hosts and generates an adjusted fallback automatically.
 4. Elsewhere, match the fallback's metrics: `size-adjust`, `ascent-override`, `descent-override` in a second `@font-face` for the local fallback.
@@ -86,7 +89,9 @@ When something needs to stand out, reach for these in order and stop at the firs
 - **Headings step down in size as their level goes down,** and no heading is smaller than body text. An `h3` that
   looks bigger than an `h2` breaks the outline people see.
 - **Light weights (100 to 300) only at 28px and up.** Below that they break up on low-density screens and in dark mode.
-- **Line height without units** (`1.5`, not `24px`), so it scales with the font size it sits on.
+- **Line height that follows its text:** unitless for running text (`1.5`, not `24px`). The block's roles pair each
+  size with a line height in rem on the 4px grid, which grows with the reader's font size the same way. Never a px
+  line height on text whose size can change.
 - **Font features through properties,** not raw tags: `font-variant-numeric: tabular-nums`, `font-variant-caps:
   all-small-caps`, `font-kerning: normal`; `font-feature-settings` only for a feature with no property, and then
   repeat the others, because it replaces them all.
@@ -100,9 +105,10 @@ When something needs to stand out, reach for these in order and stop at the firs
 - **Fallbacks at the same x-height:** `font-size-adjust` on the root, set to the typeface's x-height ratio (Geist
   0.53, Inter 0.545), so the system font shown while the web font loads, a glyph the font lacks and the mono face
   all draw at the same visual size. Without it, text visibly shrinks or grows when the font arrives.
-- **Don't fake styles:** load the italic and the weights you use; `font-synthesis: none` so the browser never
-  invents a bold or an oblique.
-- **Spot it in code:** `line-height:` with `px`, `font-weight: 300` on body text, `font-feature-settings` with a
+- **Don't fake weights:** load the weights you use, and the italic when the face has one. The block sets
+  `font-synthesis: style`: no invented bold or small caps, and a slanted `<em>` only where the face ships no italic
+  (losing emphasis altogether is worse than a slant).
+- **Spot it in code:** `font-size:` or `line-height:` typed in `px` outside the block, `font-weight: 300` on body text, `font-feature-settings` with a
   single tag, headings sized by class but not in level order.
 
 ## Sources

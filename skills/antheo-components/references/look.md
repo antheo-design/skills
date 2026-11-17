@@ -15,7 +15,7 @@ against it. Things that can be pressed look pressable. The demo content is part 
 | what it sits on | `--bg` | a near-neutral grey-white; never cream, never brand-tinted |
 | the card | `--surface` | white (a clearly lighter fill than the page in dark) |
 | a strip inside a card | `--well` | one step off the surface; no line between them |
-| fields and tracks | `--well` with `--well-edge` | sunk, not outlined |
+| fields and tracks | `--well` with `--well-edge`; a field adds one `--text-3` line along its bottom edge (`--field-edge`) | sunk, not outlined; a field is still found at 3:1 |
 | a raised control | `--raised` with `--sh-control` | |
 | hover, selected | `--hover`, `--selected` | fades in place on that row; selection also has a cue that isn't colour |
 | text | `--text` | titles, values, labels |

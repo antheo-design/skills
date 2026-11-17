@@ -15,3 +15,7 @@ Real builds by coding agents with these skills, judged by people beside the refe
 | What went wrong | What fixed it |
 |---|---|
 | Insight cards whose charts never drew in a screenshot, because they waited to be scrolled into view (round 3) | Draw on arrival, with a fallback so the chart is never left undrawn |
+
+## When the default is wrong
+
+A field with its own conventions keeps them: a log axis, two y-axes with their units, dense striped ledgers. Follow the convention and say so. A live monitor shows absolute times, not "3 minutes ago". One figure a person only glances at needs no chart.

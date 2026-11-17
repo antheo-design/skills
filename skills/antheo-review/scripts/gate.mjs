@@ -3,13 +3,16 @@
  * The gate: a UI change isn't "done" until its page and its words pass, checked by machine, not by the agent's word.
  *
  *   node gate.mjs arm <url-or-html-file>... [--copy <file-or-folder>...] [--widths 390,1280] [--max 3] [--preset none]
- *                              [--ref <image>...] [--no-probe]
+ *                              [--ref <image>...] [--no-probe] [--allow-writes]
  *                              (--preset none: the project has its own design system or a requested direction, so the
  *                              Antheo Quiet look is not judged; every universal check still runs)
  *                              (--ref: the work is built from these references, so it needs evidence of comparing:
  *                              for each, two beside.mjs sheets made at least a minute apart and one filmstrip.mjs
  *                              sheet in which something moved, in .antheo/evidence/)
  *                              (--no-probe: skip the access probe; by default it runs on every page)
+ *                              (--allow-writes: the access probe presses real buttons and, by default, holds back
+ *                              every request that is not a GET, HEAD or OPTIONS, so a Delete or a Send never leaves
+ *                              the browser; this lets them through, for a page whose data can be lost)
  *   node gate.mjs check        run the checks now (for agents without hooks: Codex, Cursor, and CI). Exit codes:
  *                                0 PASS (or not armed)        1 OPEN: findings to fix, another round
  *                                3 DONE, UNRESOLVED: the rounds ran out with work still open; not a pass
@@ -94,10 +97,11 @@ function checkPage(target, widths, list, preset) {
   }
   return { target, score: rep.overall, open, skipped };
 }
-function probe(target, list) {
+// safe by default: the probe holds back every write its presses try to send, unless the gate was armed with --allow-writes
+function probe(target, list, allowWrites) {
   const out = join(DIR, `probe-${Buffer.from(target).toString('base64url').slice(-24)}.json`);
   rmSync(out, { force: true });
-  const r = spawnSync(process.execPath, [PROBE, target, '--json', out, '--quiet'], { encoding: 'utf8', timeout: 480000 });
+  const r = spawnSync(process.execPath, [PROBE, target, '--json', out, '--quiet', ...(allowWrites ? ['--allow-writes'] : [])], { encoding: 'utf8', timeout: 480000 });
   const { rep, error } = fresh(r, out, 'a11y-probe');
   if (error) return { target, error };
   if (!Array.isArray(rep.findings)) return { target, error: 'a11y-probe wrote a report with no findings list' };
@@ -110,7 +114,8 @@ function probe(target, list) {
     if (w) skipped.push(`${f.area} (waived: ${w.reason})`);
     else open.push(`${f.severity.toUpperCase()} ${rule}${f.element ? ` (${f.element})` : ''}${f.fix ? `\n    fix: ${f.fix}` : ''}`);
   }
-  return { target, open, skipped };
+  const held = (rep.heldBack ?? []).map((w) => `${w.method} ${String(w.url).replace(/^https?:\/\/[^/]+/, '')}`);
+  return { target, open, skipped, held };
 }
 
 /* with --ref: the build was put beside each reference twice, a minute or more apart (compared, changed, compared
@@ -191,7 +196,7 @@ function copyLint(paths, list) {
 function run(state) {
   const list = waivers();
   const pages = state.targets.map((t) => checkPage(t, state.widths, list, state.preset));
-  const probes = state.probe ? state.targets.map((t) => probe(t, list)) : [];
+  const probes = state.probe ? state.targets.map((t) => probe(t, list, state.allowWrites === true)) : [];
   const copy = copyLint(state.copy, list);
   const motion = motionScan(state.copy, list);
   const errors = [...(motion?.error ? [`motion: ${motion.error}`] : []), ...pages.filter((p) => p.error).map((p) => `${short(p.target)}: ${p.error}`), ...probes.filter((p) => p.error).map((p) => `${short(p.target)}: ${p.error}`), ...(copy?.error ? [`copy: ${copy.error}`] : [])];
@@ -203,13 +208,15 @@ function run(state) {
     ...evidence(state).map((o) => `evidence\n  ${o}`),
   ];
   const skipped = [...pages.flatMap((p) => p.skipped ?? []), ...probes.flatMap((p) => p.skipped ?? []), ...(copy?.skipped ?? []), ...(motion?.skipped ?? [])];
-  return { pages, errors, open, skipped };
+  const held = [...new Set(probes.flatMap((p) => p.held ?? []))];
+  return { pages, errors, open, skipped, held };
 }
 
 function report(state, r) {
   const lines = [];
   for (const p of r.pages) if (!p.error) lines.push(`  ${short(p.target)}: score ${p.score}/100, ${p.open.length} blocking`);
   if (state.probe) lines.push(`  access probe: ${r.open.filter((o) => o.includes('(access probe)')).length} blocking`);
+  if (r.held?.length) lines.push(`  writes the probe held back (nothing was sent): ${r.held.slice(0, 6).join(', ')}${r.held.length > 6 ? `, and ${r.held.length - 6} more` : ''}`);
   if (state.refs?.length) lines.push(`  evidence: ${r.open.some((o) => o.startsWith('evidence')) ? 'missing' : 'present'} for ${state.refs.length} reference(s)`);
   if (r.skipped.length) lines.push(`  waived: ${r.skipped.join('; ')}`);
   if (r.errors.length) lines.push('', 'Could not check:', ...r.errors.map((e) => `  ${e}`));
@@ -224,6 +231,7 @@ if (cmd === 'arm') {
   let max = 3;
   let preset = 'quiet';
   let probeOn = true;
+  let allowWrites = false;
   let maxGiven = false;
   const refs = [];
   for (let i = 0; i < rest.length; i++) {
@@ -232,6 +240,7 @@ if (cmd === 'arm') {
     else if (rest[i] === '--preset') preset = rest[++i] === 'none' ? 'none' : 'quiet';
     else if (rest[i] === '--max') { max = Number(rest[++i]) || 3; maxGiven = true; }
     else if (rest[i] === '--no-probe') probeOn = false;
+    else if (rest[i] === '--allow-writes') allowWrites = true;
     else if (rest[i] === '--ref') { while (rest[i + 1] && !rest[i + 1].startsWith('--')) refs.push(resolve(rest[++i])); }
     else if (!rest[i].startsWith('--')) targets.push(/^https?:/.test(rest[i]) ? rest[i] : resolve(rest[i]));
   }
@@ -241,8 +250,8 @@ if (cmd === 'arm') {
   const missingRef = refs.find((r) => !existsSync(r));
   if (missingRef) { say(`No reference image at ${missingRef}.`); process.exit(2); }
   const now = new Date().toISOString();
-  save({ armed: true, targets, copy, widths, max, preset, probe: probeOn, refs, round: 0, at: now, firstAt: now });
-  say(`GATE: ARMED for ${targets.length} page(s)${copy.length ? ` and ${copy.length} copy path(s)` : ''}${refs.length ? `, ${refs.length} reference(s)` : ''}, up to ${max} rounds${probeOn ? '' : ', without the access probe'}.`, 'Run `node gate.mjs check` before saying the work is done (a Claude Code Stop hook runs it for you).');
+  save({ armed: true, targets, copy, widths, max, preset, probe: probeOn, allowWrites, refs, round: 0, at: now, firstAt: now });
+  say(`GATE: ARMED for ${targets.length} page(s)${copy.length ? ` and ${copy.length} copy path(s)` : ''}${refs.length ? `, ${refs.length} reference(s)` : ''}, up to ${max} rounds${probeOn ? '' : ', without the access probe'}${probeOn && allowWrites ? ', and the probe may send writes (--allow-writes)' : ''}.`, 'Run `node gate.mjs check` before saying the work is done (a Claude Code Stop hook runs it for you).');
   process.exit(0);
 }
 // after a PASS (or DONE) the gate disarms itself; rearm checks the same pages again after more changes
@@ -257,7 +266,7 @@ if (cmd === 'disarm') { if (existsSync(STATE)) rmSync(STATE); say('GATE: DISARME
 if (cmd === 'status') {
   const s = readJson(STATE, null);
   if (!s?.armed) { say(`GATE: not armed${s?.result ? ` (last result: ${s.result})` : ''}`); process.exit(0); }
-  say(`GATE: armed, round ${s.round} of ${s.max}`, `pages: ${s.targets.join(', ')}`, `copy: ${s.copy.join(', ') || 'none'}`, `waivers: ${readJson(WAIVERS, []).length}`);
+  say(`GATE: armed, round ${s.round} of ${s.max}`, `pages: ${s.targets.join(', ')}`, `copy: ${s.copy.join(', ') || 'none'}`, `access probe: ${!s.probe ? 'off' : s.allowWrites === true ? 'on, and its presses may send writes (--allow-writes)' : 'on, writes held back'}`, `waivers: ${readJson(WAIVERS, []).length}`);
   process.exit(0);
 }
 if (cmd === 'check' || cmd === 'hook') {
@@ -315,5 +324,5 @@ if (cmd === 'check' || cmd === 'hook') {
   say(msg);
   process.exit(1);
 }
-say('usage: node gate.mjs arm <page>... [--copy <paths>] [--widths 390,1280] [--max 3] [--preset none] [--ref <images>] [--no-probe] | check | hook | status | rearm | disarm');
+say('usage: node gate.mjs arm <page>... [--copy <paths>] [--widths 390,1280] [--max 3] [--preset none] [--ref <images>] [--no-probe] [--allow-writes] | check | hook | status | rearm | disarm');
 process.exit(cmd === 'help' ? 0 : 2);
