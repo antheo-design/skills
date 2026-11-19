@@ -112,6 +112,11 @@ track), up to 0.45 for a rare celebration; one wobble at most. A drag follows th
 release, springs from the release speed; a sheet closes on a flick faster than about 0.11px per
 ms, or once it has travelled `min(64px, 15%)` of its height, otherwise it springs back (`references/gestures.md`).
 
+## Snapped scrolling moves by position
+
+With `scroll-snap-stop: always`, a Next or Back button scrolls to the item's own offset (`scrollTo`), never by an
+amount (`scrollBy`): a relative scroll is caught by the first snap point and stops short.
+
 ## Nothing jumps
 
 Every value that changes is seen to change; a removed row closes its gap; space is reserved for what appears (layout

@@ -87,6 +87,8 @@ negative under 14px. Uppercase labels are rare (an eyebrow over every heading is
   people typed (emails, links, IDs) take `overflow-wrap: anywhere`, with `min-width: 0` on their flex item.
 - One line with an ellipsis has a way back to the full text (a tooltip or the detail view) and `min-width: 0` on its
   flex item; never truncate a value someone compares.
+- A short line in a card that is already narrow needs no measure of its own: a `max-width` there only wraps it early
+  into a ragged second line. Cap the measure on wide containers, not inside narrow ones.
 - Text survives WCAG 1.4.12's spacing (line height 1.5, letters +0.12em, words +0.16em) with nothing clipped: no
   fixed heights on boxes that hold text.
 

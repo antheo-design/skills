@@ -70,6 +70,10 @@ first screen" is for a task screen; a document, a report or a story scrolls.
 Text starts at the start edge. A centred block centres everything in it (its heading with its content); never a
 left-aligned heading above a centred grid, or the reverse.
 
+When to centre: a card with one purpose and few words (a confirmation, an empty or error state, a sign in) centres
+its picture and its heading. Forms, lists, tables and settings keep the start edge, even inside a centred card:
+people read fields and rows from their start.
+
 ## Siblings match
 
 Sections of one page share one container (all cards, or none), one padding, one heading style and one gap; the last

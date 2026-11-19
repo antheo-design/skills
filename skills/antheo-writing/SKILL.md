@@ -81,6 +81,10 @@ time a primary button is off, and the line above it says why).
 - **No placeholder text** in anything shown: no "Shown here", "Lorem", "Item 1", "TBD".
 - **Prices people would publish:** in the precision the product and currency use, on every billing period (15 monthly,
   12 yearly; or 9.99 and 7.99), never a computed 9.60.
+- **An amount says what it is:** "$16.00 due", "$144.00 paid today", never a bare figure that could be a price, a
+  balance or a refund.
+- **A provider's code becomes words:** `insufficient_funds` reads "Your card does not have enough money. Add funds or
+  use another card." What happened, then what to do; the code itself is for support, shown only when asked for.
 - **Each link once:** one "Log in" on a sign-up screen, and none after signing in.
 
 ## The mechanics

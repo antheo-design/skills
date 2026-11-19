@@ -67,6 +67,9 @@ trailing icon takes `2px` off its own side, because the icon's box carries its o
 One primary and at most two or three secondary actions show; more go into one menu. A dialog is at most `100dvh`
 tall with its actions outside the part that scrolls.
 
+A close button sits alone in the card's top corner, on the end side: never squeezed into the title's row, where it
+pushes the title off its line.
+
 ## One helper line, where it is needed
 
 A control with a constraint or a consequence says it in one line under it (`--t-meta`, `--text-2`): a file button
@@ -91,6 +94,9 @@ after what it acts on (a form: after the last field) and never looks disabled: k
 submit, because a grey filled button reads as broken. The one exception is a type-to-confirm delete, whose confirm
 stays off until the typed name matches, with the line above it saying so (antheo-writing). A destructive trigger is the raised surface with danger-red
 text; only its final confirm is filled red.
+
+Two buttons at the foot of a card share its row at equal width, the primary at the end; a lone button takes the
+whole width. Neither hugs its label in a corner.
 
 ## Text: two tones, two weights
 
