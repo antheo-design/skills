@@ -70,7 +70,7 @@
   --h-control: 2rem; --h-small: 1.75rem; --h-cta: 2.25rem; --h-row: 2.5rem; --h-tag: 1.25rem; --h-bar: 3rem;   /* 32, 28, 36, 40, 20, 48px */
   --sw-w: 2rem; --sw-h: 1.25rem; --sw-knob: 1rem; --sw-knob-fill: oklch(1 0 0);                                  /* 32 by 20px, a 16px knob */
   --w-form: 400px; --w-settings: 680px; --w-pricing: 1040px; --w-data: 1120px;
-  --measure: 65ch;                           /* the longest line of running text */
+  --measure: 32em;                           /* the longest line of running text: about 68 characters in Geist (65ch is 93) */
   /* A whole marketing page only: its container and the space between its sections. */
   --page-max: var(--w-data); --page-wide: 1440px; --section: clamp(64px, 8vw, 96px); --section-dense: var(--s-12);
 

@@ -35,6 +35,7 @@ Unclear: run Find, show it, and ask.
 node <this-skill>/scripts/scan-motion.mjs src                 # summary and flagged lines
 node <this-skill>/scripts/scan-motion.mjs src --json motion.json --all
 node <this-skill>/scripts/scan-motion.mjs src --strict        # exit 1 on any high, for CI
+node <this-skill>/scripts/scan-motion.mjs src --top 5         # a quick cleanup: only the five fixes that matter most
 ```
 
 It prints the distinct durations and curves (drift shows as a long tail), files with no reduced-motion handling, each

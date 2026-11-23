@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Timetables people can read at a glance · Harbour Lines</title>
+<!-- The Editorial look (references/looks.md): a page people read. One column at the measure, the headline in the
+     serif (Newsreader), a standfirst in the second tone, byline and date at meta size, subheads every few paragraphs,
+     a quote set in the serif at title size, never in a box. Four sizes (13, 16, 20, 44): the standfirst, the subheads and the quote share one,
+     two weights, Geist for everything read in paragraphs and pressed. -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400..600&family=Newsreader:opsz,wght@6..72,400..600&display=swap">
+<link rel="stylesheet" href="../quiet.css">
+<link rel="stylesheet" href="editorial.css">
+<style>
+  .wrap { inline-size: min(var(--measure), 100% - 2 * var(--gutter)); margin-inline: auto; }
+  .bar { display: flex; align-items: center; justify-content: space-between; gap: var(--s-4); block-size: var(--h-bar); inline-size: min(var(--measure), 100% - 2 * var(--gutter)); margin-inline: auto; }
+  .brand { font-weight: var(--w-strong); text-decoration: none; display: inline-flex; align-items: center; min-block-size: var(--h-control); }
+  .hit { display: inline-flex; align-items: center; min-block-size: var(--h-control); }
+  article { padding-block: var(--s-12) var(--section); display: grid; gap: var(--s-5); }
+  .standfirst { font-size: var(--t-title); line-height: var(--l-title); color: var(--text-2); }
+  .byline { font-size: var(--t-meta); line-height: var(--l-meta); color: var(--text-2); }
+  article h2 { margin-block-start: var(--s-6); }
+  blockquote { margin: var(--s-4) 0; font-family: "Newsreader", Georgia, serif; font-size-adjust: 0.426; font-size: var(--t-title); line-height: var(--l-title); }
+  blockquote p { text-wrap: balance; }
+  blockquote footer { margin-block-start: var(--s-2); font-family: var(--font); font-size-adjust: 0.53; font-size: var(--t-meta); line-height: var(--l-meta); color: var(--text-2); }
+  .next { display: grid; gap: var(--s-2); padding-block-end: var(--section); }
+  .next p { color: var(--text-2); font-size: var(--t-meta); line-height: var(--l-meta); }
+  /* the measure is in em, so the footer keeps the body size and only its words are small */
+  footer.site { inline-size: min(var(--measure), 100% - 2 * var(--gutter)); margin-inline: auto; padding-block: var(--s-6); color: var(--text-2); }
+</style>
+</head>
+<body>
+<header class="bar">
+  <a class="brand" href="#top">Harbour Lines</a>
+  <a class="hit" href="#next">Next article</a>
+</header>
+<main id="top">
+  <article class="wrap" aria-labelledby="title">
+    <h1 class="t-display" id="title">Timetables people can read at a glance</h1>
+    <p class="standfirst">The ferry company’s printed timetable had 1,140 numbers on one page. We rebuilt it around the three questions people ask at a pier.</p>
+    <p class="byline">By Ruth Okonjo · 12 November 2026 · 6 minutes</p>
+
+    <p>Most people at a ferry pier want one of three things: when the next boat leaves, when the last one back leaves, and whether today is different. The old timetable answered all three, but only to someone willing to read a grid of six routes, two seasons and a column of footnotes.</p>
+    <p>We spent two mornings on the piers at Kirkwall and Stromness with a clipboard. Of 214 people we watched, 162 looked at the timetable for under ten seconds, and most of them then asked a member of staff anyway.</p>
+
+    <h2 class="t-title">One route, one day, one page</h2>
+    <p>The new timetable shows one route at a time, for today, in the order the boats leave. Tomorrow is a tap away; the season’s full grid is still there for the few who plan a month ahead.</p>
+    <p>The last boat back is set apart at the foot of the list, because it was the question with the highest stakes: miss it and you are staying the night.</p>
+
+    <blockquote>
+      <p>We stopped asking how to fit every crossing on a page, and asked what someone on the pier needs before the boat leaves.</p>
+      <footer>Ruth Okonjo, design lead</footer>
+    </blockquote>
+
+    <h2 class="t-title">What changed on the pier</h2>
+    <p>In the four weeks after the new boards went up, questions to staff about departure times fell from about 90 a day to about 35. The printed grid is still on the wall. Fewer people read it.</p>
+    <p>Two things did not work. The first board put the next departure in red, which looked like a delay; it is now in the text colour, larger. And the countdown in minutes confused people when a boat was held, so it now shows the time instead.</p>
+  </article>
+
+  <nav class="wrap next" id="next" aria-labelledby="next-title">
+    <h2 class="t-title" id="next-title">Next article</h2>
+    <a href="#top">Signs that work in fog, rain and the dark</a>
+    <p>How the pier signs were tested at night, with a torch and a spray bottle.</p>
+  </nav>
+</main>
+<footer class="site"><p class="t-meta">© 2026 Harbour Lines</p></footer>
+</body>
+</html>

@@ -1,6 +1,6 @@
 ---
 name: antheo-moment
-description: Builds a component's one signature moment, the animation people remember, and only on a rare, meaningful event (a code accepted, a payment sent, a file landed, a list finished), never on things used all day. Use when a component should feel special at its peak, or when asked for "delight".
+description: Builds a component's one signature moment, the animation people remember, and only on a rare, meaningful event (a code accepted, a payment sent, a file landed, a list finished), never on things used all day. Use when a component should feel special at its peak, or when asked for "delight". Play on every press of an object is antheo-creative's.
 ---
 
 # Antheo Moment

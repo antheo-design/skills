@@ -2,10 +2,13 @@
 /*
  * The gate: a UI change isn't "done" until its page and its words pass, checked by machine, not by the agent's word.
  *
- *   node gate.mjs arm <url-or-html-file>... [--copy <file-or-folder>...] [--widths 390,1280] [--max 3] [--preset none]
- *                              [--ref <image>...] [--no-probe] [--allow-writes]
+ *   node gate.mjs arm <url-or-html-file>... [--copy <file-or-folder>...] [--widths 390,1280] [--max 3] [--preset none|studio|editorial|playful]
+ *                              [--ref <image>...] [--no-probe] [--allow-writes] [--landing]
+ *                              (--landing: a landing, company or product page: the page check adds its first-screen,
+ *                              contact and share checks, and copy-lint counts the devices of marketing copy)
  *                              (--preset none: the project has its own design system or a requested direction, so the
- *                              Antheo Quiet look is not judged; every universal check still runs)
+ *                              Antheo Quiet look is not judged; every universal check still runs; --preset studio,
+ *                              editorial or playful: the page uses that look of the block, judged by its own corners)
  *                              (--ref: the work is built from these references, so it needs evidence of comparing:
  *                              for each, two beside.mjs sheets made at least a minute apart and one filmstrip.mjs
  *                              sheet in which something moved, in .antheo/evidence/)
@@ -34,12 +37,19 @@
  * Rounds: each failed check is one round; after --max rounds (3) it stops blocking and reports GATE: DONE with what is
  * still open, so a hard case reaches the person instead of looping.
  *
+ * Honest checks: the gate records a fingerprint of every checking tool when it is armed, and a tool that changed since
+ * is a high finding; so is page source that tests for the checker (navigator.webdriver, a headless user agent, the
+ * checker's own markers); more than 5 waivers is one too. A pass where a checker could not read everything (no
+ * load measures, a stylesheet it could not open, a file copy-lint skipped) is reported as PASS, PARTLY MEASURED with
+ * the list, never as a plain pass.
+ *
  * Waivers: a finding the checker gets wrong is waived in .antheo/waivers.json, never fixed by gaming the check:
  *   [{ "rule": "horizontal scroll", "target": "http://localhost:3000/settings", "reason": "the code sample scrolls by design" }]
  * "rule" is matched against the finding's rule text, "target" is optional, and "reason" is required (12+ characters).
  * State lives in .antheo/gate.json in the working directory. No dependencies beyond what check-page needs.
  */
 import { spawnSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { basename, dirname, extname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -53,6 +63,11 @@ const EVIDENCE = join(resolve('.antheo'), 'evidence');
 const DIR = resolve('.antheo');
 const STATE = join(DIR, 'gate.json');
 const WAIVERS = join(DIR, 'waivers.json');
+const MAX_WAIVERS = 5;
+// the tools whose verdict the gate trusts: a change to one of them after arming is a finding, never a quiet pass
+const TOOLS = [CHECK_PAGE, COPY_LINT, PROBE, MOTION, fileURLToPath(import.meta.url)];
+const fingerprint = (f) => { try { return createHash('sha256').update(readFileSync(f)).digest('hex').slice(0, 16); } catch { return 'missing'; } };
+const fingerprints = () => Object.fromEntries(TOOLS.map((f) => [basename(f), fingerprint(f)]));
 
 const [cmd = 'help', ...rest] = process.argv.slice(2);
 const readJson = (f, fallback) => { try { return JSON.parse(readFileSync(f, 'utf8')); } catch { return fallback; } };
@@ -80,10 +95,10 @@ function fresh(r, out, what) {
   return { rep };
 }
 
-function checkPage(target, widths, list, preset) {
+function checkPage(target, widths, list, preset, landing) {
   const out = join(DIR, `page-${Buffer.from(target).toString('base64url').slice(-24)}.json`);
   rmSync(out, { force: true });
-  const r = spawnSync(process.execPath, [CHECK_PAGE, target, '--widths', widths, '--preset', preset || 'quiet', '--json', out, '--quiet'], { encoding: 'utf8', timeout: 240000 });
+  const r = spawnSync(process.execPath, [CHECK_PAGE, target, '--widths', widths, '--preset', preset || 'quiet', ...(landing ? ['--landing'] : []), '--json', out, '--quiet'], { encoding: 'utf8', timeout: 300000 });
   const { rep, error } = fresh(r, out, 'check-page');
   if (error) return { target, error };
   if (!Array.isArray(rep.findings)) return { target, error: 'check-page wrote a report with no findings list' };
@@ -95,7 +110,7 @@ function checkPage(target, widths, list, preset) {
     if (w) skipped.push(`${f.rule} (waived: ${w.reason})`);
     else open.push(`${f.severity.toUpperCase()} ${f.rule}${f.items?.length ? `: ${f.items.slice(0, 2).join('; ')}` : ''}${f.fix ? `\n    fix: ${f.fix}` : ''}`);
   }
-  return { target, score: rep.overall, open, skipped };
+  return { target, score: rep.overall, open, skipped, partly: Array.isArray(rep.notMeasured) ? rep.notMeasured : [] };
 }
 // safe by default: the probe holds back every write its presses try to send, unless the gate was armed with --allow-writes
 function probe(target, list, allowWrites) {
@@ -172,11 +187,15 @@ function motionScan(paths, list) {
   return { open, skipped };
 }
 
-function copyLint(paths, list) {
+// the copy findings that hold a landing page open at medium: each is a device past its budget or the page talking
+// about itself (antheo-writing references/marketing.md)
+const MARKETING_BLOCKS = new Set(['two-fragment', 'contrast-frame', 'negation-run', 'stat-strip', 'process-talk', 'virtue-word']);
+function copyLint(paths, list, marketing) {
   if (!paths.length) return null;
   const out = join(DIR, 'copy.json');
   rmSync(out, { force: true });
-  const r = spawnSync(process.execPath, [COPY_LINT, ...paths, '--json', out, '--min-severity', 'high'], { encoding: 'utf8', timeout: 120000 });
+  // a landing page also blocks on the marketing devices past their budget (medium), not only on high findings
+  const r = spawnSync(process.execPath, [COPY_LINT, ...paths, '--json', out, '--min-severity', marketing ? 'medium' : 'high', ...(marketing ? ['--marketing'] : [])], { encoding: 'utf8', timeout: 120000 });
   const { rep, error } = fresh(r, out, 'copy-lint');
   if (error) return { error };
   // a wrong --copy path reads nothing and finds nothing: that is not clean copy
@@ -185,20 +204,67 @@ function copyLint(paths, list) {
   const open = [];
   const skipped = [];
   for (const f of all) {
-    if (f.severity !== 'high') continue;
+    if (f.severity !== 'high' && !(marketing && f.severity === 'medium' && MARKETING_BLOCKS.has(f.rule))) continue;
     const w = waived(list, f.rule ?? '', f.file ?? '');
     if (w) skipped.push(`${f.rule} (waived: ${w.reason})`);
-    else open.push(`HIGH ${f.rule} ${short(f.file ?? '')}:${f.line ?? ''} "${String(f.text ?? '').slice(0, 60)}"${f.fix ? `\n    fix: ${f.fix}` : ''}`);
+    else open.push(`${f.severity.toUpperCase()} ${f.rule} ${short(f.file ?? '')}:${f.line ?? ''} "${String(f.text ?? '').slice(0, 60)}"${f.fix ? `\n    fix: ${f.fix}` : ''}`);
+  }
+  const partly = (rep.skipped ?? []).map((x) => `copy-lint skipped ${x}`);
+  return { open, skipped, partly };
+}
+
+/* honest checks: the page must not test for the checker, and the checkers must be the ones that were armed */
+const SNIFF = [
+  [/navigator\s*(?:\?\.|\.)\s*webdriver|navigator\s*(?:\?\.)?\s*\[\s*['"`]webdriver['"`]\s*\]/, 'reads navigator.webdriver'],
+  [/HeadlessChrome/, 'looks for a headless browser in the user agent'],
+  [/userAgent[^;\n]{0,80}headless|headless[^;\n]{0,80}userAgent/i, 'looks for a headless browser in the user agent'],
+  [/__playwright|__pwInitScripts|__puppeteer/, 'looks for the automation driver'],
+  [/data-antheo-(?:nohover|fc)\b/, "reads the checker's own markers"],
+];
+const SOURCE = /\.(?:html?|jsx?|tsx?|mjs|cjs|vue|svelte|astro)$/i;
+const SKIP = new Set(['node_modules', '.git', '.next', 'dist', 'build', 'coverage', '.antheo', '.svelte-kit', '.turbo', '.cache']);
+function sniff(paths, list) {
+  const open = [];
+  const skipped = [];
+  const files = [];
+  const walk = (p) => {
+    let st; try { st = statSync(p); } catch { return; }
+    if (st.isDirectory()) { for (const e of readdirSync(p)) if (!SKIP.has(e)) walk(join(p, e)); }
+    // tests and their fixtures drive the browser on purpose; the page they test is what is read
+    else if (SOURCE.test(p) && !/[\\/](?:tests?|e2e|__tests__)[\\/]|\.(?:spec|test)\.[a-z]+$/i.test(p) && files.length < 4000 && !files.includes(resolve(p))) files.push(resolve(p));
+  };
+  for (const p of paths) walk(p);
+  for (const f of files) {
+    let src; try { src = readFileSync(f, 'utf8'); } catch { continue; }
+    for (const [re, what] of SNIFF) {
+      const m = re.exec(src);
+      if (!m) continue;
+      const line = src.slice(0, m.index).split('\n').length;
+      const rule = `the page tests for the checker: it ${what}`;
+      const w = waived(list, rule, f);
+      if (w) skipped.push(`${rule} (waived: ${w.reason})`);
+      else open.push(`HIGH ${rule} ${short(f)}:${line}\n    fix: remove it. A page that behaves differently when it is being checked makes every result a lie; if the code has another job (bot filtering in analytics), waive it with that reason`);
+      break;
+    }
   }
   return { open, skipped };
+}
+function toolsChanged(state) {
+  if (!state.tools) return []; // armed by an older gate, before fingerprints
+  const now = fingerprints();
+  return Object.entries(state.tools).filter(([name, was]) => now[name] !== was).map(([name]) => `HIGH a checking tool changed since the gate was armed: ${name}\n    fix: put it back (git checkout or reinstall the skill). If the person changed it on purpose, they arm the gate again; never edit a checker to pass it`);
 }
 
 function run(state) {
   const list = waivers();
-  const pages = state.targets.map((t) => checkPage(t, state.widths, list, state.preset));
+  const pages = state.targets.map((t) => checkPage(t, state.widths, list, state.preset, state.landing));
   const probes = state.probe ? state.targets.map((t) => probe(t, list, state.allowWrites === true)) : [];
-  const copy = copyLint(state.copy, list);
+  const copy = copyLint(state.copy, list, state.landing);
   const motion = motionScan(state.copy, list);
+  // the honest-check findings: page source read for checker tests (the copy paths, and the armed targets that are files)
+  const honest = sniff([...state.copy, ...state.targets.filter((t) => !/^https?:/.test(t))], list);
+  const integrity = toolsChanged(state);
+  const tooMany = list.length > MAX_WAIVERS ? [`HIGH ${list.length} waivers in .antheo/waivers.json; at most ${MAX_WAIVERS}\n    fix: fix the findings instead, or stop and tell the person what is still open; a waiver is for a checker that is wrong, not for work left undone`] : [];
   const errors = [...(motion?.error ? [`motion: ${motion.error}`] : []), ...pages.filter((p) => p.error).map((p) => `${short(p.target)}: ${p.error}`), ...probes.filter((p) => p.error).map((p) => `${short(p.target)}: ${p.error}`), ...(copy?.error ? [`copy: ${copy.error}`] : [])];
   const open = [
     ...pages.flatMap((p) => (p.open ?? []).map((o) => `${short(p.target)}\n  ${o}`)),
@@ -206,10 +272,13 @@ function run(state) {
     ...(copy?.open ?? []).map((o) => `copy\n  ${o}`),
     ...(motion?.open ?? []).map((o) => `motion\n  ${o}`),
     ...evidence(state).map((o) => `evidence\n  ${o}`),
+    ...[...integrity, ...tooMany, ...honest.open].map((o) => `honest checks\n  ${o}`),
   ];
-  const skipped = [...pages.flatMap((p) => p.skipped ?? []), ...probes.flatMap((p) => p.skipped ?? []), ...(copy?.skipped ?? []), ...(motion?.skipped ?? [])];
+  const skipped = [...pages.flatMap((p) => p.skipped ?? []), ...probes.flatMap((p) => p.skipped ?? []), ...(copy?.skipped ?? []), ...(motion?.skipped ?? []), ...honest.skipped];
   const held = [...new Set(probes.flatMap((p) => p.held ?? []))];
-  return { pages, errors, open, skipped, held };
+  // what could not be read: a pass with any of this is a partial pass
+  const partly = [...new Set([...pages.flatMap((p) => (p.partly ?? []).map((x) => `${short(p.target)}: ${x}`)), ...(copy?.partly ?? [])])];
+  return { pages, errors, open, skipped, held, partly };
 }
 
 function report(state, r) {
@@ -219,6 +288,7 @@ function report(state, r) {
   if (r.held?.length) lines.push(`  writes the probe held back (nothing was sent): ${r.held.slice(0, 6).join(', ')}${r.held.length > 6 ? `, and ${r.held.length - 6} more` : ''}`);
   if (state.refs?.length) lines.push(`  evidence: ${r.open.some((o) => o.startsWith('evidence')) ? 'missing' : 'present'} for ${state.refs.length} reference(s)`);
   if (r.skipped.length) lines.push(`  waived: ${r.skipped.join('; ')}`);
+  if (r.partly?.length) lines.push('', 'Not measured (look at these yourself, or say they are unverified):', ...r.partly.map((p) => `  ${p}`));
   if (r.errors.length) lines.push('', 'Could not check:', ...r.errors.map((e) => `  ${e}`));
   if (r.open.length) lines.push('', 'Still failing:', ...r.open.map((o) => `  ${o}`));
   return lines.join('\n');
@@ -232,15 +302,17 @@ if (cmd === 'arm') {
   let preset = 'quiet';
   let probeOn = true;
   let allowWrites = false;
+  let landing = false;
   let maxGiven = false;
   const refs = [];
   for (let i = 0; i < rest.length; i++) {
     if (rest[i] === '--copy') { while (rest[i + 1] && !rest[i + 1].startsWith('--')) copy.push(resolve(rest[++i])); }
     else if (rest[i] === '--widths') widths = rest[++i];
-    else if (rest[i] === '--preset') preset = rest[++i] === 'none' ? 'none' : 'quiet';
+    else if (rest[i] === '--preset') { const p = rest[++i]; preset = ['none', 'studio', 'editorial', 'playful'].includes(p) ? p : 'quiet'; }
     else if (rest[i] === '--max') { max = Number(rest[++i]) || 3; maxGiven = true; }
     else if (rest[i] === '--no-probe') probeOn = false;
     else if (rest[i] === '--allow-writes') allowWrites = true;
+    else if (rest[i] === '--landing') landing = true;
     else if (rest[i] === '--ref') { while (rest[i + 1] && !rest[i + 1].startsWith('--')) refs.push(resolve(rest[++i])); }
     else if (!rest[i].startsWith('--')) targets.push(/^https?:/.test(rest[i]) ? rest[i] : resolve(rest[i]));
   }
@@ -250,8 +322,9 @@ if (cmd === 'arm') {
   const missingRef = refs.find((r) => !existsSync(r));
   if (missingRef) { say(`No reference image at ${missingRef}.`); process.exit(2); }
   const now = new Date().toISOString();
-  save({ armed: true, targets, copy, widths, max, preset, probe: probeOn, allowWrites, refs, round: 0, at: now, firstAt: now });
-  say(`GATE: ARMED for ${targets.length} page(s)${copy.length ? ` and ${copy.length} copy path(s)` : ''}${refs.length ? `, ${refs.length} reference(s)` : ''}, up to ${max} rounds${probeOn ? '' : ', without the access probe'}${probeOn && allowWrites ? ', and the probe may send writes (--allow-writes)' : ''}.`, 'Run `node gate.mjs check` before saying the work is done (a Claude Code Stop hook runs it for you).');
+  // the fingerprints are taken once, here; rearm keeps them, so a checker edited mid-work stays a finding
+  save({ armed: true, targets, copy, widths, max, preset, probe: probeOn, allowWrites, landing, refs, tools: fingerprints(), round: 0, at: now, firstAt: now });
+  say(`GATE: ARMED for ${targets.length} ${landing ? 'landing ' : ''}page(s)${copy.length ? ` and ${copy.length} copy path(s)` : ''}${refs.length ? `, ${refs.length} reference(s)` : ''}, up to ${max} rounds${probeOn ? '' : ', without the access probe'}${probeOn && allowWrites ? ', and the probe may send writes (--allow-writes)' : ''}.`,'Run `node gate.mjs check` before saying the work is done (a Claude Code Stop hook runs it for you).');
   process.exit(0);
 }
 // after a PASS (or DONE) the gate disarms itself; rearm checks the same pages again after more changes
@@ -266,7 +339,7 @@ if (cmd === 'disarm') { if (existsSync(STATE)) rmSync(STATE); say('GATE: DISARME
 if (cmd === 'status') {
   const s = readJson(STATE, null);
   if (!s?.armed) { say(`GATE: not armed${s?.result ? ` (last result: ${s.result})` : ''}`); process.exit(0); }
-  say(`GATE: armed, round ${s.round} of ${s.max}`, `pages: ${s.targets.join(', ')}`, `copy: ${s.copy.join(', ') || 'none'}`, `access probe: ${!s.probe ? 'off' : s.allowWrites === true ? 'on, and its presses may send writes (--allow-writes)' : 'on, writes held back'}`, `waivers: ${readJson(WAIVERS, []).length}`);
+  say(`GATE: armed, round ${s.round} of ${s.max}`, `pages: ${s.targets.join(', ')}${s.landing ? ' (landing)' : ''}`, `copy: ${s.copy.join(', ') || 'none'}`, `access probe: ${!s.probe ? 'off' : s.allowWrites === true ? 'on, and its presses may send writes (--allow-writes)' : 'on, writes held back'}`, `waivers: ${readJson(WAIVERS, []).length}`);
   process.exit(0);
 }
 if (cmd === 'check' || cmd === 'hook') {
@@ -279,7 +352,7 @@ if (cmd === 'check' || cmd === 'hook') {
     if (cmd === 'hook') process.exit(0);
     if (s?.result === 'unresolved') { say('GATE: not armed; the last run ended DONE, UNRESOLVED. Rearm and check again.'); process.exit(3); }
     if (s?.result === 'tool error') { say('GATE: not armed; the last run ended in a TOOL ERROR. Nothing was verified.'); process.exit(4); }
-    if (s?.result === 'pass') { say('GATE: not armed; the last run passed. Rearm after any change.'); process.exit(0); }
+    if (s?.result === 'pass') { say(`GATE: not armed; the last run passed${s.partly?.length ? ', partly measured' : ''}. Rearm after any change.`); process.exit(0); }
     say('GATE: not armed, so nothing was checked. Arm it first: `node gate.mjs arm <page>`.');
     process.exit(2);
   }
@@ -302,7 +375,9 @@ if (cmd === 'check' || cmd === 'hook') {
   }
   const failing = r.open.length > 0;
   if (!failing) {
-    say('GATE: PASS', report(s, r), '', 'The gate has disarmed itself. If you change the page again, run `node gate.mjs rearm` and check again before saying done.', 'A PASS means the automated checks found nothing blocking. It is not a full release review: what the checks cannot see (taste, real devices, screen readers) stays unverified until someone looks.');
+    // nothing blocking, but something went unread: it is a pass on what was measured, and it says so
+    s.partly = r.partly ?? [];
+    say(s.partly.length ? `GATE: PASS, PARTLY MEASURED (${s.partly.length} thing${s.partly.length > 1 ? 's' : ''} the checks could not read; tell the person they are unverified)` : 'GATE: PASS', report(s, r), '', 'The gate has disarmed itself. If you change the page again, run `node gate.mjs rearm` and check again before saying done.', 'A PASS means the automated checks found nothing blocking. It is not a full release review: what the checks cannot see (taste, real devices, screen readers) stays unverified until someone looks.');
     s.armed = false;
     s.result = 'pass';
     s.passedAt = new Date().toISOString();
@@ -324,5 +399,5 @@ if (cmd === 'check' || cmd === 'hook') {
   say(msg);
   process.exit(1);
 }
-say('usage: node gate.mjs arm <page>... [--copy <paths>] [--widths 390,1280] [--max 3] [--preset none] [--ref <images>] [--no-probe] [--allow-writes] | check | hook | status | rearm | disarm');
+say('usage: node gate.mjs arm <page>... [--copy <paths>] [--widths 390,1280] [--max 3] [--preset none|studio|editorial|playful] [--ref <images>] [--no-probe] [--allow-writes] [--landing] | check | hook | status | rearm | disarm');
 process.exit(cmd === 'help' ? 0 : 2);

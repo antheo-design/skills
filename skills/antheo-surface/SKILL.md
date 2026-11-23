@@ -5,7 +5,7 @@ description: Gives every surface its depth from what it sits on, whether it rise
 
 # Antheo Surface
 
-> **How to read this skill.** Its numbers are house defaults (antheo-build, "Four kinds of rule"): they give way to the
+> **How to read this skill.** Its numbers are house defaults (antheo-build `references/rules.md`, "Four kinds of rule"): they give way to the
 > person, a reference, a brand or the project's own system. What protects people (contrast, focus, targets, reduced
 > motion, nothing broken) is a requirement and never bends.
 
@@ -65,6 +65,9 @@ raised control lighter again, with one faint light edge (6% white) and no drop o
 menus, dialogs and a lifted card. No lit top edge. Sizes, padding and corners never change between themes.
 
 ## Three corners
+
+The sizes are the Quiet look's; Studio (3, 4, 6px), Editorial (2, 4, 6px) and Playful (6, 12, 18px) keep three
+corners under the same variables (antheo-build `references/looks.md`).
 
 | Variable | Size | For |
 |---|---|---|

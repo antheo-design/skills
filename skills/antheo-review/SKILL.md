@@ -1,6 +1,6 @@
 ---
 name: antheo-review
-description: Checks a running screen, page, component or change in a real browser at seven widths in light and dark and answers "ready to ship?" first, with every finding measured, located and given its cheapest fix. Use for "check this before I ship", "review my page", "what broke in this change", or after building any UI.
+description: Checks a running screen, page, component or change in a real browser at seven widths in light and dark and answers "ready to ship?" first, with every finding measured, located and given its cheapest fix. Use for "check this before I ship", "review my page", "what broke in this change", or after building any UI. Questions of taste with no verdict are antheo-critique's.
 ---
 
 # Antheo Review
@@ -56,7 +56,15 @@ shows its main content late (LCP over 2.5s; a local number is a floor, the deplo
 broken mid-word, a unit drifted from its number, a bar covering or showing content, tilted
 decoration, placeholder text, bands of backgrounds. It scores each area 0 to 100: a blocker
 caps the total at 49; one high finding at 79, three at 69, five at 59. Tells are listed, never scored, and a familiar
-layout is never a finding. Never pass `--no-dark`.
+layout is never a finding. Never pass `--no-dark`. A page in another look of the block takes `--preset studio`,
+`editorial` or `playful`, which judges it by that look's own corners and faces (antheo-build `references/looks.md`).
+
+It weighs the first visit against this skill's budget (1.6 MB, 300 KB an image, images at about the size shown,
+lazy below the fold; the full list is in the script's header). **On a landing, company or product page add
+`--landing`:** the h1 and a filled main action on the first screen at 390×844 and 1280×800, one hard fact there,
+contact details to confirm unless marked `data-source` or `data-assumed`, share tags, no empty sections. What it
+could not read is listed under "not measured": that report is partial, and says so. Stand-in photographs
+(`data-source="stand-in"`) are listed to replace, and one with no visible credit or used as the main picture is high.
 
 The score is a floor, not a verdict: **when the screenshots and the score disagree, the screenshots win.**
 
@@ -64,8 +72,11 @@ The score is a floor, not a verdict: **when the screenshots and the score disagr
 touches, it keeps the work open while a blocker or high finding from the page check, a blocker or serious finding
 from the access probe (which also presses every button), or a high copy finding stands, for up to three rounds, with
 waivers only for a stated reason. Armed with `--ref`, it also asks for the evidence of comparing with each reference
-(`scripts/beside.mjs`, twice) and of filming the motion. As a Claude Code Stop hook it runs by itself; in Codex or Cursor the agent runs `gate.mjs check`.
-Setup: `references/gate.md`.
+(`scripts/beside.mjs`, twice) and of filming the motion; armed with `--landing`, it runs the landing checks and lints
+copy with `--marketing`. It keeps itself honest: a checker edited after arming, page source that tests for the
+checker (`navigator.webdriver`, a headless user agent), or more than 5 waivers holds the work open, and a pass with
+anything unread says PASS, PARTLY MEASURED. As a Claude Code Stop hook it runs by itself; in Codex or Cursor the
+agent runs `gate.mjs check`. Setup: `references/gate.md`.
 
 ## Look at the screenshots
 
@@ -180,41 +191,16 @@ work and should be kept, and decisions that belong to a person.
 ## End with what was not checked
 
 `Not checked:` and every width, theme, state, language and flow nobody looked at. Something nobody looked at is not
-approved. A page behind a login you don't have is said there.
+approved. A page behind a login you don't have is said there. No browser at all (no Playwright, a sandbox): run what
+works on Node, give the person the five-minute list, and report Not verified (`references/no-browser.md`).
 
-## Reviewing a change
+## A change, a whole app, or the fixes too
 
-1. **Scope:** `git diff --name-only <base>...HEAD`, a PR's files, or the working tree; say which.
-2. **Spread:** walk each changed file up to every route that uses it.
-3. **Removed signals:** a removed `aria-*`, `outline`, `tabindex`, `prefers-reduced-motion`, `lang`, `dir`,
-   `tabular-nums` or logical property is a finding unless the same change adds an equivalent.
-4. **Before and after:** the page check with `--shots` on the base and on the change, then
-   `node <this-skill>/scripts/pixdiff.mjs before/<name> after/<name> --out diffs/<name>`.
-5. **Classify:** introduced, regression, or pre-existing. Only introduced findings and regressions decide the ship
-   line.
-
-## Reviewing a whole app
-
-Every route and state that matters (signed out, empty, full, error), the page check with `--stress` on each, findings
-grouped by cause, causes ranked by screens touched times severity, shared components and tokens fixed first, each
-cause handed to the skill that owns it, every route re-run after each batch.
-
-## If asked to fix
-
-1. **Reproduce first.** Before touching code, capture each finding on the running page (a screenshot or a
-   measurement at the width and theme it was found). A finding you can't reproduce isn't fixed; it moves to
-   `Not verified`.
-2. **Fix in severity order** with the cheapest fix, the smallest change that removes the cause.
-3. **Undo a wrong guess.** If a change didn't move the finding it targeted, revert it before trying the next idea;
-   never stack guesses. A finding still open after a change means the cause was wrong.
-4. **Prove it gone** with the same capture, re-run the checks after each batch, and report the ship line before and
-   after.
-
-## What a passing check hides
-
-Check each in `references/habits.md` before calling it done: nobody opened it · a screenshot that looks right over a
-structure that is wrong · a style reading a variable nobody defined · controls wired to nothing; a success shown
-after a failed request; leftovers · a check that was quieted · only one browser, only the happy path.
+A change: scope it, walk each file to every route that uses it, treat a removed accessibility or motion signal as a
+finding, compare before and after with `pixdiff.mjs`, and let only introduced findings and regressions decide the ship
+line. A whole app: every route and state, causes ranked by screens touched times severity. Asked to fix: reproduce
+first, fix in severity order, undo a wrong guess, prove it gone. Each in full: `references/modes.md`. What a passing
+check hides: `references/habits.md`.
 
 ## Done
 
@@ -231,22 +217,14 @@ after a failed request; leftovers · a check that was quieted · only one browse
 
 ## Files
 
-- `references/examples.md`: what goes wrong and the fix, from the skills page and from real builds; when the default is wrong
-- `scripts/gate.mjs`: arms a gate on the pages a change touches; a Stop hook (or `check`) keeps the work open until they pass (`references/gate.md`)
-- `scripts/check-block-names.mjs`: every variable a file reads is defined by the style block or in the file; given
-  a folder, anywhere in the project (any stack)
-- `scripts/check-page.mjs`: seven widths × two themes; access, layout, craft, consistency, motion, tells, robustness;
-  the load measured once (LCP, CLS, in the JSON as `vitals`); a text field with no boundary at 3:1; a chart
-  (`data-chart`) with no name or with series told apart by hue alone; `--stress` (long text, long words, right to left, forced colours); `--shots`
-- `scripts/latency-probe.mjs`: real presses and drags; time from the press to the control's own first visible
-  change (100ms or less; this is press feedback, not INP), swallowed second presses, drag drift; `--play <selector>`
-  times every frame of an animation or a toy for two seconds, `--cpu 4` on a slowed CPU. Writes are held back unless
-  `--allow-writes`
-- `scripts/beside.mjs`: puts a build next to its reference at the same height, with 3× close-ups of both (`--zoom
-  x,y` aims them: the dial, the buttons); the sheets go to `.antheo/evidence/`, where the gate armed with `--ref`
-  looks for them
-- `scripts/pixdiff.mjs`: compares two screenshots or folders; changed pixels, the changed box, a diff image
-- `references/report.md`: the one report format every checking skill uses: verdict, finding, severity, cap, close
-- `references/rubric.md`: eight design-quality questions, scored 1 to 5 with anchors
-- `references/checklist.md`: the full list: access, layout, the look, consistency, states, motion, performance
-- `references/habits.md`: what a passing check hides, each with its fix
+- `scripts/check-page.mjs`: seven widths, two themes; access, layout, craft, consistency, motion, tells, robustness; load
+  (LCP, CLS) and page weight; fields, charts, stand-in photos; `--landing`, `--preset <look>`, `--stress`, `--shots`
+- `scripts/gate.mjs`: keeps the work open until the checks pass, and checks itself (`references/gate.md`)
+- `scripts/latency-probe.mjs`: real presses and drags: press feedback within 100ms, swallowed presses, drag drift,
+  `--play` for every frame of an animation; writes held back unless `--allow-writes`
+- `scripts/beside.mjs` (a build beside its reference, with close-ups) and `scripts/pixdiff.mjs` (two screenshots compared)
+- `scripts/check-block-names.mjs`: every variable a file reads is defined
+- `references/report.md` (the one report format), `references/rubric.md` (eight design questions),
+  `references/checklist.md` (the full list), `references/habits.md` (what a passing check hides)
+- `references/modes.md` (a change, a whole app, fixing), `references/no-browser.md` (no browser),
+  `references/examples.md` (what goes wrong and the fix)

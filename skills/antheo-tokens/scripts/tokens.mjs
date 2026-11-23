@@ -566,7 +566,7 @@ const scaleVars = () =>
     ...Object.entries(radius).map(([k, v]) => `  --radius-${k}: ${v}px;`),
     ...Object.entries(control).map(([k, v]) => `  --control-${k}: ${+(v / 16).toFixed(4)}rem; /* ${v}px */`),
     `  --target-min: 24px; /* WCAG 2.2 AA; aim for 44px on touch */`,
-    `  --measure: 66ch; /* body text line length */`,
+    `  --measure: 32em; /* body text line length: about 68 characters (65ch reads 90 or more in a grotesk) */`,
     `  /* layout: one container and one gutter for the whole page, so every section starts on the same edge */`,
     `  --page-max: 76rem; /* 1216px: text and controls never go wider */`,
     `  --page-wide: 96rem; /* 1536px: how far a hero visual or a wide table may reach */`,
@@ -638,7 +638,7 @@ const depth = (src, fallback) => Object.entries(fallback).map(([n, v]) => `${n}:
 const INK = rgbToOklch(hexToRgb(light.text)).map((v, i) => (i === 2 ? Math.round(v) : +v.toFixed(3))).join(' ');
 const DEPTH_LIGHT = depth(BLOCK_ROOT, DEPTH_FALLBACK.light);
 const DEPTH_DARK = depth(BLOCK_DARK, DEPTH_FALLBACK.dark);
-const RHYTHM = Object.entries({ '--gap-group': 'var(--s-6)', '--gap-section': '32px', '--measure': '65ch', '--page-max': 'var(--w-data)', '--page-wide': '1440px', '--section': 'clamp(64px, 8vw, 96px)', '--section-dense': 'var(--s-12)' }).map(([n, v]) => `${n}: ${atRest(n, v)};`);
+const RHYTHM = Object.entries({ '--gap-group': 'var(--s-6)', '--gap-section': '32px', '--measure': '32em', '--page-max': 'var(--w-data)', '--page-wide': '1440px', '--section': 'clamp(64px, 8vw, 96px)', '--section-dense': 'var(--s-12)' }).map(([n, v]) => `${n}: ${atRest(n, v)};`);
 const BLOCK_RULES = (() => {
   if (!BLOCK_FILE) return '';
   const rules = BLOCK_FILE.slice(BLOCK_FILE.indexOf('*, *::before, *::after'));

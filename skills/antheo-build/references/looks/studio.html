@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Requests · Relay</title>
+<!-- The Studio look (references/looks.md): a dense tool someone works in for hours. Three panes divided by a
+     hairline, 32px rows, values in tabular figures, the selected row the one tinted thing in its pane. Every rule of
+     the block holds: four text sizes (12, 13, 14, 16), two weights, three corners (3, 4, 6), one primary action. -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400..600&display=swap">
+<link rel="stylesheet" href="../quiet.css">
+<link rel="stylesheet" href="studio.css">
+<style>
+  body { min-height: 100dvh; display: grid; grid-template-rows: var(--h-bar) 1fr; }
+  .bar { display: flex; align-items: center; gap: var(--s-3); padding-inline: var(--gutter); box-shadow: 0 1px 0 var(--line); }
+  .logo { inline-size: 20px; block-size: 20px; border-radius: var(--r-tag); background: var(--primary); display: grid; place-items: center; }
+  .logo svg { inline-size: 12px; block-size: 12px; color: var(--on-primary); }
+  .product, .ctx { font-weight: var(--w-strong); }
+  .ctx { font-size: var(--t-body); line-height: var(--l-body); }
+  .bar .muted { margin-inline-end: auto; }
+  .work { display: grid; grid-template-columns: 13rem minmax(0, 1fr) 20rem; min-block-size: 0; }
+  .pane { min-inline-size: 0; overflow: auto; padding: var(--pad-card); display: grid; align-content: start; gap: var(--gap-group); }
+  /* the one exception Studio makes: panes are divided by a hairline, not floated as cards */
+  .pane + .pane { box-shadow: inset 1px 0 0 var(--line); }
+  .pane h2 { font-size: var(--t-title); line-height: var(--l-title); }
+  fieldset { border: 0; margin: 0; padding: 0; display: grid; gap: var(--s-2); }
+  legend { padding: 0; margin-block-end: var(--s-2); color: var(--text-2); font-size: var(--t-meta); line-height: var(--l-meta); }
+  label.check { display: flex; align-items: center; gap: var(--s-2); min-block-size: var(--h-small); }
+  input[type="checkbox"] { inline-size: 14px; block-size: 14px; margin: 0; }
+
+  table { inline-size: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+  th { text-align: start; font-weight: var(--w-text); color: var(--text-2); font-size: var(--t-meta); line-height: var(--l-meta); padding: 0 var(--s-2) var(--s-2); }
+  td { block-size: var(--h-row); padding: 0 var(--s-2); border-block-start: 1px solid var(--line); white-space: nowrap; }
+  td.path { inline-size: 100%; max-inline-size: 0; overflow: hidden; text-overflow: ellipsis; }
+  tr[aria-selected="true"] td { background: var(--selected); }
+  .pick { all: unset; cursor: pointer; display: block; line-height: var(--h-small); overflow: hidden; text-overflow: ellipsis; }
+  .pick:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: var(--r-tag); }
+  @media (hover: hover) and (pointer: fine) { tr:hover td { background: var(--hover); } tr[aria-selected="true"]:hover td { background: var(--selected); } .pick:hover { text-decoration: underline; text-decoration-color: var(--text-3); } }
+  .num { text-align: end; }
+  .bad { color: var(--danger); font-weight: var(--w-strong); }
+
+  dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: var(--s-2) var(--s-4); font-variant-numeric: tabular-nums; }
+  dt { color: var(--text-2); }
+  dd { margin: 0; overflow-wrap: anywhere; }
+  .actions { display: flex; gap: var(--s-2); }
+
+  @media (max-width: 60rem) {
+    body { grid-template-rows: var(--h-bar) auto; }
+    .work { grid-template-columns: 1fr; }
+    .pane + .pane { box-shadow: inset 0 1px 0 var(--line); }
+    .pane { overflow: visible; }
+    .filters { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .filters h2 { grid-column: 1 / -1; }
+    th.when, td.when { display: none; }
+  }
+</style>
+</head>
+<body>
+<header class="bar">
+  <span class="logo" aria-hidden="true"><svg viewBox="0 0 12 12"><path d="M2 6h8M6 2v8" stroke="currentColor" stroke-width="2"/></svg></span>
+  <span class="product">Relay</span>
+  <h1 class="ctx">Requests</h1>
+  <span class="muted">checkout-api · production</span>
+</header>
+<main class="work">
+  <section class="pane filters" aria-labelledby="filters-title">
+    <h2 id="filters-title">Filters</h2>
+    <fieldset>
+      <legend>Status</legend>
+      <label class="check"><input type="checkbox" checked data-status="2"> 2xx</label>
+      <label class="check"><input type="checkbox" checked data-status="4"> 4xx</label>
+      <label class="check"><input type="checkbox" checked data-status="5"> 5xx</label>
+    </fieldset>
+    <fieldset>
+      <legend>Method</legend>
+      <label class="check"><input type="checkbox" checked data-method="GET"> GET</label>
+      <label class="check"><input type="checkbox" checked data-method="POST"> POST</label>
+    </fieldset>
+  </section>
+
+  <section class="pane" aria-labelledby="list-title">
+    <h2 id="list-title">In the last 15 minutes</h2>
+    <table aria-labelledby="list-title">
+      <thead><tr><th class="when" scope="col">Time</th><th scope="col">Method</th><th scope="col">Path</th><th scope="col">Status</th><th class="num" scope="col">Duration</th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </section>
+
+  <section class="pane" aria-labelledby="detail-title" aria-live="polite">
+    <h2 id="detail-title">Request</h2>
+    <dl id="detail"></dl>
+    <div class="actions">
+      <button class="btn btn-primary" type="button" id="replay">Replay request</button>
+      <button class="btn" type="button" id="copy">Copy as curl</button>
+    </div>
+    <p class="muted" id="note" role="status"></p>
+  </section>
+</main>
+<script>
+  const data = [
+    ['14:32:08', 'POST', '/v1/orders', 201, 184, 'req_8f21a0'],
+    ['14:32:05', 'GET', '/v1/orders/ord_5512/items', 200, 42, 'req_8f219c'],
+    ['14:31:58', 'POST', '/v1/payments/confirm', 502, 3011, 'req_8f2187'],
+    ['14:31:51', 'GET', '/v1/customers/cus_204', 200, 37, 'req_8f2170'],
+    ['14:31:44', 'GET', '/v1/orders?status=open&limit=50', 200, 96, 'req_8f2161'],
+    ['14:31:30', 'POST', '/v1/carts/crt_88/lines', 422, 61, 'req_8f2148'],
+    ['14:31:12', 'GET', '/v1/shipping/rates', 200, 210, 'req_8f212d'],
+    ['14:30:59', 'GET', '/v1/orders/ord_5509', 404, 18, 'req_8f2119'],
+  ];
+  let chosen = 2;
+  const rows = document.getElementById('rows'), detail = document.getElementById('detail'), note = document.getElementById('note');
+  const show = () => {
+    const [t, m, p, s, d, id] = data[chosen];
+    detail.innerHTML = '';
+    for (const [k, v] of [['ID', id], ['Time', t], ['Method', m], ['Path', p], ['Status', s >= 500 ? `${s}, upstream failed` : String(s)], ['Duration', `${d.toLocaleString()} ms`]]) {
+      const dt = document.createElement('dt'); dt.textContent = k; const dd = document.createElement('dd'); dd.textContent = v; detail.append(dt, dd);
+    }
+    note.textContent = '';
+  };
+  const render = () => {
+    const on = (sel) => [...document.querySelectorAll(sel)].filter((c) => c.checked).map((c) => c.dataset.status ?? c.dataset.method);
+    const statuses = on('[data-status]'), methods = on('[data-method]');
+    rows.innerHTML = '';
+    data.forEach(([t, m, p, s, d], i) => {
+      if (!statuses.includes(String(s)[0]) || !methods.includes(m)) return;
+      const tr = document.createElement('tr');
+      tr.setAttribute('aria-selected', String(i === chosen));
+      tr.innerHTML = `<td class="when"></td><td></td><td class="path"><button class="pick" type="button"></button></td><td></td><td class="num"></td>`;
+      const c = tr.children;
+      c[0].textContent = t; c[1].textContent = m; c[2].firstChild.textContent = p; c[3].textContent = s; c[4].textContent = `${d.toLocaleString()} ms`;
+      if (s >= 500) c[3].className = 'bad';
+      c[2].firstChild.setAttribute('aria-pressed', String(i === chosen));
+      c[2].firstChild.addEventListener('click', () => { chosen = i; render(); show(); });
+      rows.append(tr);
+    });
+  };
+  document.querySelectorAll('input[type="checkbox"]').forEach((c) => c.addEventListener('change', render));
+  document.getElementById('replay').addEventListener('click', () => { note.textContent = `Replayed ${data[chosen][5]}. (This is an example page: nothing was sent.)`; });
+  document.getElementById('copy').addEventListener('click', () => { note.textContent = 'The curl command would be on your clipboard. (This is an example page.)'; });
+  render(); show();
+</script>
+</body>
+</html>

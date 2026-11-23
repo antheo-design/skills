@@ -14,6 +14,11 @@ Everything it writes lives in **`design/`** at the project root: `system.md` (th
 (learned from corrections, newest first), `audit.json` (the latest value audit), `migration.md` (the plan and its
 progress), `components/<name>.md` (one page per component). Templates: `references/design-folder.md`.
 
+**A solo or small app needs little of this.** Read and keep `design/taste.md`, run `audit-values.mjs` once for the
+summary of what is hardcoded, and record each correction the person makes. Extract, map and migrate only when they
+ask for the app to be made consistent; readiness, tone coverage, baselines and batches are for a migration across a
+team's app.
+
 ## Decide in this order
 
 1. **Read:** `design/taste.md` and `design/system.md` before building anything. They outrank every default in the

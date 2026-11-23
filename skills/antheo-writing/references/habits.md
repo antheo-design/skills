@@ -3,7 +3,8 @@
 Part of antheo-writing. Read it before calling the work done, and check the build against each habit.
 
 The phrasings readers now take as machine-written (Wikipedia's field guide, detector catalogues, 2025 to 26).
-`copy-lint.mjs` flags the first, sixth and seventh.
+`copy-lint.mjs` flags the first, sixth and seventh; with `--marketing` it also counts the devices of a selling page
+(two-fragment headings, contrast frames, virtue words, strips of figures), whose budgets are in `marketing.md`.
 
 - **Forced contrast:** "Not a tool. A platform.", "It's not just X, it's Y", "No X. No Y. Just Z." State the claim.
 - **Two-beat slogans:** "Build faster. Ship smarter.", "Scale without limits." Say who it is for and what changes.

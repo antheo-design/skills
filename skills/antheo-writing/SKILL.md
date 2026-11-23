@@ -117,6 +117,14 @@ The full style, the hype list and inclusive language: `references/mechanics.md`.
 
 Recipes: `references/international.md`.
 
+## Pages that sell
+
+A landing, company or product page needs more than good strings: open `references/marketing.md` before writing
+one. In short: fill the fact sheet from the brief first and state nothing outside it (an assumption that stays is
+marked `data-assumed` and listed); write a three-line voice card and choose one register; the h1 names the category
+(and, for an unknown name, who it is for or where) with one hard fact on the first screen; each device (a
+two-fragment heading, a contrast frame, a "no X, no Y" run) stays within its budget; then lint with `--marketing`.
+
 ## Payload strings are not copy
 
 Prompts, code and API examples, clipboard values and quoted terms are exempt from these rules; say so per element,
@@ -129,8 +137,9 @@ node <this-skill>/scripts/copy-lint.mjs <file | folder> --json copy.json
 ```
 
 It checks HTML, JSX, TSX, Vue, Svelte, Astro, Angular templates, server templates (Jinja/Django, ERB, Blade, Twig,
-Liquid, Handlebars, Nunjucks, EJS, HEEx) and JSON locale files, and reports file, line, rule and fix. Fix every high and
-medium finding or say why it stays. Then read every string aloud in the order a person meets them, search the page
+Liquid, Handlebars, Nunjucks, EJS, HEEx) and JSON locale files, and reports file, line, rule and fix. On a landing or
+company page add `--marketing` for the devices of generated selling copy. Fix every high and medium finding or say
+why it stays. Then read every string aloud in the order a person meets them, search the page
 for each rejected word (zero hits), and run the swap test: with a rival's name in, does the copy still fit? Add one
 fact only this product has.
 
@@ -148,7 +157,8 @@ nothing specific.
 - [ ] Sentence case; no hype, "please", "sorry", "oops" or em dashes; one "!" at most
 - [ ] Whole sentences, ICU plurals, `Intl` formatting, room to grow, people's text isolated
 - [ ] Sample content: only what was asked, one person across states, no placeholders, prices as a business publishes them
-- [ ] copy-lint clean or justified; read aloud once
+- [ ] copy-lint clean or justified (`--marketing` on a page that sells); read aloud once
+- [ ] A page that sells: every claim on the fact sheet, the h1 names the category, devices within budget
 - [ ] Checked against every habit in `references/habits.md`
 - [ ] Reported in antheo-review's format (`references/report.md` there): Block or Approve first, then Seen, Why
       and Fix with the value before and after
@@ -161,3 +171,5 @@ nothing specific.
 - `references/mechanics.md`: case, numbers, dates, contractions, plain and inclusive language, the hype list, characters
 - `references/international.md`: ICU MessageFormat, gender, text growth, bidi, sorting, `Intl` recipes
 - `references/habits.md`: what generated copy gets wrong, each with its fix
+- `references/marketing.md`: copy for a page that sells: the fact sheet, the voice card, five registers, what each
+  part of the page does, the budget for devices, what fixing the tells breeds

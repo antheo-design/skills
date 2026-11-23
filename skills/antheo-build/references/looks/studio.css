@@ -1,0 +1,27 @@
+/* Antheo look: Studio. Paste it whole right after quiet.css, never instead of it.
+   For a dense professional tool someone works in for hours: an editor, an IDE, an inspector, a logs or trading
+   console, an audio, video or photo tool, a multi-pane admin workspace. Chosen only when the request names or
+   clearly is such a tool (antheo-build references/looks.md).
+   What changes: tighter type and line heights, shorter controls and rows, sharper corners, less padding, and panes
+   divided by a hairline. What never changes: the names, the two weights, four text sizes a screen, three corner sizes,
+   every colour and its contrast, dark mode, 44px targets on touch. Checked with: check-page.mjs --preset studio. */
+:root {
+  --t-meta: 0.75rem;     --l-meta: 1rem;        /* 12/16px */
+  --t-body: 0.8125rem;   --l-body: 1.125rem;    /* 13/18px: tighter lines, the same size */
+  --t-title: 0.875rem;   --l-title: 1.25rem;    /* 14/20px: a pane or panel title */
+  --t-page: 1rem;        --l-page: 1.375rem;    /* 16/22px: the workspace title, the largest text */
+  --t-num: 1.25rem;      --l-num: 1.5rem;       /* 20/24px: a key figure in a readout */
+  --t-display: 1.75rem;  --l-display: 2rem;     /* 28/32px: rarely, on a start screen */
+  --r-tag: 3px; --r-control: 4px; --r-card: 6px; --r-sheet: 10px;
+  --h-control: 1.75rem; --h-small: 1.5rem; --h-cta: 2rem; --h-row: 2rem; --h-tag: 1.125rem; --h-bar: 2.5rem;   /* 28, 24, 32, 32, 18, 40px */
+  --pad-card: 12px; --gap-section: 24px; --gutter: 16px;
+  --gap-field: var(--s-3); --gap-group: var(--s-4);
+}
+/* touch keeps its 44px targets and steps the text up, exactly as the block does */
+@media (max-width: 47.99rem), (pointer: coarse) {
+  :root {
+    --t-meta: 0.8125rem; --l-meta: 1.125rem; --t-body: 0.9375rem; --l-body: 1.375rem;
+    --t-title: 1rem; --l-title: 1.375rem; --t-page: 1.25rem; --l-page: 1.625rem;
+    --h-control: 2.75rem; --h-small: 2.25rem; --h-cta: 2.75rem; --h-row: 3rem;
+  }
+}

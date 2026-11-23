@@ -6,6 +6,7 @@
  *   node scan-motion.mjs src --all                every animated line, flagged or not
  *   node scan-motion.mjs src --json motion.json   the full inventory as JSON
  *   node scan-motion.mjs src --strict             exit 1 when any high finding exists (for CI)
+ *   node scan-motion.mjs src --top 5              a quick cleanup: only the five fixes that matter most, worst first
  *
  * Reads CSS, SCSS, JS, TS, JSX, TSX, Vue, Svelte, HTML and MDX. Finds CSS transitions, animations and keyframes,
  * Tailwind motion classes, element.animate(), and Motion / Framer props. No dependencies.
@@ -24,9 +25,17 @@ import { readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { join, relative, extname } from 'node:path';
 
 const args = process.argv.slice(2);
-const root = args.find((a) => !a.startsWith('--')) ?? '.';
+if (args.includes('--help') || args.includes('-h')) {
+  console.log('usage: node scan-motion.mjs <folder> [--all] [--top 5] [--json motion.json] [--strict]\n  (no flag)  a summary and the flagged lines\n  --all      every animated line, flagged or not\n  --top n    a quick cleanup: only the n fixes that matter most, worst first\n  --json f   the full inventory as JSON\n  --strict   exit 1 when any high finding exists (for CI)');
+  process.exit(0);
+}
+// the folder is the first argument that is not a flag or a flag's value
+const VALUE_FLAGS = ['--json', '--top'];
+const root = args.find((a, i) => !a.startsWith('--') && !VALUE_FLAGS.includes(args[i - 1])) ?? '.';
 const opt = (name) => { const i = args.indexOf(name); return i >= 0 ? args[i + 1] : undefined; };
 const SHOW_ALL = args.includes('--all');
+// --top n: the n flagged lines that matter most (high outweighs medium outweighs check), for a quick cleanup
+const TOP = Number(opt('--top')) || 0;
 const STRICT = args.includes('--strict');
 const JSON_OUT = opt('--json');
 
@@ -177,17 +186,29 @@ console.log(`Motion in ${root}: ${items.filter((x) => !x.reduced).length} animat
 console.log(`Reduced motion: ${guardAnywhere ? `guarded in ${filesWithGuard.size} files; ${unguarded.length} animated files have no local guard (check a global one covers them)` : 'NO guard anywhere (high)'}`);
 if (reduced.length) {
   console.log(`Reduced-motion blocks: ${reduced.length} (${reduced.filter((b) => b.kind === 'keeps').length} keep a fade or a colour change, ${reduced.filter((b) => b.kind === 'removes').length} remove motion)`);
-  for (const b of reduced) console.log(`   ${b.file}:${b.line}  ${b.kind}${b.blanket && b.kind === 'removes' ? ' (blanket)' : ''}: ${b.why}`);
+  if (!TOP) for (const b of reduced) console.log(`   ${b.file}:${b.line}  ${b.kind}${b.blanket && b.kind === 'removes' ? ' (blanket)' : ''}: ${b.why}`);
 }
 console.log(`Durations (${allDur.length} distinct): ${allDur.slice(0, 12).map(([k, n]) => `${k}×${n}`).join('  ')}`);
 console.log(`Curves (${allCurve.length} distinct): ${allCurve.slice(0, 10).map(([k, n]) => `${k}×${n}`).join('  ')}`);
 console.log(`Flagged lines: ${flagged.length} (high ${bySev('high')}, medium ${bySev('medium')}, check ${bySev('check')})\n`);
 
-for (const x of SHOW_ALL ? items : flagged) {
+// --top: rank every candidate (flagged lines, and reduced-motion blocks that remove all motion) by weight, worst first;
+// no guard anywhere is the first fix and takes one of the places
+const WEIGHT = { high: 9, medium: 3, check: 1 };
+const worth = (x) => x.flags.reduce((n, f) => n + (WEIGHT[f.sev] ?? 0), 0);
+const blanket = reduced.filter((b) => b.blanket && b.kind === 'removes').map((b) => ({ file: b.file, line: b.line, code: b.why, flags: [{ sev: 'high', id: 'R2', msg: 'reduced motion removes all feedback: keep a short fade' }] }));
+const ranked = [...blanket, ...flagged].sort((a, b) => worth(b) - worth(a));
+const places = TOP - (guardAnywhere ? 0 : 1);
+const shown = TOP ? ranked.slice(0, Math.max(0, places)) : SHOW_ALL ? items : flagged;
+if (TOP) {
+  console.log(`The ${shown.length + (guardAnywhere ? 0 : 1)} fixes that matter most, of ${ranked.length + (guardAnywhere ? 0 : 1)}, worst first (without --top for every one):\n`);
+  if (!guardAnywhere) console.log('HIGH   R1 no prefers-reduced-motion handling anywhere: travel, scale and blur must become a short fade\n');
+}
+for (const x of shown) {
   console.log(`${x.file}:${x.line}  ${x.code}`);
   for (const f of x.flags) console.log(`   ${f.sev.toUpperCase().padEnd(6)} ${f.id} ${f.msg}`);
 }
-if (!guardAnywhere) console.log('\nHIGH   R1 no prefers-reduced-motion handling anywhere: travel, scale and blur must become a short fade');
+if (!TOP && !guardAnywhere) console.log('\nHIGH   R1 no prefers-reduced-motion handling anywhere: travel, scale and blur must become a short fade');
 
 if (JSON_OUT) writeFileSync(JSON_OUT, JSON.stringify({ root, files: files.length, filesWithMotion: filesWithMotion.size, guardAnywhere, unguarded, reduced, durations: allDur, curves: allCurve, items }, null, 2));
 if (STRICT && (bySev('high') > 0 || !guardAnywhere)) process.exit(1);

@@ -1,0 +1,33 @@
+/* Antheo look: Playful. Paste it whole right after quiet.css, never instead of it.
+   For products meant to be enjoyed: habits, learning, games, kids, social, a friendly onboarding. It pairs with
+   antheo-creative, which gives a component its play. Chosen only when the request asks for it ("playful", "fun",
+   "friendly", "for kids") or clearly is such a product (antheo-build references/looks.md).
+   Load its face instead of Geist:
+   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400..700&display=swap" rel="stylesheet">
+   What changes: a rounded face (Nunito, at its own x-height), a step up in size, chunkier controls, rounder corners,
+   a warm cream ground and more padding. What never changes: the names, the two weights, four text sizes a screen,
+   three corner sizes, colour only for "on", contrast, dark mode, and no costume (no stickers, tape or tilt).
+   Checked with: check-page.mjs --preset playful. */
+:root {
+  --font: "Nunito", ui-rounded, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --t-meta: 0.8125rem;   --l-meta: 1.125rem;    /* 13/18px */
+  --t-body: 0.9375rem;   --l-body: 1.375rem;    /* 15/22px */
+  --t-title: 1.0625rem;  --l-title: 1.5rem;     /* 17/24px */
+  --t-page: 1.375rem;    --l-page: 1.75rem;     /* 22/28px */
+  --t-num: 1.75rem;      --l-num: 2rem;         /* 28/32px */
+  --t-display: 2.25rem;  --l-display: 2.5rem;   /* 36/40px */
+  --r-tag: 6px; --r-control: 12px; --r-card: 18px; --r-sheet: 24px;
+  --h-control: 2.5rem; --h-small: 2.25rem; --h-cta: 2.75rem; --h-row: 3rem; --h-tag: 1.5rem;   /* 40, 36, 44, 48, 24px */
+  --pad-card: 24px; --gap-field: var(--s-5); --gap-group: var(--s-8);
+}
+html { font-size-adjust: 0.484; }   /* Nunito's x-height (antheo-type scripts/x-height.mjs) */
+/* the warm ground only in light: dark keeps the block's dark, which outranks this either way */
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) { --bg: oklch(0.975 0.012 85); --well: oklch(0.952 0.014 85); --hover: oklch(0.94 0.016 85); --selected: oklch(0.92 0.018 85); }
+}
+[data-theme="light"] { --bg: oklch(0.975 0.012 85); --well: oklch(0.952 0.014 85); --hover: oklch(0.94 0.016 85); --selected: oklch(0.92 0.018 85); }
+@media (max-width: 47.99rem) { :root { --t-display: 1.875rem; --l-display: 2.25rem; --pad-card: 20px; } }
+/* touch: 16px text and 44 to 48px controls */
+@media (max-width: 47.99rem), (pointer: coarse) {
+  :root { --t-body: 1rem; --l-body: 1.5rem; --t-title: 1.125rem; --l-title: 1.625rem; --h-control: 2.75rem; --h-cta: 3rem; --h-row: 3.25rem; }
+}

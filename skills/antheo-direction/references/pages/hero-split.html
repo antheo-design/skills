@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rota · shift planning for restaurant groups</title>
+<meta name="description" content="Build next week’s rota for every site in one screen. £4 per staff member a month, 30 days free.">
+<meta property="og:title" content="Rota · shift planning for restaurant groups">
+<meta property="og:description" content="Build next week’s rota for every site in one screen. £4 per staff member a month.">
+<meta property="og:image" content="https://example.com/rota/share.png">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23222'/%3E%3Cpath d='M9 22V10h7a4 4 0 0 1 0 8h-7m7 0 5 4' fill='none' stroke='%23fff' stroke-width='2.5'/%3E%3C/svg%3E">
+<!-- A Clean landing page, the Split hero (antheo-direction references/landing.md).
+     Kind: software, because the brief's action is starting a trial. Material: the product's week view, a price, three
+     real features, four questions; no quotes, no customer numbers, so neither appears.
+     Hero: Split, because the product has a screen worth showing: the h1, one line with the price and the action on
+     one side, the week view on the other, drawn in HTML as a picture (role="img") with real names and times. -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400..600&display=swap">
+<link rel="stylesheet" href="../../../antheo-build/references/quiet.css">
+<style>
+  .wrap { width: min(var(--page-max), 100% - 2 * var(--gutter)); margin-inline: auto; }
+  .bar { display: flex; align-items: center; justify-content: space-between; gap: var(--s-4); height: var(--h-bar); }
+  .bar nav { display: flex; align-items: center; gap: var(--s-6); }
+  .brand { font-weight: var(--w-strong); text-decoration: none; }
+  /* a link on its own, outside running text, is pressed through a control-height area (44px on touch) */
+  .hit { display: inline-flex; align-items: center; min-block-size: var(--h-control); }
+  /* one gap between sections: each section pads only its end */
+  section { padding-block: 0 var(--section); }
+  .hero { padding-block: var(--s-12) var(--section); display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: var(--s-12); align-items: center; }
+  .pitch { display: grid; gap: var(--s-4); justify-items: start; }
+  .lead { font-size: var(--t-title); line-height: var(--l-title); color: var(--text-2); max-inline-size: 34ch; }
+  .actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-3) var(--s-6); margin-block-start: var(--s-2); }
+  a.btn { text-decoration: none; }
+  .btn-cta { height: var(--h-cta); padding-inline: var(--s-4); }
+
+  /* the picture: the product's week view, a card on the page ground, rows of people and their shifts */
+  .screen { padding: var(--s-4); display: grid; gap: var(--s-3); }
+  .screen-top { display: flex; justify-content: space-between; align-items: baseline; gap: var(--s-3); }
+  .week { display: grid; grid-template-columns: 7.5rem repeat(5, minmax(0, 1fr)); font-size: var(--t-meta); line-height: var(--l-meta); }
+  .week > * { padding: var(--s-2) var(--s-1); border-block-start: 1px solid var(--line); min-inline-size: 0; }
+  .week .day { color: var(--text-2); border-block-start: 0; }
+  .who { font-weight: var(--w-strong); }
+  .shift { display: block; padding: 2px var(--s-1); border-radius: var(--r-tag); background: var(--well); white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .shift.open { background: var(--accent-soft); color: var(--accent-text); font-weight: var(--w-strong); }
+
+  .claims { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s-8); }
+  .claims h3 { font-size: var(--t-title); line-height: var(--l-title); margin-block-end: var(--s-2); }
+  .claims p, .faq dd { color: var(--text-2); max-inline-size: var(--measure); }
+  h2 { margin-block-end: var(--s-8); }
+  .price { display: flex; align-items: baseline; gap: var(--s-2); margin-block: var(--s-2) var(--s-4); }
+  .plan { max-inline-size: var(--w-form); display: grid; gap: var(--s-2); }
+  .faq { display: grid; gap: var(--s-6); margin: 0; max-inline-size: var(--w-settings); }
+  .faq dt { font-weight: var(--w-strong); margin-block-end: var(--s-1); }
+  .faq dd { margin: 0; }
+  .close { display: grid; gap: var(--s-4); justify-items: start; }
+  .trial { display: flex; flex-wrap: wrap; gap: var(--s-2); align-items: end; }
+  .trial label { display: grid; gap: var(--gap-label); }
+  .trial .field { inline-size: 18rem; max-inline-size: 100%; }
+  footer { padding-block: var(--s-6); color: var(--text-2); font-size: var(--t-meta); display: flex; align-items: center; gap: var(--s-4); flex-wrap: wrap; }
+
+  @media (max-width: 60rem) {
+    .hero { grid-template-columns: 1fr; gap: var(--s-8); padding-block-start: var(--s-6); }
+    .claims { grid-template-columns: 1fr; gap: var(--s-6); }
+  }
+  @media (max-width: 30rem) {
+    .bar nav a:not(.btn) { display: none; }
+    .week { grid-template-columns: 5.5rem repeat(3, minmax(0, 1fr)); }
+    .week .late { display: none; }
+  }
+</style>
+</head>
+<body>
+<header class="wrap bar">
+  <a class="brand hit" href="#top">Rota</a>
+  <nav aria-label="Main">
+    <a class="hit" href="#prices">Prices</a>
+    <a class="hit" href="#questions">Questions</a>
+    <a class="btn" href="#trial">Start a 30-day trial</a>
+  </nav>
+</header>
+<main id="top">
+  <section class="wrap hero" aria-labelledby="title">
+    <div class="pitch">
+      <h1 class="t-display" id="title">Shift planning for restaurant groups</h1>
+      <p class="lead">Next week’s rota for every site, in one screen. £4 per staff member a month.</p>
+      <div class="actions">
+        <a class="btn btn-primary btn-cta" href="#trial">Start a 30-day trial</a>
+        <a class="hit" href="#prices">See what’s included</a>
+      </div>
+    </div>
+    <div class="card screen" role="img" data-object aria-label="Rota’s week view for the Canal Street kitchen: five people, their shifts from Monday to Friday, and one open shift on Wednesday evening.">
+      <div class="screen-top"><span class="t-title">Canal Street · kitchen</span><span class="t-meta muted">24 to 28 Nov</span></div>
+      <div class="week">
+        <span class="day"></span><span class="day">Mon</span><span class="day">Tue</span><span class="day">Wed</span><span class="day late">Thu</span><span class="day late">Fri</span>
+        <span class="who">Aoife M.</span><span><span class="shift">7–15</span></span><span><span class="shift">7–15</span></span><span></span><span class="late"><span class="shift">7–15</span></span><span class="late"><span class="shift">7–15</span></span>
+        <span class="who">Tomasz K.</span><span><span class="shift">15–23</span></span><span></span><span><span class="shift">15–23</span></span><span class="late"><span class="shift">15–23</span></span><span class="late"><span class="shift">15–23</span></span>
+        <span class="who">Funmi A.</span><span></span><span><span class="shift">11–19</span></span><span><span class="shift">11–19</span></span><span class="late"><span class="shift">11–19</span></span><span class="late"></span>
+        <span class="who">Rhys D.</span><span><span class="shift">11–19</span></span><span><span class="shift">15–23</span></span><span></span><span class="late"></span><span class="late"><span class="shift">11–19</span></span>
+        <span class="who">Open</span><span></span><span></span><span><span class="shift open">17–23</span></span><span class="late"></span><span class="late"></span>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap" aria-labelledby="does">
+    <h2 class="t-page" id="does">What a week looks like with Rota</h2>
+    <div class="claims">
+      <div><h3>The whole week on one screen</h3><p>Drag a shift onto a person. Rota warns you before anyone goes over 48 hours or works a close followed by an open.</p></div>
+      <div><h3>Swaps your staff arrange themselves</h3><p>A cook offers a shift, a colleague takes it, and you approve the swap from your phone.</p></div>
+      <div><h3>Hours ready for payroll</h3><p>On Monday morning Rota exports last week’s hours to Xero, Sage or a spreadsheet.</p></div>
+    </div>
+  </section>
+
+  <section class="wrap" id="prices" aria-labelledby="prices-title">
+    <h2 class="t-page" id="prices-title">Prices</h2>
+    <div class="plan">
+      <p class="price"><span class="t-page">£4</span><span class="muted">per staff member, a month</span></p>
+      <p>Every feature, every site. The first 30 days are free, and you can stop at any time from Settings.</p>
+      <p class="muted">Rota does not run payroll: it sends hours to the system you already use.</p>
+    </div>
+  </section>
+
+  <section class="wrap" id="questions" aria-labelledby="questions-title">
+    <h2 class="t-page" id="questions-title">Questions</h2>
+    <dl class="faq">
+      <div><dt>Do my staff need to install anything?</dt><dd>No. They get their shifts by text message and can open the rota in a browser.</dd></div>
+      <div><dt>Can I plan more than one site?</dt><dd>Yes. Each site has its own rota, and you can move a person between sites for a shift.</dd></div>
+      <div><dt>What happens after the trial?</dt><dd>You choose whether to add a card. If you don’t, your rotas stay readable for 90 days.</dd></div>
+    </dl>
+  </section>
+
+  <section class="wrap close" id="trial" aria-labelledby="trial-title">
+    <h2 class="t-page" id="trial-title">Plan next week in Rota</h2>
+    <form class="trial" id="trial-form" novalidate>
+      <label>Work email<input class="field" type="email" name="email" autocomplete="email" placeholder="name@example.com" required></label>
+      <button class="btn btn-primary btn-cta" type="submit">Start a 30-day trial</button>
+    </form>
+    <p id="trial-status" role="status" class="muted">No card needed for the trial.</p>
+  </section>
+</main>
+<footer class="wrap"><span>© 2026 Rota Ltd</span><a class="hit" href="#top">Back to top</a></footer>
+<script>
+  // an example page has no sign-up service, so the form says what it would do, and only for a real address
+  const form = document.getElementById('trial-form'), status = document.getElementById('trial-status'), email = form.elements.email;
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const ok = email.validity.valid;
+    email.setAttribute('aria-invalid', String(!ok));
+    status.textContent = ok ? `We would send a sign-in link to ${email.value}. (This is an example page: no account was created.)` : 'Enter your work email, like name@example.com.';
+    if (!ok) email.focus();
+  });
+</script>
+</body>
+</html>

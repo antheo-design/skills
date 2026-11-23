@@ -1,6 +1,6 @@
 ---
 name: antheo-tokens
-description: Generates a product's design tokens from a short brief (colour, type, space, corners, shadows and motion, for light and dark, every contrast pair checked) and names them so every screen reuses them. Use when starting a project, adding dark mode, or when a codebase types raw colours and sizes.
+description: Generates a product's design tokens from a short brief (colour, type, space, corners, shadows and motion, for light and dark, every contrast pair checked) and names them so every screen reuses them. Use when starting a project, adding dark mode, or when a codebase types raw colours and sizes. For one product, rebrand the style block with block.mjs (start there); tokens.mjs is for a full design system (a Tailwind theme, W3C JSON).
 ---
 
 # Antheo Tokens
@@ -37,6 +37,7 @@ node <this-skill>/scripts/block.mjs --accent "#c2412d" --neutral cool --font "In
 | `--accent` | the hue of `--accent`, `--accent-soft` and `--accent-text`, light and dark | the brand's hue is kept; lightness is set so text on it passes 4.5:1; a muted brand stays muted |
 | `--neutral` | the one hue every grey leans to: `warm` (80), `cool` (255) or a number | chroma stays at or under 0.008, so greys never turn brown or blue |
 | `--font` with `--x-height` | `--font`, the font link and `font-size-adjust` | a grotesk with a weight axis (or 450 and 550 loaded), so no weight is faked; the x-height ratio comes from antheo-type's `scripts/x-height.mjs`. Without it, `font-size-adjust` is removed, because a wrong number would resize the real font |
+| `--look` | appends the Studio, Editorial or Playful look after the block (antheo-build `references/looks.md`) | only when the request chose that look; its own light colours are measured with the rest; `--font` replaces the look's face too |
 
 It prints `contrast: all 26 pairs pass` or names each pair that fails, and a `note:` for a choice to look at (an
 accent near the danger hue, a nearly grey accent). By hand, change the same three things and measure the same

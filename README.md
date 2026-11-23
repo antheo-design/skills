@@ -16,6 +16,22 @@
   <a href="#install">Install</a> · <a href="#the-skills">Skills</a> · <a href="#how-a-skill-works">How a skill works</a> · <a href="#done-means-checked">Done means checked</a> · <a href="#evals">Evals</a> · <a href="#license">License</a>
 </p>
 
+## What do you want to do?
+
+Install them, then just ask. These six sentences cover most days; the agent opens the right skills by itself.
+
+| Say | It starts in |
+|---|---|
+| "Build a settings page for my app" | antheo-build, then antheo-review checks it |
+| "Make a landing page for my bakery" | antheo-direction plans it, antheo-writing writes it |
+| "Why does this screen feel off?" | antheo-critique: an opinion, no code changed |
+| "Is this ready to ship?" | antheo-review: a measured verdict |
+| "Make this toggle fun to use" | antheo-creative |
+| "Our app hardcodes colours everywhere" | antheo-system |
+
+Not sure what your machine can run? `npx github:antheo-design/skills doctor` says, with the line that installs what
+is missing.
+
 ## Install
 
 ```sh
@@ -148,7 +164,7 @@ gate passes.
 
 | Skill | What it does |
 |---|---|
-| <picture><source media="(prefers-color-scheme: dark)" srcset="assets/icons/dark/antheo-direction.svg"><img src="assets/icons/antheo-direction.svg" width="20" height="20" align="top" alt=""></picture>&nbsp; [antheo&#8209;direction](skills/antheo-direction/SKILL.md) | Gives a landing or brand page its own identity, only when you ask for something expressive |
+| <picture><source media="(prefers-color-scheme: dark)" srcset="assets/icons/dark/antheo-direction.svg"><img src="assets/icons/antheo-direction.svg" width="20" height="20" align="top" alt=""></picture>&nbsp; [antheo&#8209;direction](skills/antheo-direction/SKILL.md) | Plans any landing page (its kind, sections and one of five hero layouts), and gives a page its own identity when you ask for something expressive |
 | <picture><source media="(prefers-color-scheme: dark)" srcset="assets/icons/dark/antheo-tokens.svg"><img src="assets/icons/antheo-tokens.svg" width="20" height="20" align="top" alt=""></picture>&nbsp; [antheo&#8209;tokens](skills/antheo-tokens/SKILL.md) | Puts your brand on the style block with every text pair measured, or writes a full token set for a design system |
 | <picture><source media="(prefers-color-scheme: dark)" srcset="assets/icons/dark/antheo-color.svg"><img src="assets/icons/antheo-color.svg" width="20" height="20" align="top" alt=""></picture>&nbsp; [antheo&#8209;color](skills/antheo-color/SKILL.md) | Picks the colour roles and passes WCAG 2.2 contrast in every theme and state |
 | <picture><source media="(prefers-color-scheme: dark)" srcset="assets/icons/dark/antheo-type.svg"><img src="assets/icons/antheo-type.svg" width="20" height="20" align="top" alt=""></picture>&nbsp; [antheo&#8209;type](skills/antheo-type/SKILL.md) | A small type scale, two weights, numbers that line up, and fallback fonts drawn at the same size |
@@ -161,7 +177,7 @@ gate passes.
 |---|---|
 | <picture><source media="(prefers-color-scheme: dark)" srcset="assets/icons/dark/antheo-components.svg"><img src="assets/icons/antheo-components.svg" width="20" height="20" align="top" alt=""></picture>&nbsp; [antheo&#8209;components](skills/antheo-components/SKILL.md) | Single controls with exact sizes and every state |
 | <picture><source media="(prefers-color-scheme: dark)" srcset="assets/icons/dark/antheo-data.svg"><img src="assets/icons/antheo-data.svg" width="20" height="20" align="top" alt=""></picture>&nbsp; [antheo&#8209;data](skills/antheo-data/SKILL.md) | Tables, charts and figures people can compare |
-| <picture><source media="(prefers-color-scheme: dark)" srcset="assets/icons/dark/antheo-writing.svg"><img src="assets/icons/antheo-writing.svg" width="20" height="20" align="top" alt=""></picture>&nbsp; [antheo&#8209;writing](skills/antheo-writing/SKILL.md) | Every word in the interface: plain, specific and ready to translate |
+| <picture><source media="(prefers-color-scheme: dark)" srcset="assets/icons/dark/antheo-writing.svg"><img src="assets/icons/antheo-writing.svg" width="20" height="20" align="top" alt=""></picture>&nbsp; [antheo&#8209;writing](skills/antheo-writing/SKILL.md) | Every word in the interface, and the copy of a page that sells: plain, specific and ready to translate |
 | <picture><source media="(prefers-color-scheme: dark)" srcset="assets/icons/dark/antheo-motion.svg"><img src="assets/icons/antheo-motion.svg" width="20" height="20" align="top" alt=""></picture>&nbsp; [antheo&#8209;motion](skills/antheo-motion/SKILL.md) | Decides whether a thing should move, then gives its timing, easing and distance |
 | <picture><source media="(prefers-color-scheme: dark)" srcset="assets/icons/dark/antheo-moment.svg"><img src="assets/icons/antheo-moment.svg" width="20" height="20" align="top" alt=""></picture>&nbsp; [antheo&#8209;moment](skills/antheo-moment/SKILL.md) | The one signature moment, kept for a rare and meaningful event |
 | <picture><source media="(prefers-color-scheme: dark)" srcset="assets/icons/dark/antheo-creative.svg"><img src="assets/icons/antheo-creative.svg" width="20" height="20" align="top" alt=""></picture>&nbsp; [antheo&#8209;creative](skills/antheo-creative/SKILL.md) | Makes a component playful and fun to use: the effects a reference shows or implies, or the play its real-world cousin has |
@@ -210,16 +226,17 @@ layout at seven widths, the words on a screen, every hardcoded value in a codeba
 | Tool | Skill | What it does |
 |---|---|---|
 | `beside.mjs` | review | Puts what you built next to its reference, same height, with 3× close-ups of both |
-| `check-page.mjs` | review | Opens a page at seven widths in light and dark and reports what is broken, with a score: load speed and layout shift, a field nobody can find, a chart nobody can read, and with `--stress`, long text, right to left and forced colours |
+| `check-page.mjs` | review | Opens a page at seven widths in light and dark and reports what is broken, with a score: load speed, layout shift and page weight, a field nobody can find, a chart nobody can read, stand-in photos without credit; with `--landing`, the first screen, contact details to confirm and share tags; with `--preset studio`, `editorial` or `playful`, that look; with `--stress`, long text, right to left and forced colours |
 | `latency-probe.mjs` | review | Real presses and drags: how fast each control answers, drag drift, and with `--play`, every frame while something plays |
-| `gate.mjs` | review | Keeps the agent working until the page check, the access probe and the copy check pass, and, when built from references, until it has compared and filmed |
+| `gate.mjs` | review | Keeps the agent working until the page check, the access probe and the copy check pass, and, when built from references, until it has compared and filmed; checks its own tools were not edited and the page does not test for the checker; says PASS, PARTLY MEASURED when something went unread |
 | `a11y-probe.mjs` | access | Walks a page by keyboard: focus order, traps, dialogs, zoom, forced colours; presses every button, holding back anything it would send |
-| `copy-lint.mjs` | writing | Finds weak words, vague buttons and broken plurals in JSX, Vue, Svelte, Angular and server templates |
+| `copy-lint.mjs` | writing | Finds weak words, vague buttons and broken plurals in JSX, Vue, Svelte, Angular and server templates; with `--marketing`, the devices of generated selling copy |
+| `stand-ins.mjs` | direction | Finds openly licensed stand-in photos for a detail slot on Openverse and Wikimedia Commons (no key), checks each licence and writes the credits |
 | `contrast.mjs` | color | WCAG 2.2 contrast and APCA for any two colours |
-| `block.mjs`, `tokens.mjs` | tokens | The style block in your brand, or a full token set, with every pair measured |
+| `block.mjs`, `tokens.mjs` | tokens | The style block in your brand (and with `--look`, in the Studio, Editorial or Playful look), or a full token set, with every pair measured |
 | `variant-bar.js` | build | Three versions on the real page, switched with the keys 1, 2 and 3 |
 | `filmstrip.mjs` | motion | Films one motion at a tenth of its speed into a sheet of frames, so it can be judged, not guessed |
-| `scan-motion.mjs` | motion audit | Every animation in a codebase, with drift in durations and curves, and reduced-motion rules that remove too much |
+| `scan-motion.mjs` | motion audit | Every animation in a codebase, with drift in durations and curves, and reduced-motion rules that remove too much; `--top 5` for only the fixes that matter most |
 | `audit-values.mjs` | system | Every hardcoded value in a codebase, in any colour form, grouped and mapped to tokens |
 | `requests.mjs` | system | What a screen sends, captured before and after a migration and compared field by field, with nothing sent |
 | `harness.mjs` | stress | Every state at every width, and awkward content through every slot, on one page |
@@ -274,7 +291,7 @@ Astro, Django, Flask, Rails, Laravel and Phoenix.
 
 ## Evals
 
-[`evals/`](evals) holds twenty-one briefs, one per skill. Every check is measured in a real browser or read from the
+[`evals/`](evals) holds twenty-one briefs, one per skill, and a beginner and a senior wording of six of them (thirty-three in all). Every check is measured in a real browser or read from the
 written answer, never judged by eye. Run each brief twice, once without the skill and once with it, and grade both:
 
 ```sh

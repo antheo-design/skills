@@ -1,6 +1,6 @@
 ---
 name: antheo-creative
-description: Makes a component playful, surprising and fun to use, so people fiddle with it for no reason. It finds the play in a reference (every effect it shows or implies, from a still or a video) or, with no reference, from what the component is and the real thing it is like, then builds that play in layers (the press, the material's own feedback, physics, a character, an idle life, a surprise) without ever slowing the task or breaking access. Use for widgets, toys, objects, onboarding, empty states, rewards and brand pieces, or whenever asked to make something "fun", "playful", "creative", "delightful", "alive", "interesting" or "less boring".
+description: Makes a component playful, surprising and fun to use, so people fiddle with it for no reason. It finds the play in a reference (every effect it shows or implies, from a still or a video) or, with no reference, from what the component is and the real thing it is like, then builds that play in layers (the press, the material's own feedback, physics, a character, an idle life, a surprise) without ever slowing the task or breaking access. Use for widgets, toys, objects, onboarding, empty states, rewards and brand pieces, or whenever asked to make something "fun", "playful", "creative", "delightful", "alive", "interesting" or "less boring". One rare peak event (a payment sent, a code accepted) is antheo-moment's.
 ---
 
 # Antheo Creative

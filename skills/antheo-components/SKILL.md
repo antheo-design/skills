@@ -5,7 +5,7 @@ description: Builds and fixes single interface components (buttons, fields, menu
 
 # Antheo Components
 
-> **How to read this skill.** Its numbers are house defaults (antheo-build, "Four kinds of rule"): they give way to the
+> **How to read this skill.** Its numbers are house defaults (antheo-build `references/rules.md`, "Four kinds of rule"): they give way to the
 > person, a reference, a brand or the project's own system. What protects people (contrast, focus, targets, reduced
 > motion, nothing broken) is a requirement and never bends.
 
@@ -15,6 +15,9 @@ measurements and the states, with the exact value each one takes.
 
 Inside the preset the values are exact, not ranges to approximate: `32px` is not `34px`, `0.97` is not `0.95`. When the project has its
 own design system or component library, its tokens and components win; the proportions and the restraint stay.
+The pixel values below are the Quiet look's. In Studio, Editorial or Playful (antheo-build `references/looks.md`) the
+same variables carry that look's numbers (a control is 28px in Studio, 40px in Playful): read the variable, never the
+number.
 
 Fill, edge, drop, corners, lines and icons belong to **antheo-surface**. Colour values belong to **antheo-color**, type to **antheo-type**, token names to **antheo-tokens**. Page structure
 and right-to-left layout belong to **antheo-layout**; tables and charts to **antheo-data**. Whether and how a thing

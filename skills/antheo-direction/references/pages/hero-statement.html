@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Brennan & Lowe · accounts and audits for charities</title>
+<meta name="description" content="Accounts, independent examinations and audits for charities in Manchester and Liverpool. Independent examination from £950.">
+<meta property="og:title" content="Brennan & Lowe · accounts and audits for charities">
+<meta property="og:description" content="Independent examinations from £950 and audits from £3,400, for charities in the North West.">
+<meta property="og:image" content="https://example.com/brennan-lowe/share.png">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23222'/%3E%3Cpath d='M10 9v14h6a4 4 0 0 0 0-8h-6m0-6h5a3 3 0 0 1 0 6' fill='none' stroke='%23fff' stroke-width='2.2'/%3E%3C/svg%3E">
+<!-- A Clean landing page, the Statement hero (antheo-direction references/landing.md).
+     Kind: service, because the brief's action is booking a call. Material: what the firm does, prices, how a year
+     with them runs, where they are; no photographs and no client quotes, so neither appears.
+     Hero: Statement, because there is no picture worth more than the facts: the category and the prices set large,
+     one action, and the work as named, plain text below. -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400..600&display=swap">
+<link rel="stylesheet" href="../../../antheo-build/references/quiet.css">
+<style>
+  .wrap { width: min(var(--page-max), 100% - 2 * var(--gutter)); margin-inline: auto; }
+  .bar { display: flex; align-items: center; justify-content: space-between; gap: var(--s-4); height: var(--h-bar); }
+  .bar nav { display: flex; align-items: center; gap: var(--s-6); }
+  .brand { font-weight: var(--w-strong); text-decoration: none; }
+  .hit { display: inline-flex; align-items: center; min-block-size: var(--h-control); }
+  a.btn { text-decoration: none; }
+  .btn-cta { height: var(--h-cta); padding-inline: var(--s-4); }
+  section { padding-block: 0 var(--section); }
+  h2 { margin-block-end: var(--s-8); }
+
+  /* the statement: the category as the headline, the two prices as the line under it, set on a narrow measure */
+  .hero { padding-block-start: var(--s-16); display: grid; gap: var(--s-5); justify-items: start; }
+  .hero h1 { max-inline-size: 22ch; }
+  .facts { font-size: var(--t-page); line-height: var(--l-page); letter-spacing: var(--k-page); color: var(--text-2); max-inline-size: 40ch; }
+  .facts strong { color: var(--text); font-weight: var(--w-strong); }
+  .actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-3) var(--s-6); margin-block-start: var(--s-3); }
+
+  .work { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s-8); }
+  .work h3, .year h3 { font-size: var(--t-title); line-height: var(--l-title); margin-block-end: var(--s-2); }
+  .work p, .year p, .about p { color: var(--text-2); max-inline-size: var(--measure); }
+  .year { margin: 0; padding: 0; list-style: none; display: grid; gap: var(--s-5); max-inline-size: var(--w-settings); }
+  .year li { display: grid; grid-template-columns: 7rem minmax(0, 1fr); gap: var(--s-4); }
+  .when { font-weight: var(--w-strong); }
+  .about { display: grid; gap: var(--s-3); }
+  .close { display: grid; gap: var(--s-4); justify-items: start; }
+  footer { padding-block: var(--s-6); color: var(--text-2); font-size: var(--t-meta); display: flex; align-items: center; gap: var(--s-4); flex-wrap: wrap; }
+
+  @media (max-width: 60rem) {
+    .work { grid-template-columns: 1fr; gap: var(--s-6); }
+  }
+  @media (max-width: 30rem) {
+    .bar nav a:not(.btn) { display: none; }
+    .hero { padding-block-start: var(--s-8); }
+    .year li { grid-template-columns: 1fr; gap: var(--s-1); }
+  }
+</style>
+</head>
+<body>
+<header class="wrap bar">
+  <a class="brand hit" href="#top">Brennan &amp; Lowe</a>
+  <nav aria-label="Main">
+    <a class="hit" href="#work">What we do</a>
+    <a class="hit" href="#year">A year with us</a>
+    <a class="btn" href="#call">Book a call</a>
+  </nav>
+</header>
+<main id="top">
+  <section class="wrap hero" aria-labelledby="title">
+    <h1 class="t-display" id="title">Accounts and audits for charities in the North West</h1>
+    <p class="facts">Independent examinations from <strong>£950</strong>, audits from <strong>£3,400</strong>, with the same two people every year.</p>
+    <div class="actions">
+      <a class="btn btn-primary btn-cta" href="#call">Book a call</a>
+      <a class="hit" href="#work">See what we do</a>
+    </div>
+  </section>
+
+  <section class="wrap" id="work" aria-labelledby="work-title">
+    <h2 class="t-page" id="work-title">What we do</h2>
+    <div class="work">
+      <div><h3>Independent examinations</h3><p>For charities with an income under £1 million that do not need a full audit. Signed off within six weeks of us getting your records.</p></div>
+      <div><h3>Audits</h3><p>For larger charities and those whose funders ask for one, including the trustees’ report and the notes the Charity Commission reads first.</p></div>
+      <div><h3>Help between year ends</h3><p>A call when a grant comes with conditions, a restricted fund needs untangling, or a new treasurer takes over.</p></div>
+    </div>
+  </section>
+
+  <section class="wrap" id="year" aria-labelledby="year-title">
+    <h2 class="t-page" id="year-title">A year with us</h2>
+    <ol class="year">
+      <li><span class="when">Month 1</span><div><h3>Your records arrive</h3><p>Bank statements, the grant letters and the trustees’ minutes, uploaded to a shared folder or posted to us.</p></div></li>
+      <li><span class="when">Month 2</span><div><h3>We ask our questions in one go</h3><p>One list, not a trickle of emails, and a call with your treasurer to go through it.</p></div></li>
+      <li><span class="when">Month 3</span><div><h3>The accounts are signed</h3><p>We file them with the Charity Commission for you and send the trustees a one-page summary.</p></div></li>
+    </ol>
+  </section>
+
+  <section class="wrap" aria-labelledby="about-title">
+    <h2 class="t-page" id="about-title">Who you work with</h2>
+    <div class="about">
+      <p>Siobhan Brennan and Dev Lowe, chartered accountants, with offices in Manchester and Liverpool. We have audited charities since 1998.</p>
+      <p>We do not take on companies or personal tax returns: every client is a charity or a community interest company.</p>
+    </div>
+  </section>
+
+  <section class="wrap close" id="call" aria-labelledby="call-title">
+    <h2 class="t-page" id="call-title">Talk to us about your next year end</h2>
+    <button class="btn btn-primary btn-cta" type="button" id="call-btn">Book a call</button>
+    <p id="call-status" role="status" class="muted">A 20-minute call with Siobhan or Dev, with a fixed quote afterwards.</p>
+  </section>
+</main>
+<footer class="wrap"><span>© 2026 Brennan &amp; Lowe LLP</span><a class="hit" href="#top">Back to top</a></footer>
+<script>
+  // an example page has no calendar behind it, so the button says what it would do
+  document.getElementById('call-btn').addEventListener('click', () => {
+    document.getElementById('call-status').textContent = 'This would open a calendar with the next free 20-minute calls. (This is an example page: nothing was booked.)';
+  });
+</script>
+</body>
+</html>

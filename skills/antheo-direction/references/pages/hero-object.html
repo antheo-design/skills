@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hollin · a standing desk in solid ash</title>
+<meta name="description" content="A standing desk with a solid ash top that rises from 65 to 125&nbsp;cm. £740, delivered free in mainland UK.">
+<meta property="og:title" content="Hollin · a standing desk in solid ash">
+<meta property="og:description" content="Rises from 65 to 125&nbsp;cm in about 20 seconds. £740, delivered free.">
+<meta property="og:image" content="https://example.com/hollin/share.png">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23222'/%3E%3Cpath d='M7 12h18M11 12v12M21 12v12' fill='none' stroke='%23fff' stroke-width='2.5'/%3E%3C/svg%3E">
+<!-- A Clean landing page, the Object hero (antheo-direction references/landing.md).
+     Kind: product, because the brief's action is ordering the desk. Material: the desk (drawn here; the client's own
+     photograph replaces the drawing when there is one), the price, the specification, delivery terms.
+     Hero: Object, because the thing itself is what people buy: the desk drawn large beside its name, price and the
+     order action, the specification in a table below. The drawing keeps its own wood colours on its root
+     (data-object), the one exception the style block allows. -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400..600&display=swap">
+<link rel="stylesheet" href="../../../antheo-build/references/quiet.css">
+<style>
+  .wrap { width: min(var(--page-max), 100% - 2 * var(--gutter)); margin-inline: auto; }
+  .bar { display: flex; align-items: center; justify-content: space-between; gap: var(--s-4); height: var(--h-bar); }
+  .bar nav { display: flex; align-items: center; gap: var(--s-6); }
+  .brand { font-weight: var(--w-strong); text-decoration: none; }
+  .hit { display: inline-flex; align-items: center; min-block-size: var(--h-control); }
+  .btn-cta { height: var(--h-cta); padding-inline: var(--s-4); }
+  section { padding-block: 0 var(--section); }
+  h2 { margin-block-end: var(--s-8); }
+
+  .hero { padding-block-start: var(--s-10); display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--s-12); align-items: center; }
+  .pitch { display: grid; gap: var(--s-4); justify-items: start; }
+  .lead { font-size: var(--t-title); line-height: var(--l-title); color: var(--text-2); max-inline-size: 36ch; }
+  .buy { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-3) var(--s-5); margin-block-start: var(--s-2); }
+  .price { font-size: var(--t-page); line-height: var(--l-page); font-weight: var(--w-strong); }
+
+  /* the object: the desk, drawn front-on in its own two woods and steel, on a soft floor shadow */
+  .desk { --ash: oklch(0.86 0.05 75); --ash-edge: oklch(0.74 0.06 70); --steel: oklch(0.34 0.01 80); }
+  .desk svg { display: block; inline-size: 100%; block-size: auto; }
+  .desk .top { fill: var(--ash); } .desk .top-edge { fill: var(--ash-edge); }
+  /* in dark, the steel steps up so the legs still read against the ground */
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .desk { --steel: oklch(0.56 0.01 80); } }
+  [data-theme="dark"] .desk { --steel: oklch(0.56 0.01 80); }
+  .desk .leg { fill: var(--steel); } .desk .floor { fill: var(--selected); }   /* the floor shadow follows the theme */
+  /* the top rises once as the page opens: the desk's one job, shown */
+  @media (prefers-reduced-motion: no-preference) {
+    .desk .lift { animation: lift var(--dur-page) var(--ease-out) 200ms both; }
+    @keyframes lift { from { translate: 0 18px; } }
+  }
+
+  table { border-collapse: collapse; inline-size: 100%; max-inline-size: var(--w-settings); }
+  th, td { text-align: start; padding-block: var(--s-3); border-block-start: 1px solid var(--line); vertical-align: top; }
+  th { font-weight: var(--w-text); color: var(--text-2); inline-size: 40%; padding-inline-end: var(--s-4); }
+  td { font-variant-numeric: tabular-nums; }
+  .terms { display: grid; gap: var(--s-3); max-inline-size: var(--measure); }
+  .terms p { color: var(--text-2); }
+  .close { display: grid; gap: var(--s-4); justify-items: start; }
+  footer { padding-block: var(--s-6); color: var(--text-2); font-size: var(--t-meta); display: flex; align-items: center; gap: var(--s-4); flex-wrap: wrap; }
+
+  @media (max-width: 60rem) {
+    .hero { grid-template-columns: 1fr; gap: var(--s-6); padding-block-start: var(--s-6); }
+    .desk { order: -1; max-inline-size: 26rem; }
+  }
+  @media (max-width: 30rem) { .bar nav a:not(.btn) { display: none; } }
+</style>
+</head>
+<body>
+<header class="wrap bar">
+  <a class="brand hit" href="#top">Hollin</a>
+  <nav aria-label="Main">
+    <a class="hit" href="#spec">Specification</a>
+    <a class="hit" href="#delivery">Delivery</a>
+  </nav>
+</header>
+<main id="top">
+  <section class="wrap hero" aria-labelledby="title">
+    <div class="pitch">
+      <h1 class="t-display" id="title">A standing desk in solid ash</h1>
+      <p class="lead">Rises from 65 to 125&nbsp;cm in about 20 seconds, with a top planed from one board. Made in Sheffield.</p>
+      <div class="buy">
+        <span class="price">£740</span>
+        <button class="btn btn-primary btn-cta" type="button" id="order">Order the desk</button>
+        <a class="hit" href="#spec">See the specification</a>
+      </div>
+      <p class="muted" id="order-status" role="status">Delivered free in mainland UK in 3 weeks. 60 days to send it back.</p>
+    </div>
+    <div class="desk" role="img" data-object aria-label="The Hollin desk, drawn from the front: a pale ash top on two dark steel legs that each rise from a wide foot.">
+      <svg viewBox="0 0 400 300" aria-hidden="true">
+        <ellipse class="floor" cx="200" cy="282" rx="170" ry="10"/>
+        <rect class="leg" x="78" y="272" width="64" height="8" rx="3"/>
+        <rect class="leg" x="258" y="272" width="64" height="8" rx="3"/>
+        <rect class="leg" x="100" y="150" width="20" height="124" rx="2"/>
+        <rect class="leg" x="280" y="150" width="20" height="124" rx="2"/>
+        <g class="lift">
+          <rect class="leg" x="103" y="96" width="14" height="70" rx="2"/>
+          <rect class="leg" x="283" y="96" width="14" height="70" rx="2"/>
+          <rect class="leg" x="80" y="90" width="240" height="10" rx="2"/>
+          <rect class="top" x="30" y="66" width="340" height="18" rx="3"/>
+          <rect class="top-edge" x="30" y="80" width="340" height="6" rx="2"/>
+          <rect class="leg" x="300" y="86" width="26" height="8" rx="2"/>
+        </g>
+      </svg>
+    </div>
+  </section>
+
+  <section class="wrap" id="spec" aria-labelledby="spec-title">
+    <h2 class="t-page" id="spec-title">Specification</h2>
+    <table>
+      <tr><th scope="row">Top</th><td>Solid English ash, 160 × 80&nbsp;cm, 30&nbsp;mm thick, oiled</td></tr>
+      <tr><th scope="row">Frame</th><td>Powder-coated steel, two motors</td></tr>
+      <tr><th scope="row">Height</th><td>65 to 125&nbsp;cm, with four saved positions</td></tr>
+      <tr><th scope="row">Load</th><td>Up to 120&nbsp;kg</td></tr>
+      <tr><th scope="row">Noise</th><td>Under 45&nbsp;dB while moving</td></tr>
+      <tr><th scope="row">Warranty</th><td>10 years on the frame, 2 years on the motors</td></tr>
+    </table>
+  </section>
+
+  <section class="wrap" id="delivery" aria-labelledby="delivery-title">
+    <h2 class="t-page" id="delivery-title">Delivery and returns</h2>
+    <div class="terms">
+      <p>Two people bring it to the room you choose and assemble it, which takes about 40 minutes. Delivery is free in mainland UK; Northern Ireland and the islands cost £60.</p>
+      <p>If it does not suit you within 60 days, we collect it and refund the full price.</p>
+    </div>
+  </section>
+
+  <section class="wrap close" aria-labelledby="close-title">
+    <h2 class="t-page" id="close-title">Order a desk for January</h2>
+    <button class="btn btn-primary btn-cta" type="button" id="order-again">Order the desk</button>
+  </section>
+</main>
+<footer class="wrap"><span>© 2026 Hollin Workshop Ltd</span><a class="hit" href="#top">Back to top</a></footer>
+<script>
+  // an example page has no shop, so both order buttons say what they would do
+  const say = () => { document.getElementById('order-status').textContent = 'This would open checkout for one desk at £740. (This is an example page: nothing was ordered.)'; document.getElementById('order').focus(); };
+  document.getElementById('order').addEventListener('click', say);
+  document.getElementById('order-again').addEventListener('click', () => { say(); document.getElementById('top').scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }); });
+</script>
+</body>
+</html>

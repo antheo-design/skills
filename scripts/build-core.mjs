@@ -23,6 +23,9 @@ export function buildCore(skillsDir) {
     return build.slice(a, b).trim();
   };
   const css = read('antheo-build/references/quiet.css').trim();
+  // the rules whole, from references/rules.md (SKILL.md carries each with its limits): the kinds of rule, then 1 to 21
+  const rulesDoc = read('antheo-build/references/rules.md');
+  const rulesFull = rulesDoc.slice(rulesDoc.indexOf('**Four kinds of rule.**')).trim();
   const traps = read('antheo-components/references/traps.md').split('\n');
   const head = traps.find((l) => /^\| ID \| Trap/.test(l));
   const rows = TRAPS.map((id) => {
@@ -39,9 +42,13 @@ rules (Cursor, Aider, a system prompt). It holds the style block, the rules ever
 matter most and the gate. The full set, with colour, type, motion, access, data and the rest, is at
 https://github.com/antheo-design/skills.
 
-${section('## What always holds, and what is the Quiet preset', '## 1. Paste the style block first')}
+${section('## What always holds, and the four looks', '## 1. Paste the style block first')}
 
-${section('## 1. Paste the style block first', '## 3. Then the screen')}
+${section('## 1. Paste the style block first', '## 2. The usage rules')}
+
+## 2. The usage rules
+
+${rulesFull}
 
 ## The traps that look finished and break in use
 
@@ -82,7 +89,7 @@ export function buildCoreMini(skillsDir) {
     if (a < 0 || b < 0) throw new Error(`antheo-build/SKILL.md has no section between "${from}" and "${to}"`);
     return build.slice(a + from.length, b).trim();
   };
-  const always = between('## What always holds, and what is the Quiet preset', '## Match the person');
+  const always = between('## What always holds, and the four looks', '## Match the person');
   // each numbered rule, joined onto one line, cut after its first sentence
   const rules = between('## 2. The usage rules', '## 3. Then the screen')
     .split(/\n(?=\d+\. \*\*)/)
@@ -101,7 +108,7 @@ The smallest form of the Antheo design skills, for a small or local model. Paste
 follow the rules, and check the page at 390 and 1280px, light and dark. The full rules are in ANTHEO-CORE.md and the
 skills: https://github.com/antheo-design/skills
 
-## What always holds, and the Quiet preset
+## What always holds, and the four looks
 
 ${always}
 

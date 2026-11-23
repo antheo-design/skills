@@ -10,6 +10,10 @@ shows every state at once, feeds it content shaped like the product at its worst
 held, or what broke. Fixing what broke belongs to the skill that owns it: overflow and wrapping to **antheo-layout**,
 words to **antheo-writing**, names and focus to **antheo-access**. The ship decision belongs to **antheo-review**.
 
+**A quick pass on one screen needs less.** Before building a full harness, check three things: a long name with no
+break (the harness's 52-character one), the empty state, and a 390px phone width. Build the full `?state=all` harness below for shared components,
+new flows and releases.
+
 ## Decide in this order
 
 1. **Axes:** read the component's props and slots, then pick the axes it can really vary on, and name the ones you
@@ -119,7 +123,8 @@ people always does. Small changes stress only what they touched; a new component
 
 - `references/examples.md`: what goes wrong and the fix, from the skills page and from real builds; when the default is wrong
 - `references/harness.md`: the state switcher, the variant picker, scenario axes and the full fixtures list
-- `scripts/harness.mjs`: for a component that is only HTML and CSS: writes the state switcher page from a small JSON
+- `scripts/harness.mjs`: for a component that is only HTML and CSS (Node only, so it runs with no browser; the
+  person opens the page, antheo-review `references/no-browser.md`): writes the state switcher page from a small JSON
 - `references/axes.md`: open when choosing axes, above all for a small change: the cue to run or skip each one
 - `references/data-boundary.md`: open when the component loads, fetches or renders on a server: where fixtures go in
 - `references/teardown.md`: open when building the harness and when done: one-step removal and the searches

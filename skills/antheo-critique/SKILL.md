@@ -1,6 +1,6 @@
 ---
 name: antheo-critique
-description: A second pair of eyes on a screenshot, a Figma frame, a page or code. It says in one line what the screen is for, lists the problems anyone could see, raises the matters of taste as questions, names what works, and suggests a few experiments, without redesigning until the person picks a direction. Use for "what do you think?", "critique this", "why does this feel off?", "be honest", feedback on AI-generated UI, or any early design where the person wants to think, not get a fix list.
+description: A second pair of eyes on a screenshot, a Figma frame, a page or code. It says in one line what the screen is for, lists the problems anyone could see, raises the matters of taste as questions, names what works, and suggests a few experiments, without redesigning until the person picks a direction. Use for "what do you think?", "critique this", "why does this feel off?", "be honest", feedback on AI-generated UI, or any early design where the person wants to think, not get a fix list. Changes no code; a measured ship or block verdict is antheo-review's.
 ---
 
 # Antheo Critique

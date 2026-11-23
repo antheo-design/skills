@@ -5,7 +5,7 @@ description: Chooses and checks colour, from the brand colour of the subject to 
 
 # Antheo Color
 
-> **How to read this skill.** Its numbers are house defaults (antheo-build, "Four kinds of rule"): they give way to the
+> **How to read this skill.** Its numbers are house defaults (antheo-build `references/rules.md`, "Four kinds of rule"): they give way to the
 > person, a reference, a brand or the project's own system. What protects people (contrast, focus, targets, reduced
 > motion, nothing broken) is a requirement and never bends.
 

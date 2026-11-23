@@ -1,0 +1,28 @@
+/* Antheo look: Editorial. Paste it whole right after quiet.css, never instead of it.
+   For pages people read: an article, a journal or blog, documentation, a case study, a long brand story, a writer's
+   or a studio's site. Chosen only when the request names or clearly is reading (antheo-build references/looks.md).
+   Load the second face with the text face:
+   <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400..600&family=Newsreader:opsz,wght@6..72,400..600&display=swap" rel="stylesheet">
+   What changes: a serif for headings (Newsreader; Geist stays for everything read in paragraphs and pressed), a
+   reading scale (16px body with long line height), print-like corners and more room between sections. What never
+   changes: the names, the two weights, four text sizes a screen (five on a marketing section), the measure, every
+   colour and its contrast, dark mode, touch targets. Checked with: check-page.mjs --preset editorial. */
+:root {
+  --t-meta: 0.8125rem;   --l-meta: 1.25rem;     /* 13/20px: byline, date, captions */
+  --t-body: 1rem;        --l-body: 1.625rem;    /* 16/26px: reading text */
+  --t-title: 1.25rem;    --l-title: 1.75rem;    /* 20/28px: a subhead */
+  --t-page: 1.75rem;     --l-page: 2.25rem;     /* 28/36px: a section title */
+  --t-num: 2rem;         --l-num: 2.5rem;       /* 32/40px */
+  --t-display: 2.75rem;  --l-display: 3.125rem; --k-display: -0.02em;   /* 44/50px: the headline */
+  --r-tag: 2px; --r-control: 4px; --r-card: 6px;
+  --pad-card: 24px; --gap-section: 48px; --section: clamp(80px, 10vw, 128px);
+}
+/* headings in the serif, at its own x-height (antheo-type); everything read in paragraphs or pressed stays Geist */
+h1, h2, h3, .t-display, .t-page, .t-title {
+  font-family: "Newsreader", Georgia, serif; font-size-adjust: 0.426; font-optical-sizing: auto;
+}
+@media (max-width: 47.99rem) { :root { --t-display: 2rem; --l-display: 2.375rem; --t-page: 1.5rem; --l-page: 2rem; --pad-card: 16px; } }
+/* touch: reading text is already 16px, so only the controls grow to 44px, as in the block */
+@media (max-width: 47.99rem), (pointer: coarse) {
+  :root { --t-meta: 0.875rem; --l-meta: 1.25rem; --t-body: 1rem; --l-body: 1.625rem; --t-title: 1.25rem; --l-title: 1.75rem; }
+}

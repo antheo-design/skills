@@ -107,7 +107,8 @@ const CHECKS = {
     return { pass: sw.length >= 3 && named.length === sw.length, detail: `${named.length}/${sw.length} named` };
   }),
   'primary-buttons': async (r, e) => r.page.evaluate((max) => {
-    const btns = [...document.querySelectorAll('button, [role=button], input[type=submit]')].filter((b) => b.getBoundingClientRect().width);
+    // a switch, a checkbox, a radio, a tab or a pressed toggle drawn as a button is a control's state, not an action
+    const btns = [...document.querySelectorAll('button, [role=button], input[type=submit]')].filter((b) => b.getBoundingClientRect().width && !b.matches('[role=switch], [role=checkbox], [role=radio], [role=tab], [role=menuitemradio], [aria-pressed]'));
     const bg = (b) => getComputedStyle(b).backgroundColor;
     const filled = btns.filter((b) => { if (getComputedStyle(b).backgroundImage.includes('gradient')) return true; const c = bg(b).match(/[\d.]+/g)?.map(Number) ?? [255, 255, 255, 0]; const a = c[3] ?? 1; const l = (c[0] + c[1] + c[2]) / 3; return a > 0.5 && (l < 90 || Math.max(c[0], c[1], c[2]) - Math.min(c[0], c[1], c[2]) > 60); });
     return { pass: filled.length <= max, detail: `${filled.length} filled` };

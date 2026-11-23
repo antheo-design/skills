@@ -120,7 +120,7 @@ It walks the page by keyboard: focus order, traps, dialogs returning focus, forc
 320px; then it presses every button once and reports the ones wired to nothing. The presses are real, and safe by
 default: every request that would write (anything but GET, HEAD or OPTIONS) is held back, listed, and counted as an
 answer. `--allow-writes` lets them through, only on a page whose data can be lost; `--no-triggers` presses nothing.
-A GET that changes data and a WebSocket message are not held back. It needs `playwright-core`. Fix every BLOCKER and SERIOUS finding. Then the 15-minute manual pass in `references/screen-readers.md`
+A GET that changes data and a WebSocket message are not held back. It needs `playwright-core` (none here: antheo-review `references/no-browser.md`). Fix every BLOCKER and SERIOUS finding. Then the 15-minute manual pass in `references/screen-readers.md`
 (keyboard only, a screen-reader tour, 200% zoom, forced colours, reduced motion). Automated tools catch about a third
 of real problems; never call something accessible from a green scan alone. In a framework, also keep its linter on
 (jsx-a11y, vuejs-accessibility, Svelte's a11y warnings, angular-eslint's template rules; the list is in

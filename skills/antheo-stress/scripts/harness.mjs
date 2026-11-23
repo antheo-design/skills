@@ -15,7 +15,7 @@
  *     "css": ["../src/styles/quiet.css", "../src/styles/invoice.css"],     linked as written, relative to the page
  *     "widths": [320, 480],                                                the widths the component gets in use
  *     "template": "<article class=\"card\"><h2>{{name}}</h2><p>{{email}}</p><p>{{amount}}</p></article>",
- *     "states": { "default": { "name": "Priya Raman", "email": "priya@fieldnotes.co", "amount": "4,800.00" },
+ *     "states": { "default": { "name": "Joanna Lindqvist", "email": "joanna@example.com", "amount": "4,800.00" },
  *                 "loading": { "html": "<article class=\"card\" aria-busy=\"true\">…</article>" },
  *                 "long": { "name": "Alexandria Montgomery-Featherstonehaugh III", … } } }
  * A state is the values for the template's {{slots}} (escaped; {{{slot}}} is written as HTML), or its own "html"

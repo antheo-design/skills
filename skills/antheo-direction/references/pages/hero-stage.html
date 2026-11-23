@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fallback · automatic rollback for web deploys</title>
+<meta name="description" content="Fallback watches error rates for 15 minutes after each deploy and rolls back when they double. Free for one project.">
+<meta property="og:title" content="Fallback · automatic rollback for web deploys">
+<meta property="og:description" content="Watches error rates after each deploy and rolls back when they double.">
+<meta property="og:image" content="https://example.com/fallback/share.png">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23222'/%3E%3Cpath d='M20 10h-8v12M12 16h6' fill='none' stroke='%23fff' stroke-width='2.5'/%3E%3C/svg%3E">
+<!-- A Clean landing page, the Stage hero (antheo-direction references/landing.md).
+     Kind: software, because the brief's action is installing the GitHub app. Material: the deploy log, two prices,
+     three setup steps, three questions; no logos or customer counts, so none appear.
+     Hero: Stage, because the log is the reason to buy: the claim, the fact and the action centred, the product full
+     width below, starting inside the first screen. The log is a picture (role="img", data-object) with real rows. -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400..600&display=swap">
+<link rel="stylesheet" href="../../../antheo-build/references/quiet.css">
+<style>
+  .wrap { width: min(var(--page-max), 100% - 2 * var(--gutter)); margin-inline: auto; }
+  .bar { display: flex; align-items: center; justify-content: space-between; gap: var(--s-4); height: var(--h-bar); }
+  .bar nav { display: flex; align-items: center; gap: var(--s-6); }
+  .brand { font-weight: var(--w-strong); text-decoration: none; }
+  .hit { display: inline-flex; align-items: center; min-block-size: var(--h-control); }
+  a.btn { text-decoration: none; }
+  .btn-cta { height: var(--h-cta); padding-inline: var(--s-4); }
+  /* one gap between sections: each section pads only its end */
+  section { padding-block: 0 var(--section); }
+  h2 { margin-block-end: var(--s-8); }
+
+  .hero { padding-block-start: var(--s-12); display: grid; gap: var(--s-10); }
+  .pitch { display: grid; gap: var(--s-4); justify-items: center; text-align: center; }
+  .lead { font-size: var(--t-title); line-height: var(--l-title); color: var(--text-2); max-inline-size: 46ch; }
+  .actions { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: var(--s-3) var(--s-6); margin-block-start: var(--s-2); }
+
+  /* the picture: the product's deploy log, full width, with the one rolled-back deploy marked in words */
+  .log { padding: var(--s-4) var(--s-5); display: grid; gap: var(--s-3); }
+  .log-top { display: flex; justify-content: space-between; align-items: baseline; gap: var(--s-3); flex-wrap: wrap; }
+  .rows { display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto; font-size: var(--t-meta); line-height: var(--l-meta); }
+  /* the space between columns is padding, so each row's hairline runs unbroken */
+  .rows > span { padding-block: var(--s-3); padding-inline-end: var(--s-6); border-block-start: 1px solid var(--line); min-inline-size: 0; }
+  .rows > span:nth-child(4n) { padding-inline-end: 0; }
+  .rows .head { color: var(--text-2); border-block-start: 0; padding-block-start: 0; }
+  .time, .rate { font-variant-numeric: tabular-nums; }
+  .commit { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .commit code { font-family: var(--mono); color: var(--text-2); margin-inline-end: var(--s-2); }
+  .state { font-weight: var(--w-strong); }
+  .state.back { color: var(--danger); }
+
+  .steps { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s-8); counter-reset: step; }
+  .steps li { display: grid; gap: var(--s-2); align-content: start; }
+  .steps h3 { font-size: var(--t-title); line-height: var(--l-title); }
+  .plan .t-page { color: var(--text); }
+  .steps p, .faq dd, .plan p { color: var(--text-2); max-inline-size: var(--measure); }
+  .plans { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s-4); max-inline-size: var(--w-settings); }
+  .plan { display: grid; gap: var(--s-2); align-content: start; }
+  .faq { display: grid; gap: var(--s-6); margin: 0; max-inline-size: var(--w-settings); }
+  .faq dt { font-weight: var(--w-strong); margin-block-end: var(--s-1); }
+  .faq dd { margin: 0; }
+  .close { display: grid; gap: var(--s-4); justify-items: center; text-align: center; }
+  footer { padding-block: var(--s-6); color: var(--text-2); font-size: var(--t-meta); display: flex; align-items: center; gap: var(--s-4); flex-wrap: wrap; }
+
+  @media (max-width: 60rem) {
+    .steps { grid-template-columns: 1fr; gap: var(--s-6); }
+  }
+  @media (max-width: 40rem) {
+    .bar nav a:not(.btn) { display: none; }
+    .plans { grid-template-columns: 1fr; }
+    .rows { grid-template-columns: auto minmax(0, 1fr) auto; }
+    .rows .rate { display: none; }
+    .hero { padding-block-start: var(--s-6); gap: var(--s-8); }
+  }
+</style>
+</head>
+<body>
+<header class="wrap bar">
+  <a class="brand hit" href="#top">Fallback</a>
+  <nav aria-label="Main">
+    <a class="hit" href="#prices">Prices</a>
+    <a class="hit" href="#questions">Questions</a>
+    <a class="btn" href="#install">Install the GitHub app</a>
+  </nav>
+</header>
+<main id="top">
+  <section class="wrap hero" aria-labelledby="title">
+    <div class="pitch">
+      <h1 class="t-display" id="title">Automatic rollback for web deploys</h1>
+      <p class="lead">Fallback watches your error rate for 15 minutes after each deploy and rolls back when it doubles. Free for one project.</p>
+      <div class="actions">
+        <a class="btn btn-primary btn-cta" href="#install">Install the GitHub app</a>
+        <a class="hit" href="#how">See how it starts</a>
+      </div>
+    </div>
+    <div class="card log" role="img" data-object aria-label="Fallback’s deploy log for the checkout service: four deploys today; the one at 14:02 doubled the error rate and was rolled back after 3 minutes.">
+      <div class="log-top"><span class="t-title">checkout-service · production</span><span class="t-meta muted">Today, times in UTC</span></div>
+      <div class="rows">
+        <span class="head">Time</span><span class="head">Commit</span><span class="head rate">Errors</span><span class="head">Result</span>
+        <span class="time">16:40</span><span class="commit"><code>9f3c2e1</code>Show delivery date on the basket</span><span class="rate">0.4%</span><span class="state">Live</span>
+        <span class="time">14:02</span><span class="commit"><code>b71d0a4</code>Move card form to the new payments API</span><span class="rate">0.9%</span><span class="state back">Rolled back at 14:05</span>
+        <span class="time">11:18</span><span class="commit"><code>4e8a6c7</code>Fix rounding on gift card balances</span><span class="rate">0.4%</span><span class="state">Live</span>
+        <span class="time">09:31</span><span class="commit"><code>0c52f9b</code>Update tax tables for December</span><span class="rate">0.5%</span><span class="state">Live</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap" id="how" aria-labelledby="how-title">
+    <h2 class="t-page" id="how-title">How it starts</h2>
+    <ol class="steps">
+      <li><h3>Install the GitHub app</h3><p>Pick the repositories Fallback may read. It needs your deploy events and nothing in your code.</p></li>
+      <li><h3>Connect your error tracker</h3><p>Sentry, Datadog or Honeycomb, with a read-only key. Fallback learns your normal rate over a week of deploys.</p></li>
+      <li><h3>Deploy as you do now</h3><p>When a deploy doubles the rate, Fallback redeploys the last good commit and posts the reason in the pull request.</p></li>
+    </ol>
+  </section>
+
+  <section class="wrap" id="prices" aria-labelledby="prices-title">
+    <h2 class="t-page" id="prices-title">Prices</h2>
+    <div class="plans">
+      <div class="card plan"><h3 class="t-title">One project</h3><p class="t-page">Free</p><p>Every check, one repository, 30 days of history.</p></div>
+      <div class="card plan"><h3 class="t-title">Team</h3><p class="t-page">£20 a project, a month</p><p>Unlimited history, Slack alerts, and a rollback you can approve first.</p></div>
+    </div>
+  </section>
+
+  <section class="wrap" id="questions" aria-labelledby="questions-title">
+    <h2 class="t-page" id="questions-title">Questions</h2>
+    <dl class="faq">
+      <div><dt>What if the error rate rises for a reason that is not the deploy?</dt><dd>Fallback compares the deployed version with the one before it on the same traffic. A rise on both is not blamed on the deploy.</dd></div>
+      <div><dt>Does it roll back database migrations?</dt><dd>No. It redeploys code only, and warns you in the pull request when the bad deploy ran a migration.</dd></div>
+      <div><dt>Which hosts does it work with?</dt><dd>Vercel, Netlify, Fly.io and any host GitHub Actions deploys to.</dd></div>
+    </dl>
+  </section>
+
+  <section class="wrap close" id="install" aria-labelledby="install-title">
+    <h2 class="t-page" id="install-title">Try it on your next deploy</h2>
+    <button class="btn btn-primary btn-cta" type="button" id="install-btn">Install the GitHub app</button>
+    <p id="install-status" role="status" class="muted">Free for one project. No card needed.</p>
+  </section>
+</main>
+<footer class="wrap"><span>© 2026 Fallback Ltd</span><a class="hit" href="#top">Back to top</a></footer>
+<script>
+  // an example page has no GitHub app behind it, so the button says what it would do
+  document.getElementById('install-btn').addEventListener('click', () => {
+    document.getElementById('install-status').textContent = 'This would open GitHub to choose your repositories. (This is an example page: nothing was installed.)';
+  });
+</script>
+</body>
+</html>

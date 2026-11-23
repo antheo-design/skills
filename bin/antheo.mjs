@@ -10,7 +10,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
-import { fileURLToPath } from 'node:url';
+import { createRequire } from 'node:module';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(here, '..');
@@ -29,6 +30,7 @@ const TOOLS = {
   film: ['antheo-motion/scripts/filmstrip.mjs', 'film one motion, slowed, into a sheet of frames: antheo film <url> --clip ".card" --click ".card"'],
   motion: ['antheo-motion-audit/scripts/scan-motion.mjs', 'every animation in a codebase, with drift in durations and curves'],
   values: ['antheo-system/scripts/audit-values.mjs', 'every hardcoded value in a codebase, grouped and mapped to tokens'],
+  photos: ['antheo-direction/scripts/stand-ins.mjs', 'stand-in photos for a detail, openly licensed and credited: antheo photos search "bread crust"'],
 };
 
 const [cmd, ...args] = process.argv.slice(2);
@@ -41,7 +43,7 @@ function help() {
 
 ${Object.entries(TOOLS).map(([k, [, d]]) => `  ${k.padEnd(width)}  ${d}`).join('\n')}
   ${'init'.padEnd(width)}  put the style block in your project and the gate rule in AGENTS.md (see: antheo init --help)
-  ${'doctor'.padEnd(width)}  is every installed copy of the skills up to date?
+  ${'doctor'.padEnd(width)}  what can run here (Node, Playwright, a browser), and is every installed copy up to date?
   ${'self-test'.padEnd(width)}  test the skills and tools themselves (add --browser for the page checks)
 
 The browser checks need Playwright in your project (npm i -D playwright-core) and Chrome or Edge.
@@ -91,8 +93,40 @@ function init(rest) {
   }
 }
 
-// doctor: is every installed copy of the skills the same as this one (the latest, when run with npx from GitHub)?
-function doctor() {
+// doctor, part one: what can run here. Node runs the source tools; the page tools also need Playwright in this
+// project and a browser. Each missing piece is named with the one line that installs it. A browser found is launched
+// and closed again, so the answer is what will really happen, not a guess from file paths.
+async function environment() {
+  const rows = [];
+  const major = Number(process.versions.node.split('.')[0]);
+  rows.push([major >= 18, `Node ${process.versions.node}`, 'install Node 18 or later']);
+  let chromium = null;
+  const req = createRequire(path.join(process.cwd(), 'package.json'));
+  for (const name of ['playwright', 'playwright-core', '@playwright/test']) {
+    try { const mod = await import(pathToFileURL(req.resolve(name)).href); chromium = mod.chromium ?? mod.default?.chromium; if (chromium) break; } catch { /* not here */ }
+  }
+  rows.push([!!chromium, 'Playwright in this project', 'npm i -D playwright-core']);
+  let browser = '';
+  if (chromium) {
+    for (const [label, options] of [['Chrome', { channel: 'chrome' }], ['Edge', { channel: 'msedge' }], ["Playwright's Chromium", {}]]) {
+      let b;
+      try { b = await chromium.launch(options); browser = label; } catch { /* try the next */ } finally { await b?.close().catch(() => {}); }
+      if (browser) break;
+    }
+  }
+  rows.push([!!browser, browser ? `a browser: ${browser}` : 'a browser', chromium ? 'install Chrome or Edge, or run: npx playwright install chromium' : 'needs Playwright first']);
+  for (const [ok, what, fix] of rows) console.log(`${ok ? 'ok     ' : 'MISSING'}  ${what}${ok ? '' : `: ${fix}`}`);
+  console.log(`
+Runs now: lint, motion, values, contrast, block, tokens, photos (Node only)${browser
+    ? ', and check, probe, gate, beside, film and inspect'
+    : '. Not yet: check, probe, gate, beside, film, inspect. Until then, review by antheo-review references/no-browser.md, and say the page itself is unchecked'}.
+`);
+  return !!browser;
+}
+
+// doctor, part two: is every installed copy of the skills the same as this one (the latest, when run with npx from GitHub)?
+async function doctor() {
+  await environment();
   const os = process.env.USERPROFILE || process.env.HOME || '';
   const config = process.env.CLAUDE_CONFIG_DIR;
   const places = [
@@ -133,7 +167,7 @@ function doctor() {
 }
 
 if (!cmd || cmd === 'help' || cmd === '--help' || cmd === '-h') help();
-else if (cmd === 'doctor') doctor();
+else if (cmd === 'doctor') await doctor();
 else if (TOOLS[cmd]) run(TOOLS[cmd][0], args);
 else if (cmd === 'init') init(args);
 else if (cmd === 'self-test') {

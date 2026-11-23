@@ -13,6 +13,8 @@
  *   --x-height  that font's x-height ratio, for font-size-adjust (antheo-type/scripts/x-height.mjs measures it).
  *               Without it, font-size-adjust is removed for a font this script doesn't know: a wrong number would
  *               resize the real font.
+ *   --look      quiet (the default) | studio | editorial | playful: appends that look of the block (antheo-build
+ *               references/looks.md), its own light colours measured with the rest
  *   --out       the file to write (default ./quiet.css)
  * Exit code 1 if a pair still fails. No dependencies: plain Node 18+.
  */
@@ -21,13 +23,13 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const argv = process.argv.slice(2);
-const KNOWN = ['accent', 'neutral', 'font', 'x-height', 'out'];
+const KNOWN = ['accent', 'neutral', 'font', 'x-height', 'look', 'out'];
 const args = {};
 for (let i = 0; i < argv.length; i++) if (argv[i].startsWith('--')) args[argv[i].slice(2)] = argv[i + 1] && !argv[i + 1].startsWith('--') ? argv[++i] : 'true';
 const unknown = Object.keys(args).filter((k) => !KNOWN.includes(k));
 if (unknown.length || 'help' in args) {
   if (unknown.length && !('help' in args)) console.error(`unknown flag: ${unknown.map((k) => `--${k}`).join(', ')}`);
-  console.log('usage: node block.mjs [--accent "#hex"] [--neutral warm|cool|<hue>] [--font "Family" --x-height 0.53] [--out ./quiet.css]');
+  console.log('usage: node block.mjs [--accent "#hex"] [--neutral warm|cool|<hue>] [--font "Family" --x-height 0.53] [--look studio|editorial|playful] [--out ./quiet.css]');
   process.exit(unknown.length ? 2 : 0);
 }
 
@@ -115,7 +117,7 @@ if (args.neutral && args.neutral !== 'true') {
 }
 
 // ── the typeface ──
-const KNOWN_X = { geist: 0.53, inter: 0.546 };
+const KNOWN_X = { geist: 0.53, inter: 0.546, nunito: 0.484 };
 if (args.font && args.font !== 'true') {
   const font = args.font.trim();
   css = css.replace('"Geist", ui-sans-serif', `"${font}", ui-sans-serif`).replace('family=Geist:wght@400..600', `family=${font.replace(/ /g, '+')}:wght@400..600`);
@@ -128,12 +130,27 @@ if (args.font && args.font !== 'true') {
   notes.push(`load ${font} with a weight axis, or exactly 450 and 550, so no weight is faked`);
 }
 
+// ── a look: Studio, Editorial or Playful, appended after the block (antheo-build references/looks.md) ──
+let look = '';
+if (args.look && args.look !== 'true' && args.look !== 'quiet') {
+  const file = [join(here, '..', '..', 'antheo-build', 'references', 'looks', `${args.look}.css`)].find((f) => existsSync(f));
+  if (!file) { console.error(`--look takes quiet, studio, editorial or playful (no ${args.look}.css in antheo-build/references/looks)`); process.exit(2); }
+  look = readFileSync(file, 'utf8');
+  // a face given with --font replaces the look's own face too, at its x-height when it is known
+  if (args.font && args.font !== 'true' && /--font:\s*"/.test(look)) {
+    const x = Number(args['x-height']) || KNOWN_X[args.font.trim().toLowerCase()];
+    look = look.replace(/(--font:\s*)"[^"]+"/, `$1"${args.font.trim()}"`).replace(/html \{ font-size-adjust: [\d.]+; \}[^\n]*/, x ? `html { font-size-adjust: ${x}; }` : '');
+  }
+}
+
 // ── measure every pair people read, light and dark ──
 function theme(dark) {
   const root = css.slice(css.indexOf(':root {'), css.indexOf('@media (prefers-color-scheme: dark)'));
   const over = css.slice(css.indexOf('@media (prefers-color-scheme: dark)'), css.indexOf('/* Phones'));
   const read = (text) => Object.fromEntries([...text.matchAll(/(--[a-z0-9-]+):\s*([^;]+);/g)].map((m) => [m[1], m[2].trim()]));
-  const vars = { ...read(root), ...(dark ? read(over) : {}) };
+  // a look's light colours (Playful's cream ground) are measured too; dark keeps the block's dark
+  const lookLight = look ? (look.match(/@media \(prefers-color-scheme: light\)\s*\{([\s\S]*?)\n\}/) ?? [])[1] ?? '' : '';
+  const vars = { ...read(root), ...(dark ? read(over) : read(lookLight)) };
   const get = (name) => {
     let v = vars[name];
     for (let i = 0; i < 5 && /^var\(/.test(v ?? ''); i++) v = vars[v.match(/var\((--[a-z0-9-]+)\)/)[1]];
@@ -161,8 +178,8 @@ for (const [label, dark] of [['light', false], ['dark', true]]) {
 }
 
 const out = args.out && args.out !== 'true' ? args.out : './quiet.css';
-writeFileSync(out, css);
-console.log(`wrote ${out}  (from ${source.replace(/\\/g, '/').split('/').slice(-3).join('/')})`);
+writeFileSync(out, look ? `${css.trimEnd()}\n\n${look}` : css);
+console.log(`wrote ${out}  (from ${source.replace(/\\/g, '/').split('/').slice(-3).join('/')}${look ? `, with the ${args.look} look` : ''})`);
 console.log(failed ? `contrast: ${failed} pair(s) fail\n${lines.join('\n')}` : `contrast: all ${PAIRS.length * 2} pairs pass, light and dark`);
 for (const n of notes) console.log(`note: ${n}`);
 process.exit(failed ? 1 : 0);

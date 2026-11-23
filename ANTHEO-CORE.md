@@ -6,76 +6,51 @@ rules (Cursor, Aider, a system prompt). It holds the style block, the rules ever
 matter most and the gate. The full set, with colour, type, motion, access, data and the rest, is at
 https://github.com/antheo-design/skills.
 
-## What always holds, and what is the Quiet preset
+## What always holds, and the four looks
 
 **Always, in any style:** the person's task is clear and can be finished; every control works and every state is
 reachable; keyboard, names, contrast, targets and zoom hold (**antheo-access**); real content survives every width and
 both themes; the project's existing system, components and contracts are kept; nothing is invented; and every claim
 comes with the check that shows it, with what wasn't checked said as unchecked.
 
-**The Quiet preset** is the style block and the look in the rules below (rules 1 to 8, 13 to 17 and 19, the plan, field and logo-tile looks in rules 9 to 11, and the counts in rule 20): the default look for a new product
-with no system of its own. It gives way, in this order, to the person's explicit direction ("bold", "editorial", a
-reference they praise: **antheo-direction**) and to the project's own tokens and components (**antheo-system**).
-Then its numbers stop applying: outlined cards, pill buttons, more weights, larger or serif type and several meaningful
-colours are choices to judge on their own terms, not defects. Keep the restraint either way, and every device earns
-its place. Check such work with the gate's `--preset none`, which keeps every universal check and drops the Quiet ones.
+**The look** is the style block and the rules below. **Quiet** is the default, for any new product with no system of
+its own. **Studio** (a dense pro tool), **Editorial** (pages people read) and **Playful** (a product meant to be
+enjoyed) are chosen only when the request asks for one or clearly is one; never ask, never switch for variety
+(`references/looks.md`: the cues, what each changes, a finished page each). Every look keeps every rule, but for the
+one exception it names (Studio: a hairline between panes; Editorial: serif headings). The look
+gives way to the person's explicit direction or a reference they praise (**antheo-direction**) and to the project's
+own tokens (**antheo-system**); then its numbers are choices to judge on their own terms, checked with the gate's
+`--preset none`, which keeps every universal check.
 
-**Four kinds of rule, in every Antheo skill.** **Requirements** never bend: the task works, access holds (WCAG 2.2
-AA), nothing is invented or faked, no control is wired to nothing, nothing breaks at any width. **Guidance** comes
-from evidence or engineering (a press answered within 100ms, layout shift under 0.1, line length near 66 characters):
-follow it unless the work gives a reason, and say the reason. **House defaults** are the Quiet preset's look (13px
-body, two weights, three corners, borderless cards, one accent, the motion durations): they give way to the person, a
-reference, a brand or the project's own system. **Experiments** are things to try against a baseline, never stated
-as rules. When a skill gives a number without saying which kind it is, it is a house default.
+Every number below is a **house default** unless it says otherwise; what never bends, what is guidance and what is
+an experiment: `references/rules.md`.
 
-**Parts and objects.** The preset is for **parts**: fields, menus, filters, lists, tables, tabs. An **object** is a
-component that stands for a physical thing people know and use as one: a bank card, a dial, a knob, a radio tuner, a
-thermostat, a ticket, a record player. Naming one asks for it, so it is drawn as the thing, with its own material,
-light, depth and colours inside its edge (antheo-surface `references/objects.md`), while everything around it (labels,
-buttons, lists, the page) stays a part in the preset. A grey box with a label where the thing should be is the
-object's commonest failure.
-
-## Correct is the floor; aim higher
-
-Every rule and check in these skills proves that nothing is broken. None of them proves the work is good: a page can
-pass the gate at 100 and still be forgettable. So, for anything meant to be kept (a component for a library, a
-product screen, anything creative), also do these ten; `references/aim-higher.md` has each one in full.
-
-1. **One thing at a time:** build one, finish it, then the next.
-2. **Start from a reference:** the person's, or one or two real things you name. With no target, work drifts to the average.
-3. **Directions before detail, when the look is open:** three quick ones on the real page, and the person picks.
-   With nobody to ask, write the three in a line each, pick one, say which and why, and build only that.
-4. **The main thing first, in its setting, on a stage that fits.** On a component's page it comes first, alone, and
-   the stage hugs it: 48 to 64px of room, never a small control adrift in a page-wide empty card. A control that is
-   small in real use is shown in its smallest true setting (the like button under a photo, the toggle in its
-   settings row, the empty state inside its inbox frame). The states sheet comes after.
-5. **Watch it move:** film every motion and read the frames (antheo-motion, "Watch it").
-6. **Put it beside the reference, zoomed** (antheo-review `scripts/beside.mjs`): name what is missing, match a few
-   ratios and its one or two signature details, fix, look again. Two or three rounds is where quality comes from.
-7. **Go past a still:** give a still reference the life it implies, and make the one thing people would fiddle with
-   the richest part (**antheo-creative**); never trim it to fit the app timing rules, which are for chrome.
-8. **Every control does something,** in a demo too: a button with nothing behind it at least shows its result.
-   The access probe presses each one.
-9. **Most of the effort goes into the thing,** not the gate, the evidence and the notes.
-10. **Say honestly where it stands:** what passed, what was compared, what still falls short of the reference.
+**Parts and objects.** The look is for **parts**: fields, menus, lists, tables, tabs. An **object** (a bank card, a
+dial, a radio tuner, a ticket) is drawn as the thing, with its own material inside its edge (antheo-surface
+`references/objects.md`); a grey box with a label where the thing should be is its commonest failure.
 
 ## Match the person
 
-Read who is asking from how they ask, and change the depth, never the quality of the work: someone new gets the
-sensible default in plain words, a senior the constraints and the evidence (`references/people.md` has the four
-levels). Ask only when the answer would change what gets built. Explaining a choice, say which part is a default of
-this style and which is true in any style; never call another look wrong because the preset avoids it.
+Change the depth, never the quality: someone new gets the sensible default in plain words, a senior the constraints
+and the evidence (`references/people.md`). Ask only when the answer would change what gets built. Say which part of a
+choice is this style's default and which is true in any style.
+
+## Correct is the floor; aim higher
+
+Every check proves nothing is broken; none proves the work is good. For anything meant to be kept, do the ten steps in
+`references/aim-higher.md`: one thing at a time; start from a reference; three directions before detail when the look
+is open; the main thing first, in its smallest true setting, on a stage that hugs it; film every motion; put it beside
+the reference, zoomed (`beside.mjs`), two or three rounds; give a still its implied life (**antheo-creative**); every
+control does something; most effort on the thing, not the notes; say honestly where it stands.
 
 ## 1. Paste the style block first
 
-Paste `references/quiet.css` whole, as the first CSS of the build, and load its font. After it, **every** colour,
-font size, line height, weight, radius, shadow and control height is a `var(--…)` from the block: no hex, no `px`
-font size, no new radius. (Allowed literals: `0`, `1px`, `2px`, `100%`, and widths; and inside a drawn object, its own
-material colours, defined once on its root for light and dark.) A second typeface on the page sets
-`font-size-adjust: none` on itself, or its own measured number (**antheo-type**): the block's 0.53 is Geist's. If the
-project already has its own tokens, those are the block (**antheo-system**). In a framework or a server-rendered
-app, load it once, globally, first, and read its names from components, Tailwind or a theme object
-(`references/stacks.md`).
+Paste `references/quiet.css` whole, as the first CSS, and load its font; for Studio, Editorial or Playful, paste that
+look's file from `references/looks/` right after it. Then **every** colour, font size, line height, weight, radius,
+shadow and control height is a `var(--…)` from the block: no hex, no `px` font size, no new radius (allowed literals:
+`0`, `1px`, `2px`, `100%`, widths, and a drawn object's own colours defined once on its root). A second typeface sets
+its own `font-size-adjust` (**antheo-type**). A project with its own tokens uses them as the block (**antheo-system**).
+In a framework, load it once, globally, first (`references/stacks.md`).
 
 ```
 --bg --surface --raised --well --hover --line      the page, cards, white controls, fields, hover, a hairline
@@ -91,7 +66,15 @@ app, load it once, globally, first, and read its names from components, Tailwind
 .t-meta  .t-title  .t-page  .t-num  .t-display  .muted
 ```
 
+The numbers are Quiet's; a look file changes some of them and keeps every name.
+
 ## 2. The usage rules
+
+**Four kinds of rule.** **Requirements** never bend (the task works, WCAG 2.2 AA, nothing faked, nothing wired to
+nothing, nothing breaks at any width). **Guidance** comes from evidence (a press answered within 100ms, layout shift
+under 0.1, about 68 characters a line, `--measure`): follow it or say why not. **House defaults** are the look's numbers: they give
+way to the person, a reference or the project. **Experiments** are tried against a baseline, never stated as rules. A
+number with no kind given is a house default.
 
 1. **Few sizes.** An app screen uses at most four text sizes (meta, body, title, page); a data screen may add `--t-num`
    for its key figures and nothing else; a marketing section at most five (adds num and display). Nothing is larger
@@ -104,7 +87,8 @@ app, load it once, globally, first, and read its names from components, Tailwind
    it doesn't repeat it.
 4. **Cards have no outline.** A card is `.card`: the surface on the page, a faint edge and a soft drop. Never a
    visible border, never a coloured edge, never a card inside a card.
-5. **Almost no lines.** A hairline (`--line`) only between repeating rows of a list or table. Never under a card's
+5. **Almost no lines.** A hairline (`--line`) only between repeating rows of a list or table (in the Studio look, also
+   between panes). Never under a card's
    header, between sections, between a price and its features, or under a top bar at rest (a sticky bar takes one
    once content has scrolled under it).
 6. **Three corners.** Cards, dialogs, menus and tables `--r-card`; buttons, fields and chips `--r-control`; tags
@@ -164,10 +148,12 @@ app, load it once, globally, first, and read its names from components, Tailwind
     accent things, tags, hairlines. Each within the limits above, and the main task on the first screen. A
     checker's score is not a look.
 21. **Arm the gate, and pass it.** At the start, arm antheo-review's gate on every page the work touches
-    (`gate.mjs arm <url-or-file> --copy <source folder>`, plus `--preset none` when the project has its own system,
-    and `--ref <images>` when the work is built from references); before saying done, `gate.mjs check` must say
-    PASS, or after its rounds DONE, UNRESOLVED with what is left, told to the person. Rounds, setup and how much to
-    check beyond the gate: antheo-review `references/gate.md` and "How much to check". A PASS is the floor, not the
+    (`gate.mjs arm <url-or-file> --copy <source folder>`, plus `--preset studio`, `editorial` or `playful` for a
+    look, `--preset none` when the project has its own system, `--landing` for a landing page, and `--ref <images>`
+    when the work is built from references); before saying done, `gate.mjs check` must say
+    PASS, or after its rounds DONE, UNRESOLVED with what is left, told to the person. When exploring a throwaway
+    sketch or early direction, skip the gate until the person picks one to keep, then arm it before calling the build
+    done. Rounds, setup and how much to check beyond the gate: antheo-review `references/gate.md` and "How much to check". A PASS is the floor, not the
     finish.
 
 ## The traps that look finished and break in use
@@ -274,7 +260,7 @@ and hairlines against the rules above, press every control, and read the console
   --h-control: 2rem; --h-small: 1.75rem; --h-cta: 2.25rem; --h-row: 2.5rem; --h-tag: 1.25rem; --h-bar: 3rem;   /* 32, 28, 36, 40, 20, 48px */
   --sw-w: 2rem; --sw-h: 1.25rem; --sw-knob: 1rem; --sw-knob-fill: oklch(1 0 0);                                  /* 32 by 20px, a 16px knob */
   --w-form: 400px; --w-settings: 680px; --w-pricing: 1040px; --w-data: 1120px;
-  --measure: 65ch;                           /* the longest line of running text */
+  --measure: 32em;                           /* the longest line of running text: about 68 characters in Geist (65ch is 93) */
   /* A whole marketing page only: its container and the space between its sections. */
   --page-max: var(--w-data); --page-wide: 1440px; --section: clamp(64px, 8vw, 96px); --section-dense: var(--s-12);
 

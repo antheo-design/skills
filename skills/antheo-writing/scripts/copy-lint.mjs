@@ -5,6 +5,7 @@
 //
 //   node copy-lint.mjs <file|folder>... [--json out.json] [--max-exclaim 1] [--ignore rule,rule]
 //                      [--allow Figma,GitHub] [--min-severity low|medium|high] [--fail-on high|medium|low]
+//                      [--marketing]   (a landing or company page: also the devices of generated marketing copy)
 //
 // Add `copy-lint-ignore` in a comment on a source line to silence findings on that line.
 // Rules and fixes are in the antheo-writing skill (SKILL.md, references/).
@@ -21,6 +22,9 @@ Usage: node copy-lint.mjs <file|folder>... [options]
   --allow <A,B>          product names that may be capitalised mid-label (e.g. Figma,GitHub)
   --min-severity <s>     low | medium | high (default low)
   --fail-on <s>          exit 1 if a finding of this severity or worse exists (default: never)
+  --marketing            also check the devices of generated marketing copy (a landing or company page):
+                         two-fragment headings, contrast frames, "no X, no Y" runs, virtue words, proof figures,
+                         strips of figures, process talk, a stale copyright year, an h1 that says nothing
 Files: .html .htm .jsx .tsx .vue .svelte .astro .json (locale files), and templates: .jinja .jinja2 .j2 .erb
 .ejs .twig .liquid .hbs .handlebars .mustache .njk .heex .blade.php. Template tags ({{ }}, {% %}, <% %>, @if) are
 read as values, so Django and Angular templates saved as .html work too. Folders are walked.`;
@@ -36,6 +40,7 @@ for (let i = 0; i < argv.length; i++) {
   else if (a === '--allow') argv[++i].split(',').forEach((x) => opt.allow.add(x.trim().toLowerCase()));
   else if (a === '--fail-on') opt.failOn = argv[++i];
   else if (a === '--min-severity') opt.minSev = argv[++i];
+  else if (a === '--marketing') opt.marketing = true;
   else if (a === '-h' || a === '--help') { console.log(HELP); process.exit(0); }
   else inputs.push(a);
 }
@@ -79,7 +84,22 @@ const RULES = {
   'machine-phrase': ['medium', 'A phrasing people now read as machine-written', 'State the claim plainly: who it is for and what changes. No "not X, it\'s Y", no two-beat slogan, no chat reply left in the page.'],
   'stock-sample': ['low', 'Stock sample data', 'Use names, companies and figures that fit this product\'s audience; real numbers or none. (A name the brief gives: pass --allow.)'],
   'leftover': ['high', 'Unfinished text left in the page', 'Replace it with the real text, or remove the thing it stands for.'],
+  // --marketing only: devices that read as generated on a landing or company page. Most are fine once; the count is the tell
+  'two-fragment': ['medium', 'Headings built as two short fragments ("Twelve rooms. Three ways to stay.")', 'One heading in this shape a page at most. Name the thing and say what is true about it, in one plain sentence or a noun phrase.'],
+  'contrast-frame': ['medium', 'Too many contrast frames ("not X but Y", "rather than", "instead of", "without the")', 'Two a page at most, counted together. State the positive fact on its own; the reader does not need the straw man.'],
+  'negation-run': ['medium', 'A run of "no X, no Y"', 'One a page, and only when each item is a refusal the buyer can check. Otherwise say what the product does.'],
+  'virtue-word': ['low', 'A virtue the page claims for itself (honest, genuinely, thoughtful, passionate)', 'Show it with a fact or an admission instead; a page that calls itself honest reads as the opposite.'],
+  'proof-figure': ['low', 'A round, unsourced proof figure ("10,000+ teams", "3× faster", "99% satisfied")', 'Only a figure the brief gives, with its unit and where it comes from, inside the sentence it proves. None is better than a guess.'],
+  'stat-strip': ['medium', 'A strip of bare figures over one-word labels', 'Put each number in the sentence that proves something with it. A strip only of plain facts the brief gives (a price, the hours, a count).'],
+  'stale-year': ['low', 'A copyright year older than this year', 'Write the current year, or the range up to it.'],
+  'process-talk': ['medium', 'The page talks about itself ("this section", "below you\'ll find", "here are 3 reasons")', 'Delete the sentence and let the section say its thing.'],
+  'rider': ['low', 'An -ing clause tacked onto a fact (", ensuring a smooth start")', 'End the sentence at the fact, or give the effect its own sentence with a number in it.'],
+  'dead-metaphor': ['low', 'A worn metaphor (in the heart of, where X meets Y, the world of, a one-stop shop)', 'Name the actual thing: the street, the tools, the steps.'],
+  'hero-heading': ['low', 'The h1 does not say what this is', 'The h1 names the category and, for a name nobody knows yet, who it is for or where ("Payroll for restaurant groups"). A wordmark may sit above it, never replace it.'],
 };
+// --marketing: these rules count per file, and past their budget the extras grow from medium to high
+// virtue words have no budget (marketing.md: a page never praises itself): each is low, and medium past two
+const BUDGET = { 'two-fragment': 1, 'contrast-frame': 2, 'negation-run': 1, 'virtue-word': 0 };
 
 const findings = [];
 const fileStats = { files: 0, skipped: [] };
@@ -136,6 +156,24 @@ const SMALL = new Set(['a', 'an', 'the', 'of', 'to', 'in', 'on', 'for', 'and', '
 const VAGUE_BTN = new Set(['submit', 'ok', 'okay', 'click here', 'here', 'learn more', 'read more', 'more', 'yes', 'no', 'confirm', 'go', 'get started', 'click', 'send it']);
 const LINK_BAD = new Set(['here', 'click here', 'click', 'this link', 'link', 'this', 'more', 'read more', 'learn more', 'details', 'read on', 'see more', 'link here']);
 const LABEL_HEADINGS = new Set(['features', 'how it works', 'why choose us', 'benefits', 'about us', 'our mission', 'testimonials', 'faq', 'faqs', 'frequently asked questions', 'what we offer', 'our services', 'why us']);
+// --marketing lists
+const CONTRAST_RE = [
+  /\bnot (?:just|only|merely) (?:a |an |the )?[\w' -]{2,40}?[,;:–] ?(?:it(?:'|’)s|it is|but|we(?:'|’)re)\b/i,
+  /\b(?:isn(?:'|’)t|aren(?:'|’)t|wasn(?:'|’)t|is not|are not) (?:just |only |merely )?(?:a |an |the |about )/i,
+  /\bnot (?:just |only )?(?:a |an |the )?[\w-]+(?: [\w-]+)?,? but\b/i,
+  /\brather than\b/i, /\binstead of\b/i, /\bwithout the\b/i,
+];
+const NEGATION_RE = /\bno [\w-]+(?: [\w-]+)?[,.;] (?:and )?no [\w-]+/i;
+// "dedicated" and "committed" are left out: a dedicated server and a committed change are literal
+const VIRTUE_RE = /(?<![\w-])(honest(?:ly)?|genuine(?:ly)?|truly|thoughtful(?:ly)?|carefully|intentional(?:ly)?|passionate(?:ly)?|authentic(?:ally)?|trustworthy|dependable|lovingly|obsessed with)(?![\w-])/i;
+const PROOF_RE = /(?<![\w.])(?:\d{1,3}(?:,\d{3})+\+|\d+(?:\.\d+)?\s?[kKM]\+|\d+(?:\.\d+)?\s?[x×] (?:faster|more|better|cheaper|quicker|less)|(?:9\d|100)(?:\.\d+)?\s?% (?:of (?:our |all )?(?:customers|users|teams|clients)|satisf|uptime|accura|customer|happy))/;
+const PROCESS_RE = /\b(?:(?:in )?this section|below,? you(?:'|’)ll find|scroll down|here are (?:\d+|three|four|five|some) (?:reasons|ways|things)|on this page,? (?:you|we)|we(?:'|’)ve (?:added|included|put together))\b/i;
+const RIDER_RE = /, (?:ensuring|allowing|enabling|empowering|making it easy|helping you|giving you|so you can focus)\b/i;
+// only the figures that are never literal: a landscape, an ecosystem or a journey can be the real subject
+const METAPHOR_RE = /\b(?:in the heart of|where [\w-]+ meets [\w-]+|the world of|one-stop[- ]shop|at the intersection of)\b/i;
+const CAST_RE = /\b(?:Priya(?: (?:Raman|Shah|Nair|Patel))?|(?:Daniel|Amara) Okafor|Northwind|Halcyon|Kestrel|Brightloop|Fieldnote|Initrode|Contoso|Umbrella Corp|Hooli)\b/;
+const FIGURE_RE = /^[~≈<>]?\d[\d.,]*\s?(?:%|\+|×|x|k|K|M|B|h|hrs?|ms|min|s|\/7|\/5|\/10)?\+?$/;
+const FIGURE_LABEL_RE = /^[~≈<>]?\d[\d.,]*\s?(?:%|\+|×|x|k|K|M|B|h|hrs?|ms|min|s|\/7|\/5|\/10)?\+?\s+[\p{L}-]+(?:\s[\p{L}-]+)?$/u;
 
 /* ------------------------------ helpers ------------------------------ */
 const ENT = { amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ', hellip: '…', mdash: '—', ndash: '–', rsquo: '’', lsquo: '‘', ldquo: '“', rdquo: '”', times: '×', minus: '−', copy: '©', middot: '·', bull: '•' };
@@ -156,7 +194,8 @@ function makeCtx(file, src) {
   const exclaims = [];
   const ctx = {
     file, lines, english, exclaims, inputs: [], labelFor: new Set(),
-    add(line, rule, text, extra) {
+    mk: { 'two-fragment': [], 'contrast-frame': [], 'negation-run': [], 'virtue-word': [], figures: [] },
+    add(line, rule, text, extra, sev) {
       if (opt.ignore.has(rule)) return;
       if (lines[line - 1] && lines[line - 1].includes('copy-lint-ignore')) return;
       const key = rule + '|' + line + '|' + text;
@@ -164,7 +203,7 @@ function makeCtx(file, src) {
       const [severity, message, fix] = RULES[rule];
       const fixText = extra ? extra : fix;
       if (prev) { if (!prev.fix.includes(fixText)) prev.fix += ' Also: ' + fixText; return; }
-      const rec = { file, line, rule, severity, message, fix: fixText, text: shorten(text) };
+      const rec = { file, line, rule, severity: sev || severity, message, fix: fixText, text: shorten(text) };
       seen.set(key, rec);
       findings.push(rec);
     },
@@ -202,6 +241,7 @@ function textRules(ctx, rawSeg, line, kind) {
     const letters = seg.replace(/[^A-Za-z ]/g, '');
     const words = letters.trim().split(/\s+/).filter((w) => w.length > 1);
     if (words.length >= 2 && letters.replace(/ /g, '').length >= 8 && letters === letters.toUpperCase() && !/^[A-Z]{2,5}( [A-Z]{2,5})*$/.test(letters.trim())) ctx.add(line, 'all-caps', seg);
+    if (opt.marketing && kind !== 'attr') marketingText(ctx, seg, line);
   }
 
   if (/\p{Emoji_Presentation}|\p{Extended_Pictographic}️/u.test(seg)) ctx.add(line, 'emoji', seg);
@@ -231,10 +271,65 @@ function textRules(ctx, rawSeg, line, kind) {
   if (/[$€£¥]\s*\u0001/.test(rawSeg)) ctx.add(line, 'format-number', rawSeg.replace(/\u0001/g, '{…}'), 'Currency glued to an expression: use Intl.NumberFormat(locale, {style:"currency", currency}).');
 }
 
+// --marketing: sentence-level devices. The capped ones are collected and judged per file (judgeMarketing)
+function marketingText(ctx, seg, line) {
+  // each use counts, so three frames in one paragraph are three
+  // the first three shapes are frames wherever they stand; "rather than", "instead of" and "without the" only in a
+  // short, slogan-like line, since a sentence that explains something uses them plainly
+  for (const sentence of seg.split(/(?<=[.!?])\s+/)) {
+    const short = sentence.split(/\s+/).length <= 14;
+    CONTRAST_RE.forEach((re, i) => { if (i < 3 || short) for (const m of sentence.matchAll(new RegExp(re.source, 'gi'))) ctx.mk['contrast-frame'].push({ line, seg, word: m[0] }); });
+  }
+  if (NEGATION_RE.test(seg) && !/\bno [\w-]+[.,] no [\w-]+[.,] (?:just|only)\b/i.test(seg)) ctx.mk['negation-run'].push({ line, seg });
+  for (const v of seg.matchAll(new RegExp(VIRTUE_RE.source, 'gi'))) ctx.mk['virtue-word'].push({ line, seg, word: v[1] });
+  // a figure over a one- or two-word label ("10,000+ teams", "99.9% uptime"); a price is not a strip
+  if (FIGURE_LABEL_RE.test(seg.trim())) ctx.mk.figures.push({ line, seg: seg.trim() });
+  const p = PROOF_RE.exec(seg);
+  if (p) ctx.add(line, 'proof-figure', seg, `"${p[0]}": ` + RULES['proof-figure'][2]);
+  if (PROCESS_RE.test(seg)) ctx.add(line, 'process-talk', seg);
+  if (RIDER_RE.test(seg)) ctx.add(line, 'rider', seg);
+  const m = METAPHOR_RE.exec(seg);
+  if (m) ctx.add(line, 'dead-metaphor', seg, `"${m[0]}": ` + RULES['dead-metaphor'][2]);
+  const cast = CAST_RE.exec(seg);
+  if (cast) ctx.add(line, 'stock-sample', seg, `"${cast[0]}" is a name generated pages keep reaching for. ` + RULES['stock-sample'][2]);
+  const years = /(?:©|&copy;|\bcopyright\b)[^\n]{0,40}/i.exec(seg);
+  if (years) {
+    const all = (years[0].match(/\b(?:19|20)\d{2}\b/g) || []).map(Number);
+    const now = new Date().getFullYear();
+    if (all.length && Math.max(...all) < now) ctx.add(line, 'stale-year', seg, `The newest year here is ${Math.max(...all)}; it is ${now}. ` + RULES['stale-year'][2]);
+  }
+}
+
+// --marketing: past a device's budget, each extra use is a finding; at twice the budget plus one it is high
+function judgeMarketing(ctx) {
+  if (!opt.marketing) return;
+  for (const [rule, cap] of Object.entries(BUDGET)) {
+    const uses = ctx.mk[rule].sort((a, b) => a.line - b.line);
+    if (uses.length <= cap) continue;
+    const sev = uses.length > cap * 2 + 1 ? 'high' : 'medium';
+    uses.slice(cap).forEach((u) => ctx.add(u.line, rule, u.seg, `${uses.length} in this file, budget ${cap}${u.word ? ` ("${u.word}")` : ''}. ` + RULES[rule][2], rule === 'virtue-word' ? (uses.length > 2 ? 'medium' : 'low') : sev));
+  }
+  // three or more bare figures within a dozen lines, each with its own unit or label, read as the strip under every
+  // generated hero; a column of one unit (error rates, prices, times) is a table, not a strip
+  const f = ctx.mk.figures.sort((a, b) => a.line - b.line);
+  const unit = (s) => s.replace(/^[~≈<>]?\d[\d.,]*\s?/, '').toLowerCase();
+  for (let i = 0; i + 2 < f.length; i++) {
+    const run = f.slice(i, i + 3);
+    if (run[2].line - run[0].line <= 12 && new Set(run.map((x) => unit(x.seg))).size > 1) { ctx.add(f[i].line, 'stat-strip', f.slice(i, i + 4).map((x) => x.seg).join(' · ')); break; }
+  }
+}
+
 // element-level checks (aggregated text of a button, link, heading, label)
 function labelRules(ctx, kind, label, line, tag) {
   if (!label || !hasLetters(label)) return;
   const en = ctx.english;
+  if (opt.marketing && en && kind === 'heading') {
+    const clean = label.replace(/\u0001/g, ' ').replace(/\s+/g, ' ').trim();
+    // "Twelve rooms. Three ways to stay." : two short sentences of six words or fewer each
+    const parts = clean.split(/(?<=[.!?])\s+/).filter(Boolean);
+    if (parts.length === 2 && parts.every((s) => /[.!?]$|^[^.!?]+$/.test(s) && s.split(' ').length <= 6)) ctx.mk['two-fragment'].push({ line, seg: `<${tag}> ${clean}` });
+    if (/^h1$/i.test(tag) && clean.split(' ').length < 3 && !/\d/.test(clean)) ctx.add(line, 'hero-heading', `<h1> ${clean}`);
+  }
   const norm = label.toLowerCase().replace(/[\s ]+/g, ' ').replace(/[.!…→›»←↗]+$/g, '').replace(/^[→›»←↗\s]+/, '').trim();
   const words = label.replace(/\u0001/g, ' ').split(/\s+/).filter(Boolean);
   if (kind === 'button' && en) {
@@ -317,8 +412,12 @@ function scanMarkup(src, ctx, mode) {
     const joinedParts = [];
     for (const l of b.lines) {
       const raw = decode(l.text);
-      const seg = raw.replace(/\s+/g, ' ').trim();
+      // collapse ordinary whitespace only: \s also matches a no-break space, and turning &nbsp; back into a plain space
+      // made the nbsp rule fire on the very fix it asks for
+      const seg = raw.replace(/[ \t\n\r\f\v]+/g, ' ').trim();
       if (seg) joinedParts.push(seg);
+      // a bare figure ("10,000+") has no letters, so it is collected for the strip check before being skipped
+      if (opt.marketing && seg && FIGURE_RE.test(seg)) ctx.mk.figures.push({ line: l.line, seg });
       if (!seg || !hasLetters(seg.replace(/\u0001/g, ''))) continue;
       el.all.push({ text: seg, line: l.line });
       textRules(ctx, seg, l.line, kind);
@@ -672,6 +771,7 @@ for (const file of files) {
     const ctx = makeCtx(file, src);
     scanJson(src, ctx);
     judgeExclaims(ctx);
+    judgeMarketing(ctx);
     continue;
   }
   fileStats.files++;
@@ -681,6 +781,7 @@ for (const file of files) {
   else if (ext === '.astro') { const m = src.match(/^---\n[\s\S]*?\n---\n/); scanMarkup(m ? blank(m[0]) + src.slice(m[0].length) : src, ctx, 'tmpl'); }
   else { scanMarkup(src, ctx, 'tmpl'); }
   judgeExclaims(ctx);
+  judgeMarketing(ctx);
 }
 
 function judgeExclaims(ctx) {
@@ -710,7 +811,7 @@ if (ruleLines.length) console.log('by rule: ' + ruleLines.join(', '));
 if (fileStats.skipped.length) console.log('skipped: ' + fileStats.skipped.join('; '));
 if (!files.length) console.log('No supported files found (.html .jsx .tsx .vue .svelte .astro .json, or a template: .jinja .erb .twig .liquid .hbs .njk .ejs .heex .blade.php).');
 if (opt.json) {
-  fs.writeFileSync(opt.json, JSON.stringify({ files: fileStats.files, counts: bySev, byRule, findings: shown }, null, 2));
+  fs.writeFileSync(opt.json, JSON.stringify({ files: fileStats.files, skipped: fileStats.skipped, marketing: !!opt.marketing, counts: bySev, byRule, findings: shown }, null, 2));
   console.log('wrote ' + opt.json);
 }
 if (opt.failOn && shown.some((f) => SEV[f.severity] >= SEV[opt.failOn])) process.exit(1);

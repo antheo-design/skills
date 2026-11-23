@@ -8,10 +8,13 @@ file) and reads copy in HTML, JSX/TSX, Vue, Svelte, Astro, Angular and server te
 
 ```bash
 node <antheo-review>/scripts/gate.mjs arm http://localhost:5173/settings --copy src/pages/settings
+# a landing, company or product page? the first-screen and contact checks, and copy linted as marketing:
+node <antheo-review>/scripts/gate.mjs arm http://localhost:5173/ --copy src/pages/home --landing
+#   (a landing gate also holds the work open on the marketing devices past their budget, at medium: antheo-writing)
 # built from references? name them, and the gate asks for the evidence of comparing:
 node <antheo-review>/scripts/gate.mjs arm http://localhost:5173/ --copy src --ref refs/radio.jpg refs/cards.png
 # …build…
-node <antheo-review>/scripts/gate.mjs check     # see the four outcomes below
+node <antheo-review>/scripts/gate.mjs check     # see the five outcomes below
 node <antheo-review>/scripts/gate.mjs rearm     # after a PASS, when the page changes again: the same pages, round 1
 node <antheo-review>/scripts/gate.mjs disarm    # when the work is abandoned
 ```
@@ -22,7 +25,8 @@ node <antheo-review>/scripts/gate.mjs disarm    # when the work is abandoned
   `check` before saying done; the last check must be on the last version of the page.
 
 - **Arm it at the start** of a UI build or fix, with every page the work touches and the source folders whose words
-  changed. `--widths 390,1280` by default.
+  changed. `--widths 390,1280` by default. A throwaway sketch or early direction can wait: arm the gate when the
+  person picks one to keep, before calling it done.
 - **Check before saying done.** A blocker or a high finding from `check-page.mjs` (at each width, light and dark), a
   blocker or serious finding from antheo-access's `a11y-probe.mjs` (keyboard, focus, forced colours, text spacing,
   reflow, and buttons wired to nothing; `--no-probe` skips it; the probe's presses never send a write unless the gate was armed with `--allow-writes`), or a high finding from `copy-lint.mjs` keeps it open.
@@ -32,11 +36,12 @@ node <antheo-review>/scripts/gate.mjs disarm    # when the work is abandoned
   there by default, each with a .json record of what it captured; give `beside.mjs` a `--region` when the reference
   holds more than the one thing you built. The gate can't judge taste; it can make sure the
   looking happened.
-- **Four outcomes, never confused:**
+- **Five outcomes, never confused:**
 
   | Says | Exit (`check`) | Means |
   |---|---|---|
   | `GATE: PASS` | 0 | the automated checks found nothing blocking; not a full release review |
+  | `GATE: PASS, PARTLY MEASURED` | 0 | nothing blocking in what was measured, with a list of what could not be read (no load measures, a stylesheet the check could not open, a file copy-lint skipped): tell the person those are unverified |
   | `GATE: OPEN` | 1 | findings to fix; this was one round |
   | `GATE: DONE, UNRESOLVED` | 3 | the rounds ran out with work still open (three; one more for each reference after the first, six at most; `--max n` sets it, for a page of several components): tell the person what is left; don't loop. **Not a pass** |
   | `GATE: TOOL ERROR` | 4 | a checker crashed or wrote no report: nothing was verified |
@@ -50,7 +55,14 @@ node <antheo-review>/scripts/gate.mjs disarm    # when the work is abandoned
 - **Waivers, with a reason.** When the checker is wrong (a code sample meant to scroll sideways), add
   `{ "rule": "horizontal scroll", "target": "<the page>", "reason": "the code sample scrolls by design" }` to
   `.antheo/waivers.json`. A waiver needs a reason of 12 characters or more. Never change the check, the page's markup
-  just to dodge it, or the threshold.
+  just to dodge it, or the threshold. **Five waivers at most:** a sixth holds the gate open, because past that the
+  checker is not what is wrong.
+- **It checks that the checks are honest.** When armed it records a fingerprint of each checking tool; a tool changed
+  after that is a high finding (`rearm` keeps the fingerprints; only a fresh `arm`, which the person chooses, takes
+  new ones). Page source in the copy paths and the armed files that tests for the checker (reads
+  `navigator.webdriver`, looks for a headless user agent or the automation driver, reads the checker's markers) is a
+  high finding too; tests and their fixtures are not read. Code with another job (bot filtering) is waived with that
+  reason.
 - State lives in `.antheo/` in the project; add it to `.gitignore`.
 
 ## Make it automatic
@@ -72,7 +84,8 @@ That path is for skills installed in the project (`npx skills@latest add` withou
 **Codex, Cursor, OpenCode and agents without a stop hook:** put this line in `AGENTS.md` or a project rule:
 
 > Before saying a UI change is done, run `node <antheo-review>/scripts/gate.mjs check`. If it says GATE: OPEN, fix what
-> it lists and run it again; after GATE: DONE, UNRESOLVED or GATE: TOOL ERROR, tell me what is still open or unverified.
+> it lists and run it again; after GATE: DONE, UNRESOLVED or GATE: TOOL ERROR, tell me what is still open or unverified;
+> after GATE: PASS, PARTLY MEASURED, tell me what it could not measure.
 
 ## Why
 

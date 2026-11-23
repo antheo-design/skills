@@ -81,7 +81,7 @@ For internal tools, finance, settings, admin: work people repeat every day.
 
 ## The one image, made from the subject
 
-No stock photos and no icon rows. Every scene gets **one dominant visual**, taking half its area or more. Build it
+No stock photos as the subject and no icon rows (a stand-in photograph only for a detail, by `photos.md`). Every scene gets **one dominant visual**, taking half its area or more. Build it
 from one of these:
 
 | Kind | How | Fits |

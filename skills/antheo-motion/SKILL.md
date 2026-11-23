@@ -5,7 +5,7 @@ description: Decides whether a thing should move, then gives it exact timing, ea
 
 # Antheo Motion
 
-> **How to read this skill.** Its numbers are house defaults (antheo-build, "Four kinds of rule"): they give way to the
+> **How to read this skill.** Its numbers are house defaults (antheo-build `references/rules.md`, "Four kinds of rule"): they give way to the
 > person, a reference, a brand or the project's own system. What protects people (contrast, focus, targets, reduced
 > motion, nothing broken) is a requirement and never bends.
 
@@ -148,7 +148,7 @@ A screenshot of the resting state says nothing about how a thing moves, and ever
 film each motion you made and look at the frames before calling it done:
 
 ```
-node <antheo-motion>/scripts/filmstrip.mjs <url> --clip ".tuner" --click ".preset" --duration 600
+node <antheo-motion>/scripts/filmstrip.mjs <url> --clip ".tuner" --click ".preset" --duration 600   # needs a browser; without one, antheo-review references/no-browser.md
 node <antheo-motion>/scripts/filmstrip.mjs <url> --clip ".sheet" --drag ".handle" --by 0,240 --duration 900
 node <antheo-motion>/scripts/filmstrip.mjs <url> --clip ".like" --press ".like button" --hold 500 --duration 1200
 ```

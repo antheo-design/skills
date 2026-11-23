@@ -5,7 +5,7 @@ description: Lays out screens and pages so they read clearly and hold up at ever
 
 # Antheo Layout
 
-> **How to read this skill.** Its numbers are house defaults (antheo-build, "Four kinds of rule"): they give way to the
+> **How to read this skill.** Its numbers are house defaults (antheo-build `references/rules.md`, "Four kinds of rule"): they give way to the
 > person, a reference, a brand or the project's own system. What protects people (contrast, focus, targets, reduced
 > motion, nothing broken) is a requirement and never bends.
 
@@ -90,7 +90,7 @@ a row share one height. Before review, list each set of siblings and check them 
 | Settings, a reading column inside an app | `--w-settings` (680px), one column |
 | A pricing row | `--w-pricing` (1040px) |
 | Lists, tables, dashboards | `--w-data` (1120px) |
-| Prose | 65ch |
+| Prose | `--measure` (32em, about 68 characters) |
 
 Each is centred in the window. The main task fits the first screen at 1280×800: compact beats roomy. Fields that
 belong together share a row (name and email). Never invent a second half, a title column or extra chrome to fill

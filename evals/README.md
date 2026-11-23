@@ -1,6 +1,6 @@
 # Evals
 
-Twenty briefs, one per skill, each with checks that are measured rather than judged by eye. Run every brief twice with the same agent and model: once with no design skill, once reading only the skill it tests. Then grade both folders. A skill earns its place when its side passes more checks and doesn't fail any check that the plain side passes.
+Twenty-one briefs, one per skill, each with checks that are measured rather than judged by eye, and for six of them (build, direction, components, data, writing, mobile) the same brief worded twice more: once as a beginner would ask (vague, casual) and once as a senior would (every constraint named), with the same checks. Run every brief twice with the same agent and model: once with no design skill, once reading only the skill it tests. Then grade both folders. A skill earns its place when its side passes more checks and doesn't fail any check that the plain side passes.
 
 ```
 evals.json      the briefs and what each must show
@@ -51,6 +51,13 @@ Run the grader from the project root, where `playwright-core` and `axe-core` are
    It prints one line per brief and a total per side. The HTML report has every check with what was measured: green passed, red failed, grey couldn't be checked.
 
 4. Run each side three times if you can (`with-1`, `with-2` and so on). One run per side is noise: a brief that passes once and fails twice hasn't been learned.
+
+## Beginner and senior wordings
+
+A brief with `"persona"` is a rewording of the brief named in `"of"`, graded by the same checks. Run them like any
+other brief. A skill holds for everyone when its side passes the same checks on all three wordings: a check that passes
+on the base and the senior wording but fails on the beginner one means the skill leans on the asker naming what they
+want, and its defaults need to do that work instead.
 
 ## Reading the result
 

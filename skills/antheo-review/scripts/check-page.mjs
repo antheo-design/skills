@@ -29,12 +29,32 @@
  * Load measures, on a first visit at the main width: Largest Contentful Paint and Cumulative Layout Shift, in the
  * JSON as vitals { lcp (ms), cls, lcpElement }. A shift over 0.1 is a finding that names what moved; an LCP over 2.5s
  * is a low one, since a local number is only a floor. Press latency (INP) is latency-probe.mjs's job.
+ * Page weight, on the same first visit (the budget is antheo-review's): over 1.6 MB transferred, one image over
+ * 300 KB, an image served more than 2.2 times wider than it is shown, or the largest image lazy-loaded is a medium
+ * finding; an image below the first screen that is not lazy, an image with no room reserved, more than 4 font files
+ * or 250 KB of fonts, and more than 50 requests are low ones. Sizes of a local file are read from disk.
+ *
+ *   node check-page.mjs <url> --landing     (a landing, company or product page: the h1 and a filled main action on the
+ *                                          first screen at the phone width (390x844) and at 1280x800; one hard fact
+ *                                          there, high when missing (a price, a count with its noun, a percentage, a
+ *                                          time or a date, outside the header, nav, footer and role="img" product
+ *                                          pictures); contact details to confirm (phone numbers, street numbers,
+ *                                          postcodes, VAT numbers, emails off example.com) unless an ancestor carries
+ *                                          data-source or data-assumed; the data-assumed facts listed; share tags;
+ *                                          empty or near-empty sections; a hero fixed to the screen height whose
+ *                                          content does not fit; it also counts as --kind page)
+ * Stand-in photographs (img[data-source="stand-in"], from antheo-direction's stand-ins.mjs), on any page: one whose
+ * data-credit is missing, or whose CC BY credit is not on the page, is high; so is a stand-in that is the main picture
+ * (half the window wide or more, on the first screen); more than three is medium; each is listed, low, to replace.
+ * Partly measured: what the check could not read (no load measures, stylesheets it could not open, files with no
+ * readable size) is listed under "not measured" in the report and as notMeasured in the JSON. The gate reports a
+ * pass with anything there as PASS, PARTLY MEASURED, never as a plain pass.
  * "character" counts the measurable signs of the template look; it cannot see taste, so a page can pass it and still
  * be forgettable.
  */
 import { createRequire } from 'node:module';
-import { pathToFileURL } from 'node:url';
-import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
+import { fileURLToPath, pathToFileURL } from 'node:url';
+import { existsSync, mkdirSync, statSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 
 const argv = process.argv.slice(2);
@@ -44,16 +64,27 @@ const STRESS = argv.includes('--stress');
 const target = argv.find((a, i) => !a.startsWith('--') && !VALUE_FLAGS.includes(argv[i - 1]));
 const flag = (name) => { const i = argv.indexOf(`--${name}`); return i < 0 ? undefined : argv[i + 1] ?? true; };
 if (!target) {
-  console.error('usage: node check-page.mjs <url or html file> [--widths 320,390,768,1024,1280,1440,1920] [--kind page|app] [--preset quiet|none] [--shots folder] [--stress] [--json out.json] [--quiet]');
+  console.error('usage: node check-page.mjs <url or html file> [--widths 320,390,768,1024,1280,1440,1920] [--kind page|app] [--landing] [--preset quiet|studio|editorial|playful|none] [--shots folder] [--stress] [--json out.json] [--quiet]');
   process.exit(2);
 }
-const kind = ['page', 'app'].includes(flag('kind')) ? flag('kind') : 'auto';
+// --landing: a landing, company or product page; it is a marketing page, and also gets the first-screen checks
+const LANDING = argv.includes('--landing');
+const kind = LANDING ? 'page' : ['page', 'app'].includes(flag('kind')) ? flag('kind') : 'auto';
 const widths = String(flag('widths') ?? '320,390,768,1024,1280,1440,1920').split(',').map(Number).filter(Boolean);
 if (!widths.length) { console.error(`--widths needs numbers, like 390,1280 (got "${flag('widths')}")`); process.exit(2); }
-// --preset quiet (the default) also judges the Antheo Quiet look: outlined cards, many colours, weights, sizes and
+// --preset quiet (the default; or studio, editorial, playful, the block's other looks) also judges the look: outlined cards, many colours, weights, sizes and
 // corners, costume tells. --preset none is for a project with its own design system or a requested direction: only
 // what is wrong in any style is judged (contrast, overflow, focus, names, targets, broken text, alignment, states).
-const preset = flag('preset') === 'none' ? 'none' : 'quiet';
+// --preset studio, editorial or playful: one of the block's other looks (antheo-build references/looks.md). Every Quiet
+// rule still holds; only the corner limit is the look's own, and Editorial's serif headings are not a costume
+const LOOKS = {
+  quiet: { corner: 12, corners: '10px cards, 6px controls, 4px tags', serif: false },
+  studio: { corner: 8, corners: '6px cards, 4px controls, 3px tags', serif: false },
+  editorial: { corner: 8, corners: '6px cards, 4px controls, 2px tags', serif: true },
+  playful: { corner: 18, corners: '18px cards, 12px controls, 6px tags', serif: false },
+};
+const preset = flag('preset') === 'none' ? 'none' : LOOKS[flag('preset')] ? flag('preset') : 'quiet';
+const LOOK = LOOKS[preset] ?? LOOKS.quiet;
 const QUIET_ONLY = /^(cards with a visible outline|colour on too many things|corners up to|\d+ corner sizes|\d+ font weights|\d+ text sizes on one screen|\d+ different text colors|bands of different backgrounds|the header is off the content edge|tilted elements at rest)/;
 const shots = typeof flag('shots') === 'string' ? resolve(flag('shots')) : null;
 // a local file may carry a query or hash (page.html?state=error): keep it out of the path
@@ -78,6 +109,7 @@ async function loadChromium() {
 /* ── what runs inside the page ───────────────────────────────────────────────────────────────────────────────── */
 function measure(kind) {
   const vw = innerWidth;
+  const sheetMax = Math.max(16, parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--r-sheet')) || 0);
   const srOnly = (el) => {
     for (let n = el; n && n !== document.body; n = n.parentElement) {
       const c = getComputedStyle(n);
@@ -166,7 +198,8 @@ function measure(kind) {
       const corners = ['TopLeft', 'TopRight', 'BottomRight', 'BottomLeft'].map((c) => s[`border${c}Radius`].split(' ')[0]);
       const r0 = corners.find((c) => c.includes('%')) ?? corners.reduce((a, b) => (parseFloat(b) > parseFloat(a) ? b : a));
       radii[r0] = (radii[r0] || 0) + 1;
-      if (!(el.matches('dialog, [role=dialog], [role=alertdialog]') && !r0.includes('%') && parseFloat(r0) <= 16)) boxRadii[r0] = 1;
+      // a dialog or sheet may have its own corner: up to 16px, or the look's own --r-sheet when it is larger
+      if (!(el.matches('dialog, [role=dialog], [role=alertdialog]') && !r0.includes('%') && parseFloat(r0) <= sheetMax)) boxRadii[r0] = 1;
     }
     for (const p of ['paddingTop', 'paddingLeft', 'marginTop', 'marginBottom', 'rowGap', 'columnGap']) {
       const v = parseFloat(s[p]);
@@ -216,7 +249,8 @@ function measure(kind) {
   const labelledBy = (el) => (el.getAttribute('aria-labelledby') || '').split(/\s+/).filter(Boolean).map((id) => document.getElementById(id)?.textContent || '').join(' ');
   for (const el of controls) {
     const r = el.getBoundingClientRect();
-    const name = (el.getAttribute('aria-label') || labelledBy(el) || el.innerText || el.textContent || el.getAttribute('title') || el.value || el.getAttribute('alt') || el.querySelector('img[alt], svg title')?.textContent || el.querySelector('img')?.alt || '').trim();
+    // a <label for> names a button too (a button is labelable), and so does a label wrapped around it
+    const name = (el.getAttribute('aria-label') || labelledBy(el) || el.innerText || el.textContent || [...(el.labels ?? [])].map((l) => l.textContent).join(' ') || el.getAttribute('title') || el.value || el.getAttribute('alt') || el.querySelector('img[alt], svg title')?.textContent || el.querySelector('img')?.alt || '').trim();
     const isField = /^(INPUT|SELECT|TEXTAREA)$/.test(el.tagName);
     if (isField) {
       const labelled = el.labels?.length || el.getAttribute('aria-label') || el.getAttribute('aria-labelledby') || el.closest('label');
@@ -404,7 +438,33 @@ function measure(kind) {
     // a name some element resolves (a framework's inline style, setProperty from a bundled script) is defined where
     // it is used
     const all = open.length ? [...document.querySelectorAll('body *')].slice(0, 4000) : [];
-    return open.filter((n) => !all.some((el) => getComputedStyle(el).getPropertyValue(n).trim())).slice(0, 8);
+    // a rule that matches nothing on this page (a component's sheet bundled with a page that doesn't show it) can't
+    // drop anything anyone sees, so a name only counts when a rule that reads it applies here, or an inline style does
+    const applies = (n) => {
+      const reads = (text) => new RegExp(`var\\(\\s*${n}\\s*\\)`).test(text);
+      if ([...document.querySelectorAll('[style]')].some((el) => reads(el.getAttribute('style') || ''))) return true;
+      const walk = (rules) => {
+        for (const r of rules) {
+          if (r.cssRules?.length && walk(r.cssRules)) return true;
+          if (!reads(r.cssText)) continue;
+          // a keyframe, @font-face or @page has no selector to test, and it runs whenever it is used
+          if (!r.selectorText) return true;
+          // a state set later by script (an open panel, a phase) matches nothing yet, but its transition is exactly what breaks
+          if (r.style && ['transition', 'animation'].some((p) => [...r.style].some((d) => d.startsWith(p) && reads(r.style.getPropertyValue(d))))) return true;
+          // a pseudo-element, a state or an attribute flag is read from the element it hangs on
+          const sel = r.selectorText.replace(/::?(before|after|placeholder|marker|selection|backdrop|first-line|first-letter|file-selector-button)\b/g, '').replace(/:(hover|active|focus-visible|focus-within|focus|visited|checked|disabled|open|popover-open|modal)\b/g, '').replace(/\[[^\]]*\]/g, '');
+          // the rule as written first, then without its states; only when neither can be tested is it kept to be safe
+          const test = (x) => { try { return document.querySelector(x) ? 1 : 0; } catch { return -1; } };
+          const asIs = test(r.selectorText);
+          const bare = test(sel || '*');
+          if (asIs === 1 || bare === 1 || (asIs === -1 && bare === -1)) return true;
+        }
+        return false;
+      };
+      for (const sheet of document.styleSheets) { try { if (walk(sheet.cssRules)) return true; } catch { return true; } }
+      return false;
+    };
+    return open.filter((n) => !all.some((el) => getComputedStyle(el).getPropertyValue(n).trim()) && applies(n)).slice(0, 8);
   })();
   // a framework's default palette, used unchanged
   const SWATCH = { 'rgb(99, 102, 241)': 'indigo-500', 'rgb(79, 70, 229)': 'indigo-600', 'rgb(59, 130, 246)': 'blue-500', 'rgb(37, 99, 235)': 'blue-600', 'rgb(139, 92, 246)': 'violet-500', 'rgb(124, 58, 237)': 'violet-600', 'rgb(168, 85, 247)': 'purple-500', 'rgb(16, 185, 129)': 'emerald-500', 'rgb(15, 23, 42)': 'slate-900' };
@@ -1174,7 +1234,7 @@ async function vitals() {
   const [paints, shifts] = await Promise.all([read('largest-contentful-paint'), read('layout-shift')]);
   const out = { lcp: null, cls: null, lcpElement: null, moved: [] };
   const last = paints?.[paints.length - 1];
-  if (last) { out.lcp = Math.round(last.startTime); out.lcpElement = last.element ? sel(last.element) : last.url ? last.url.split('/').pop().slice(0, 60) : null; }
+  if (last) { out.lcp = Math.round(last.startTime); out.lcpElement = last.element ? sel(last.element) : last.url ? last.url.split('/').pop().slice(0, 60) : null; out.lcpLazy = last.element?.tagName === 'IMG' && last.element.loading === 'lazy'; }
   if (shifts) {
     let worst = 0, burst = 0, first = 0, prev = 0;
     const moved = new Map(); // element → the furthest it moved, and when
@@ -1198,6 +1258,110 @@ async function vitals() {
   return out;
 }
 
+// --landing: what a visitor sees before scrolling, read at the top of a fresh load. The main action is the element
+// marked data-main-action, or else any filled link or button; a product picture built in HTML is role="img" and its
+// text is not the page's hard fact
+function landingAudit() {
+  const vh = innerHeight;
+  const visible = (el) => { const r = el.getBoundingClientRect(); const s = getComputedStyle(el); return r.width > 0 && r.height > 0 && s.visibility !== 'hidden' && s.display !== 'none' && Number(s.opacity) > 0.05; };
+  const label = (el) => `${el.tagName.toLowerCase()} "${(el.innerText || el.getAttribute('aria-label') || '').trim().replace(/\s+/g, ' ').slice(0, 40)}"`;
+  const onFirst = (el) => { const r = el.getBoundingClientRect(); return r.top >= -1 && r.bottom <= vh + 1; };
+  const out = { h1: null, h1First: false, action: null, actionFirst: false, fact: false, contacts: [], assumed: [], share: [], empty: [], sparse: [], fixedHero: null };
+  const h1 = [...document.querySelectorAll('h1')].find(visible);
+  if (h1) { out.h1 = label(h1); out.h1First = onFirst(h1); }
+  const page = getComputedStyle(document.body).backgroundColor;
+  const filled = (el) => { const c = getComputedStyle(el).backgroundColor; return !/^(transparent|rgba\(0, 0, 0, 0\))$/.test(c) && c !== page; };
+  const marked = [...document.querySelectorAll('[data-main-action]')].filter(visible);
+  const actions = marked.length ? marked : [...document.querySelectorAll('a[href], button')].filter((e) => visible(e) && filled(e) && !e.closest('[role="img"], [data-object]'));
+  if (actions.length) { out.action = label(actions[0]); out.actionFirst = actions.some(onFirst); }
+  // the hard fact: a price, a count with its noun, a percentage, a time or a date in the words on the first screen,
+  // outside the header, the navigation and the footer (a copyright year or "Step 2 of 3" is not a fact)
+  const skip = 'script, style, noscript, svg, [aria-hidden="true"], [role="img"], [data-object], [inert], header, nav, footer, [role="banner"], [role="navigation"], [role="contentinfo"]';
+  const tw = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+  let first = '';
+  for (let n = tw.nextNode(); n; n = tw.nextNode()) {
+    const p = n.parentElement;
+    if (!p || !n.textContent.trim() || p.closest(skip) || !visible(p)) continue;
+    const r = p.getBoundingClientRect();
+    if (r.top < vh && r.bottom > 0) first += ` ${n.textContent}`;
+  }
+  out.fact = /[$€£¥]\s?\d|\d\s?(?:%|[$€£¥])|\b\d{1,2}[:.]\d{2}\b|\b\d[\d,.]*\s?(?:[a-z]{3,}|cm|mm|kg|km|ml|GB|MB)\b|\b\d{1,2}(?:st|nd|rd|th)?\s(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*|\b(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s\d{1,2}\b|\b(?:Mon|Tues|Wednes|Thurs|Fri|Satur|Sun)days?\b/i.test(first.replace(/\b(?:step|page|part)\s\d+\s(?:of|\/)\s\d+/gi, ''));
+  // details that look real and could be invented: each must come from the brief (an ancestor with data-source or
+  // data-assumed says someone vouched for it, or will)
+  const PATTERNS = [
+    ['phone number', /(?:\+\d{1,3}[\s.-]?)?(?:\(\d{2,5}\)[\s.-]?)?\d{2,5}[\s.-]\d{3,4}[\s.-]?\d{3,4}\b/g, (m) => m.replace(/\D/g, '').length >= 9],
+    ['street number', /\b\d{1,4}[a-z]?,? (?:[A-Z][a-z]+ ){1,3}(?:Street|St|Road|Rd|Avenue|Ave|Lane|Ln|Row|Way|Place|Pl|Square|Sq|Drive|Dr|Boulevard|Blvd|Terrace|Gardens|Close|Crescent|Strasse|Straße|Weg|Gasse|Rue)\b\.?/g],
+    ['postcode', /\b(?:[A-Z]{1,2}\d[A-Z\d]? ?\d[A-Z]{2}|[A-Z]{2} \d{5}(?:-\d{4})?)\b/g],
+    ['VAT number', /\b(?:VAT|USt-IdNr|TVA|BTW|IVA)(?:\s?(?:No\.?|number|reg\.?))?:?\s?[A-Z]{0,2}\s?\d[\d ]{7,13}\d\b/gi],
+    ['email', /[\w.+-]+@(?!example\.(?:com|org|net)\b)[\w-]+(?:\.[\w-]+)+/g],
+  ];
+  const seen = new Set();
+  for (const el of document.querySelectorAll('body *')) {
+    // code, a product's own screen drawn as a picture, and a drawn object hold IDs and samples, not contact details
+    if (el.closest('script, style, noscript, code, kbd, samp, pre, [role="img"], [data-object], [data-source], [data-assumed]')) continue;
+    const own = [...el.childNodes].filter((c) => c.nodeType === 3).map((c) => c.textContent).join(' ');
+    const href = el.matches('a[href^="tel:"], a[href^="mailto:"]') ? el.getAttribute('href').replace(/^(tel|mailto):/, '') : '';
+    for (const text of [own, href]) for (const [what, re, ok] of PATTERNS) for (const m of text.matchAll(re)) {
+      if (ok && !ok(m[0])) continue;
+      const key = `${what}: ${m[0].trim()}`;
+      if (!seen.has(key) && out.contacts.length < 10) { seen.add(key); out.contacts.push(key); }
+    }
+  }
+  out.assumed = [...document.querySelectorAll('[data-assumed]')].slice(0, 10).map((e) => `${label(e)}${e.dataset.assumed ? ` (${e.dataset.assumed})` : ''}`);
+  const meta = (sel) => document.head.querySelector(sel)?.getAttribute('content')?.trim();
+  if (!meta('meta[name="description"]')) out.share.push('meta description');
+  if (!meta('meta[property="og:title"]')) out.share.push('og:title');
+  if (!meta('meta[property="og:description"]')) out.share.push('og:description');
+  if (!meta('meta[property="og:image"]')) out.share.push('og:image (the picture a shared link shows)');
+  if (!document.head.querySelector('link[rel~="icon"]')) out.share.push('an icon (link rel="icon")');
+  // a top-level section with nothing in it, or a heading and a few words
+  const MEDIA = 'img, picture, svg, canvas, video, iframe, table, form, ul, ol, dl, [role="img"], [data-object]';
+  for (const s of document.querySelectorAll('section')) {
+    if (s.parentElement.closest('section') || !visible(s)) continue;
+    const text = s.innerText.trim().replace(/\s+/g, ' ');
+    const media = s.querySelector(MEDIA);
+    if (!text && !media && s.getBoundingClientRect().height > 40) out.empty.push(label(s));
+    else if (text.length < 30 && !media) out.sparse.push(label(s));
+  }
+  // a hero fixed to the window's height that cannot hold its content (a short laptop clips it)
+  const hero = h1?.closest('section, header, [role="banner"]');
+  if (hero) {
+    // a min-height grows with its content; a fixed height of one window does not, and the rest spills or is cut
+    const fixed = Math.abs(parseFloat(getComputedStyle(hero).height) - vh) < 2;
+    if (fixed && hero.scrollHeight > hero.clientHeight + 4) out.fixedHero = `${label(hero)}: ${hero.scrollHeight}px of content in ${hero.clientHeight}px`;
+  }
+  return out;
+}
+
+// stand-in photographs (antheo-direction references/photos.md): marked data-source="stand-in", each with the credit
+// its licence asks for in data-credit, shown somewhere on the page; never the main picture
+function standInAudit() {
+  const vh = innerHeight, vw = innerWidth;
+  const text = document.body.innerText.replace(/\s+/g, ' ').toLowerCase();
+  return [...document.querySelectorAll('img[data-source="stand-in"]')].map((i) => {
+    const r = i.getBoundingClientRect();
+    const credit = (i.dataset.credit || '').trim();
+    return {
+      name: (i.currentSrc || i.src).split(/[?#]/)[0].split('/').pop().slice(0, 50), credit, license: i.dataset.license || '',
+      shown: !credit || text.includes(credit.replace(/\s+/g, ' ').toLowerCase()),
+      main: r.top < vh && r.bottom > 0 && r.width >= vw * 0.5,
+    };
+  });
+}
+
+// page weight on a first visit: every response the page made, and the images as they are shown
+function weightAudit() {
+  const res = performance.getEntriesByType('resource').map((e) => ({ name: e.name, type: e.initiatorType, size: e.transferSize || e.encodedBodySize || 0 }));
+  const nav = performance.getEntriesByType('navigation')[0];
+  const imgs = [...document.images].filter((i) => i.complete && i.naturalWidth).map((i) => {
+    const r = i.getBoundingClientRect();
+    return { src: i.currentSrc || i.src, nw: i.naturalWidth, w: Math.round(r.width), top: Math.round(r.top + scrollY), lazy: i.loading === 'lazy', sized: getComputedStyle(i).aspectRatio !== 'auto', shown: r.width > 0 && r.height > 0 };
+  });
+  // Chrome keeps no resource timing for file:// addresses, so a local page's files are also named from the page
+  const dom = [...document.images].map((i) => i.currentSrc || i.src).concat([...document.querySelectorAll('link[rel~="stylesheet"][href], script[src]')].map((e) => e.href || e.src)).filter((u) => u.startsWith('file:'));
+  return { res, dom: [...new Set(dom)], doc: nav ? nav.transferSize || nav.encodedBodySize || 0 : 0, imgs, vh: innerHeight };
+}
+
 /* ── run ─────────────────────────────────────────────────────────────────────────────────────────────────────── */
 const chromium = await loadChromium();
 let browser;
@@ -1207,6 +1371,8 @@ const add = (area, severity, rule, items, fix) => { if (items && (items.length ?
 const results = {};
 const errors = [];
 const missing = [];
+// what this run could not read: a pass with anything here is a partial one, and the report says so
+const notMeasured = [];
 // craft rules: [area, severity, rule, fix]
 const CRAFT = {
   brokenWord: ['craft', 'high', 'a word broken mid-word', 'never overflow-wrap: anywhere on labels, values, buttons or headings: give the column room, stack the row, or white-space: nowrap; only strings people typed (.long-text) may break'],
@@ -1254,7 +1420,7 @@ const full = (m) => {
       add('access', 'medium', 'chart series told apart by hue alone', m.chartHue, 'give the two series a second difference: 0.08 or more of OKLCH lightness, a dash pattern, a different marker shape, or a label at the end of each line; then look at it in greyscale (antheo-data)');
       if (!m.lang) add('access', 'low', 'no lang on <html>', ['<html>'], 'lang="en" (or the page language) so screen readers pronounce it right');
       if (!m.main) add('access', 'low', 'no <main> landmark', ['page'], 'wrap the page content in <main>');
-      add('layout', 'medium', 'lines too long to read comfortably', m.longLines, 'cap text at about 66 characters: max-width: 66ch');
+      add('layout', 'medium', 'lines too long to read comfortably', m.longLines, 'cap text at about 68 characters: max-width: var(--measure) (32em); 66ch is wider than it looks, about 90 characters in a grotesk');
       add('layout', 'medium', 'body text under 13px', m.smallBody, 'app text 13px with a pointer and 15px on touch; pages people read 16px');
       if (m.smallShare > 0.35) add('layout', 'medium', `${Math.round(m.smallShare * 100)}% of the text is smaller than 12px`, ['most of the page'], 'the page reads small: app text 13px with a pointer, 15px on touch; reading pages 16px; 12px only for meta');
       add('layout', 'low', 'body line height under 1.3', m.tightLeading, 'body line-height 1.45 to 1.6');
@@ -1268,8 +1434,8 @@ const full = (m) => {
         // block's phone sheet is 14px): tag, control, card and a sheet read as three sizes at every width
         const sheet = new Set(m.sheetRadii);
         const rs = [...new Set(m.radiiList.filter((r) => !sheet.has(r)).map((r) => (/%/.test(r) ? 999 : parseFloat(r))).filter((v) => v > 0 && v < 100))].sort((x, y) => x - y);
-        if (rs.length > 3) add('consistency', 'medium', `${rs.length} corner sizes`, [rs.join(', ') + 'px'], 'three corner sizes: 10px cards, 6px controls, 4px tags; fully round only for switches and avatars; a dialog or a sheet may have its own, up to 16px (antheo-build, rule 6)');
-        if (rs.length && rs[rs.length - 1] > 12) add('craft', 'medium', `corners up to ${rs[rs.length - 1]}px`, [`${rs[rs.length - 1]}px`], 'big round corners read as generated: cards 10px at most; only a dialog or a sheet goes further, to 16px'); }
+        if (rs.length > 3) add('consistency', 'medium', `${rs.length} corner sizes`, [rs.join(', ') + 'px'], `three corner sizes: ${LOOK.corners}; fully round only for switches and avatars; a dialog or a sheet may have its own, up to 16px or the look's --r-sheet (antheo-build, rule 6)`);
+        if (rs.length && rs[rs.length - 1] > LOOK.corner) add('craft', 'medium', `corners up to ${rs[rs.length - 1]}px`, [`${rs[rs.length - 1]}px`], `corners larger than the look's: ${LOOK.corners}; only a dialog or a sheet goes further`); }
       if (m.spacingOff > 0.2) add('consistency', 'low', `${Math.round(m.spacingOff * 100)}% of spacing off the 4px grid`, m.offSamples, 'take every gap and padding from one spacing scale');
       if (m.strong > 2) add('consistency', 'medium', `${m.strong} strong filled buttons in the first screen`, [`${m.strong} buttons`], 'one primary action per view; the rest secondary or quiet');
       if (m.transitionAll) add('motion', 'low', `${m.transitionAll} elements use transition: all`, [`${m.transitionAll} elements`], 'name the properties: transform, opacity, background-color');
@@ -1285,7 +1451,7 @@ const full = (m) => {
       if (c.glass >= 3) add('character', 'low', `${c.glass} frosted-glass panels`, [`${c.glass} panels`], 'solid surfaces; blur only for floating chrome over media');
       if (!c.marketing && c.costume) {
         const look = 'antheo-components references/look.md';
-        add('character', 'medium', 'a serif or display face inside the UI (costume)', c.costume.serif, `one grotesk for the whole component or screen; a 15/550 title (${look})`);
+        if (!LOOK.serif) add('character', 'medium', 'a serif or display face inside the UI (costume)', c.costume.serif, `one grotesk for the whole component or screen; a 15/550 title (${look})`);
         add('character', 'medium', 'dashed or dotted borders (costume)', c.costume.dashed, 'hairlines between rows; a band or sunken card between sections; dashes only on a drag target while dragging');
         add('character', 'low', 'uppercase tracked labels', c.costume.tracked, 'sentence case at 12px in the second text tone');
         add('character', 'medium', 'tinted panels: colour on the chrome', c.costume.tinted, 'white surface (0.215 in dark), a band one step off it, chroma ≤ 0.01; colour only from content');
@@ -1372,7 +1538,7 @@ try {
         if (mo.durations.length > 6) add('motion', 'low', `${mo.durations.length} different transition durations`, [mo.durations.join(', ') + 'ms'], 'use the six duration tokens: 100, 150, 200, 250, 300, 400ms');
         if (mo.moving > 0 && !mo.reduce && !mo.blind) add('motion', 'medium', 'motion with no reduced-motion rule', ['no @media (prefers-reduced-motion) in the page'], 'under reduce: keep fades and color, remove travel, scale and loops');
         if (mo.moving === 0) add('motion', 'medium', 'nothing on the page moves: every change will jump', ['no transitions or animations'], 'press and hover feedback on controls; enter and exit for anything that appears');
-        if (mo.blind) console.error(`note: ${mo.blind} stylesheet(s) could not be read by the check (linked from file:// or another origin); press-feedback and reduced-motion rules in them were not judged`);
+        if (mo.blind) notMeasured.push(`${mo.blind} stylesheet(s) could not be opened (linked from file:// or another origin): their press-feedback and reduced-motion rules were not judged`);
         if (mo.hoverRules >= 4 && mo.hoverUngated / mo.hoverRules > 0.5) add('motion', 'low', `${mo.hoverUngated} of ${mo.hoverRules} hover styles also fire on touch screens`, [`${mo.hoverUngated} rules`], 'wrap hover styles in @media (hover: hover)');
       }
       if (theme === 'light' && width === phone && phone <= 480 && phone !== main) { const m = await page.evaluate(measure, kind); add('access', 'medium', 'touch targets under 24px at phone width', m.targets, 'min 24×24 (WCAG 2.2 2.5.8), 44×44 for primary touch controls'); }
@@ -1419,6 +1585,29 @@ try {
     await page.emulateMedia({ forcedColors: 'none' });
     add('access', 'high', 'disappears in forced colours: a control with no edge left', gone.slice(0, 8), 'border: 1px solid transparent on every control (it becomes the system\'s edge colour) and focus drawn with outline, never box-shadow alone; or give it an edge inside @media (forced-colors: active)');
   }
+  // landing: the first screen on a phone (390x844) and on a laptop (1280x800, where antheo-build's main task must fit)
+  if (LANDING) {
+    const land = [];
+    for (const [width, height] of [[phone, 844], [main, 800]]) {
+      await load(width, 'light');
+      await page.setViewportSize({ width, height });
+      await page.evaluate(() => scrollTo(0, 0));
+      await page.waitForTimeout(150);
+      land.push({ where: `${width}x${height}`, ...(await page.evaluate(landingAudit)) });
+    }
+    const at = (test, text) => land.filter(test).map((l) => `${l.where}: ${text(l)}`);
+    const wide = land[land.length - 1];
+    results.landing = land;
+    add('layout', 'high', 'no h1 on the first screen', at((l) => !l.h1First, (l) => l.h1 ? `${l.h1} starts below the fold` : 'the page has no visible h1'), 'the h1 names the category (antheo-writing references/marketing.md) and sits on the first screen at every width: shorten the hero, drop what sits above the h1, or size the picture down on a phone');
+    add('layout', 'high', 'the main action is not on the first screen', at((l) => !l.actionFirst, (l) => l.action ? `${l.action} is below the fold` : 'no filled link or button anywhere (mark the main one data-main-action if it is drawn another way)'), 'one filled button with the main action in the hero, on the first screen at 390px and 1280px; a phone may also carry it in a bar at the bottom');
+    add('craft', 'high', 'no hard fact on the first screen', at((l) => !l.fact, () => 'no price, count, percentage, time or date in the words above the fold (the header, the navigation and the footer do not count)'), 'put one fact from the brief in the line under the h1: a price, a count, an address, a date or opening hours (antheo-writing references/marketing.md)');
+    add('robustness', 'medium', 'contact details to confirm: each must come from the brief', wide.contacts, 'keep only details the brief gives, and mark their block data-source="brief"; a demo uses an @example.com address and no house number, postcode, phone or VAT number. An invented one sends real people to a real stranger');
+    add('robustness', 'low', 'assumed facts to confirm with the client', wide.assumed, 'list each in the report under "to confirm"; remove data-assumed once the client confirms it');
+    add('robustness', 'medium', 'share tags missing', wide.share.length ? [wide.share.join(', ')] : [], 'a meta description, og:title, og:description, og:image (1200x630) and an icon, so a shared link shows what the page is');
+    add('layout', 'high', 'an empty section', wide.empty, 'fill it with what the plan gave it, or remove it; a section exists only when the brief has material for it (antheo-direction references/landing.md)');
+    add('layout', 'medium', 'a section with almost nothing in it', wide.sparse, 'merge it with its neighbour or give it its material; a heading and a few words is not a section');
+    add('layout', 'medium', 'the hero is fixed to the window height and its content does not fit', land.filter((l) => l.fixedHero).map((l) => `${l.where}: ${l.fixedHero}`), 'size the hero by its content plus the section gap (min-height, never height: 100vh), so a short laptop screen does not cut it');
+  }
   await page.close();
   // one finding per craft rule, each element once, with every size it was seen at
   const sizes = (set) => { const l = [...set].filter((w) => !w.endsWith('dark')).map(Number).sort((a, b) => a - b), d = [...set].filter((w) => w.endsWith('dark')).map((w) => parseInt(w, 10)).sort((a, b) => a - b); return [l.length ? `${l.join(', ')}px` : '', d.length ? `dark ${d.join(', ')}px` : ''].filter(Boolean).join('; '); };
@@ -1430,8 +1619,42 @@ try {
     await page.goto(url, { waitUntil: 'networkidle', timeout: 45000 }).catch(() => {});
     await page.waitForTimeout(450);
     const v = await page.evaluate(vitals).catch(() => null);
+    const wt = await page.evaluate(weightAudit).catch(() => null);
+    const si = await page.evaluate(standInAudit).catch(() => []);
     await page.close();
+    if (si.length) {
+      results.standIns = si;
+      add('robustness', 'high', 'a stand-in photograph with no credit on the page', si.filter((s) => !s.credit).map((s) => `${s.name}: no data-credit`).concat(si.filter((s) => s.credit && !s.shown && /by/i.test(s.license || s.credit)).map((s) => `${s.name}: "${s.credit}" is not on the page`)), 'its licence asks for the credit: put the credits line in the footer (stand-ins.mjs credits <folder> prints it), and give every stand-in its data-credit');
+      add('craft', 'high', 'a stand-in photograph as the main picture', si.filter((s) => s.main).map((s) => s.name), 'a stand-in fills a detail slot only; the main picture is the client\'s own photograph, the product, a drawing, or no picture (the Statement composition)');
+      if (si.length > 3) add('craft', 'medium', `${si.length} stand-in photographs: more than a page needs`, si.map((s) => s.name), 'three at most, each showing something the words cannot; cut the rest, or ask the client for their own');
+      add('robustness', 'low', 'stand-in photographs to replace before launch', si.map((s) => `${s.name}${s.credit ? ` (${s.credit})` : ''}`), 'list them in the report under "to replace", with the shot list for the client (antheo-direction references/photos.md)');
+    }
     results.vitals = { lcp: v?.lcp ?? null, cls: v?.cls ?? null, lcpElement: v?.lcpElement ?? null };
+    if (!v || (v.lcp === null && v.cls === null)) notMeasured.push('load measures (LCP and CLS): the browser gave none');
+    if (!wt) notMeasured.push('page weight: the browser gave no resource timings');
+    else {
+      // a local file's size comes from the disk (file:// responses report 0 bytes); another origin may hide its size
+      const disk = (u) => { try { return u.startsWith('file:') ? statSync(fileURLToPath(u.split(/[?#]/)[0])).size : 0; } catch { return 0; } };
+      const timed = new Set(wt.res.map((r) => r.name));
+      const files = [{ name: url, type: 'document', size: wt.doc || disk(url) }, ...wt.res.map((r) => ({ ...r, size: r.size || disk(r.name) })), ...(wt.dom ?? []).filter((u) => !timed.has(u)).map((u) => ({ name: u, type: 'local', size: disk(u) }))];
+      const unknown = files.filter((f) => !f.size && !f.name.startsWith('data:'));
+      const total = files.reduce((s, f) => s + f.size, 0);
+      const kb = (b) => (b >= 1e6 ? `${(b / 1e6).toFixed(1)} MB` : `${Math.round(b / 1000)} KB`);
+      const name = (u) => u.split(/[?#]/)[0].split('/').pop().slice(0, 50) || u.slice(0, 50);
+      const size = new Map(files.map((f) => [f.name, f.size]));
+      results.weight = { total, requests: files.length, unknown: unknown.length };
+      if (unknown.length) notMeasured.push(`page weight: ${unknown.length} file(s) gave no size (another origin hides it), so ${kb(total)} is a floor`);
+      if (total > 1.6e6) add('robustness', 'medium', `the page is heavy on a first visit (${kb(total)})`, [...files].sort((a, b) => b.size - a.size).slice(0, 5).map((f) => `${name(f.name)} ${kb(f.size)}`), 'a landing page loads in 1.6 MB or less: images in AVIF or WebP at the size they are shown, one display font file, no script the first screen does not need');
+      add('robustness', 'medium', 'an image over 300 KB', wt.imgs.filter((i) => (size.get(i.src) ?? 0) > 3e5).map((i) => `${name(i.src)} ${kb(size.get(i.src))}`), 'export it at the size it is shown (2x for sharp screens), in AVIF or WebP, at quality 70 to 80; a hero photograph fits in 200 KB');
+      add('robustness', 'medium', 'images far larger than they are shown', wt.imgs.filter((i) => i.shown && i.nw > 640 && i.nw > i.w * 2.2).map((i) => `${name(i.src)} ${i.nw}px wide, shown at ${i.w}px`), 'serve it at about twice the width it is shown, or give srcset and sizes so a phone gets a smaller file');
+      if (v?.lcpLazy) add('robustness', 'medium', 'the largest image on the first screen is lazy-loaded', [v.lcpElement ?? 'the LCP image'], 'remove loading="lazy" from it and add fetchpriority="high": a lazy image waits for layout before it even starts');
+      add('robustness', 'low', 'images below the first screen that are not lazy', wt.imgs.filter((i) => i.shown && !i.lazy && i.top > wt.vh * 1.5).map((i) => name(i.src)), 'loading="lazy" and decoding="async" on every image below the first screen');
+      add('layout', 'low', 'images with no room reserved', wt.imgs.filter((i) => i.shown && !i.sized).map((i) => name(i.src)), 'width and height attributes (or aspect-ratio in CSS) on every image, so the page does not jump when it arrives');
+      const fonts = files.filter((f) => /\.(woff2?|ttf|otf)(?:[?#]|$)/i.test(f.name));
+      const fontBytes = fonts.reduce((s, f) => s + f.size, 0);
+      if (fonts.length > 4 || fontBytes > 2.5e5) add('robustness', 'low', `${fonts.length} font files, ${kb(fontBytes)}`, fonts.slice(0, 6).map((f) => `${name(f.name)} ${kb(f.size)}`), 'one text family (a variable file covers every weight) and one display family cut to the characters it sets; self-host and preload the one the first screen needs');
+      if (files.length > 50) add('robustness', 'low', `${files.length} requests on a first visit`, [`${files.length} files`], 'bundle scripts and styles, inline small icons as SVG, and lazy-load what is below the first screen');
+    }
     if (v?.cls > 0.1) add('layout', 'medium', `the page jumps while it loads (CLS ${v.cls.toFixed(2)})`, v.moved.length ? v.moved : ['the elements that moved are no longer on the page'], 'reserve the room before the content arrives: width and height (or aspect-ratio) on images, video and embeds; a min-height or a skeleton of the final size for anything filled in after load; a fallback font with matched metrics. Put late content below what is on screen, never above it. Good is 0.1 or less');
     if (v?.lcp > 2500) add('robustness', 'low', `the main content shows late (LCP ${(v.lcp / 1000).toFixed(1)}s)`, [v.lcpElement ?? 'the largest element in the first screen'], 'a local number is a floor: the real one is measured on the deployed page, on a mid-range phone and a slow connection (good is 2.5s or less). Send the largest element in the first HTML, not after a script; preload its image or font and never lazy-load it. A dev server that compiles on request reads high, so check a production build before acting on this');
   }
@@ -1519,10 +1742,12 @@ if (!flag('quiet')) {
   console.log(`verdict: ${verdict}`);
   console.log(`checked at ${widths.join(', ')}px, light${results.dark?.supported ? ' and dark' : ''}${shots ? `; screenshots in ${shots}` : ''}`);
   console.log('100 means no measured defect, not a good design: open the screenshots (--shots) and look before you call it done.');
-  console.log(preset === 'none' ? 'preset: none (the project\'s own look is not judged; universal checks only)' : 'preset: Quiet (also judges the Antheo Quiet look; --preset none for a project with its own system or a requested direction)');
+  console.log(preset === 'none' ? 'preset: none (the project\'s own look is not judged; universal checks only)' : `preset: ${preset[0].toUpperCase() + preset.slice(1)} (also judges the block's ${preset} look; --preset none for a project with its own system or a requested direction)`);
   if (flag('no-dark') !== undefined) console.log('WARNING: dark mode was not checked (--no-dark). People with a dark system setting will see a theme nobody looked at.');
   if (results.dark) console.log(`dark theme: ${results.dark.supported ? 'yes' : 'none found'}`);
   if (results.vitals) console.log(`load, measured here on a first visit: LCP ${results.vitals.lcp === null ? 'not measured' : `${results.vitals.lcp}ms`} · CLS ${results.vitals.cls === null ? 'not measured' : results.vitals.cls.toFixed(2)} (a floor: the real numbers come from the deployed page)`);
+  if (results.weight) console.log(`weight on a first visit: ${(results.weight.total / 1e6).toFixed(2)} MB in ${results.weight.requests} requests`);
+  if (notMeasured.length) console.log(`\nnot measured (so this is a partial check):\n${notMeasured.map((n) => `   - ${n}`).join('\n')}`);
   if (!findings.length) console.log('\nNo findings. Still look at it at 390px and in dark mode yourself.');
   for (const f of findings) {
     console.log(`\n[${f.severity}] ${f.area}: ${f.rule}`);
@@ -1532,7 +1757,7 @@ if (!flag('quiet')) {
   }
 }
 const json = flag('json');
-if (json && json !== true) writeFileSync(json, JSON.stringify({ url, preset, overall, verdict, scores, findings, vitals: results.vitals, dark: results.dark, motion: results.motion }, null, 2));
+if (json && json !== true) writeFileSync(json, JSON.stringify({ url, preset, landing: LANDING, overall, verdict, scores, findings, notMeasured, vitals: results.vitals, weight: results.weight, dark: results.dark, motion: results.motion, landingScreens: results.landing }, null, 2));
 if (flag('quiet')) console.log(JSON.stringify({ overall, verdict, highs, mediums, scores }));
 
 // Chrome, then Edge, then Playwright's own Chromium; one clear line if none is installed. (The same function is in every

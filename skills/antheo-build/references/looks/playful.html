@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pick your habits · Tend</title>
+<!-- The Playful look (references/looks.md): a product meant to be enjoyed. Fewer, bigger things; a rounded face
+     (Nunito); a chosen option is the accent fill with a tick, never colour alone; one primary action at the end. Every
+     rule of the block holds: four text sizes (13, 15, 17, 22), two weights, three corners (6, 12, 18). The play a
+     component has comes from antheo-creative, never from stickers, tilt or a texture on the chrome. -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400..700&display=swap">
+<link rel="stylesheet" href="../quiet.css">
+<link rel="stylesheet" href="playful.css">
+<style>
+  main { inline-size: min(36rem, 100% - 2 * var(--gutter)); margin: var(--s-12) auto; display: grid; gap: var(--gap-group); }
+  .step { display: flex; align-items: center; justify-content: space-between; gap: var(--s-4); color: var(--text-2); }
+  .track { flex: 1; max-inline-size: 10rem; block-size: 8px; border-radius: var(--r-full); background: var(--well); box-shadow: var(--well-edge); overflow: hidden; }
+  .track span { display: block; inline-size: 66%; block-size: 100%; background: var(--text); border-radius: var(--r-full); }
+  header { display: grid; gap: var(--s-2); }
+  header p { color: var(--text-2); }
+  .choices { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s-3); margin: 0; padding: 0; list-style: none; }
+  .choice {
+    inline-size: 100%; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: var(--s-3); text-align: start;
+    padding: var(--s-4); border: 1px solid transparent; border-radius: var(--r-card); background: var(--surface); box-shadow: var(--sh-card); cursor: pointer;
+    transition: scale var(--dur-instant) var(--ease-out), background-color var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+  }
+  @media (hover: hover) and (pointer: fine) { .choice:hover { box-shadow: var(--sh-lift); } }
+  .choice:active { scale: var(--scale-press); }
+  .choice svg { inline-size: 24px; block-size: 24px; color: var(--text-3); }
+  .choice .name { font-weight: var(--w-strong); }
+  .choice .when { display: block; color: var(--text-2); font-size: var(--t-meta); line-height: var(--l-meta); }
+  .tick { inline-size: 24px; block-size: 24px; border-radius: var(--r-full); display: grid; place-items: center; box-shadow: var(--well-edge); }
+  .tick svg { inline-size: 14px; block-size: 14px; opacity: 0; transition: opacity var(--dur-fast) var(--ease-out); }
+  .choice[aria-pressed="true"] { background: var(--accent); color: var(--on-accent); box-shadow: none; }
+  .choice[aria-pressed="true"] svg, .choice[aria-pressed="true"] .when { color: var(--on-accent); }
+  .choice[aria-pressed="true"] .tick { background: var(--on-accent); box-shadow: none; }
+  .choice[aria-pressed="true"] .tick svg { opacity: 1; color: var(--accent); }
+  @media (forced-colors: active) { .choice[aria-pressed="true"] { background: Highlight; color: HighlightText; } }
+  .foot { display: flex; align-items: center; justify-content: space-between; gap: var(--s-4); flex-wrap: wrap; }
+  .foot .btn-primary { block-size: var(--h-cta); padding-inline: var(--s-6); }
+  .hit { display: inline-flex; align-items: center; min-block-size: var(--h-control); }
+  @media (max-width: 30rem) { .choices { grid-template-columns: 1fr; } main { margin-block: var(--s-6); } }
+</style>
+</head>
+<body>
+<main>
+  <p class="step"><span>Step 2 of 3</span><span class="track" aria-hidden="true"><span></span></span></p>
+  <header>
+    <h1 class="t-page">Pick two or three habits to start with</h1>
+    <p>Small ones stick. You can add more once these feel easy.</p>
+  </header>
+  <ul class="choices" aria-label="Habits">
+    <li><button class="choice" type="button" aria-pressed="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3c3 4 5 6.5 5 9.5a5 5 0 0 1-10 0C7 9.5 9 7 12 3Z" fill="none" stroke="currentColor" stroke-width="1.5"/></svg><span><span class="name">Drink water</span><span class="when">6 glasses a day</span></span><span class="tick"><svg viewBox="0 0 14 14"><path d="M3 7.5 6 10l5-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button></li>
+    <li><button class="choice" type="button" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 18c3-1 5-3 6-6m0 0c1 3 3 5 6 6M10 12V5m0 0 3 3m-3-3L7 8" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span><span class="name">Stretch</span><span class="when">5 minutes after waking</span></span><span class="tick"><svg viewBox="0 0 14 14"><path d="M3 7.5 6 10l5-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button></li>
+    <li><button class="choice" type="button" aria-pressed="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h10v14H5zM15 8h2a2 2 0 0 1 2 2v1a2 2 0 0 1-2 2h-2" fill="none" stroke="currentColor" stroke-width="1.5"/></svg><span><span class="name">Read</span><span class="when">10 pages before bed</span></span><span class="tick"><svg viewBox="0 0 14 14"><path d="M3 7.5 6 10l5-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button></li>
+    <li><button class="choice" type="button" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M12 8v4l3 2" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span><span class="name">Phone down</span><span class="when">From 21:00</span></span><span class="tick"><svg viewBox="0 0 14 14"><path d="M3 7.5 6 10l5-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button></li>
+  </ul>
+  <div class="foot">
+    <a class="hit" href="#back">Back</a>
+    <button class="btn btn-primary" type="button" id="next">Continue with 2 habits</button>
+  </div>
+  <p class="muted" id="status" role="status"></p>
+</main>
+<script>
+  const choices = [...document.querySelectorAll('.choice')], next = document.getElementById('next'), status = document.getElementById('status');
+  const count = () => choices.filter((c) => c.getAttribute('aria-pressed') === 'true').length;
+  // whole sentences per count, so a translation can word each one
+  const label = () => { const n = count(); next.textContent = n === 0 ? 'Continue' : n === 1 ? 'Continue with 1 habit' : `Continue with ${n} habits`; };
+  choices.forEach((c) => c.addEventListener('click', () => { c.setAttribute('aria-pressed', String(c.getAttribute('aria-pressed') !== 'true')); status.textContent = ''; label(); }));
+  next.addEventListener('click', () => {
+    status.textContent = count() ? 'Next you would choose a time of day for each. (This is an example page.)' : 'Pick at least one habit to go on.';
+  });
+  document.querySelector('a[href="#back"]').addEventListener('click', (e) => { e.preventDefault(); status.textContent = 'This would go back to step 1. (This is an example page.)'; });
+</script>
+</body>
+</html>

@@ -1,6 +1,6 @@
 ---
 name: antheo-direction
-description: Gives a landing, campaign or brand page its own identity, only when the person asks for an expressive page ("landing page", "make it distinctive", "bold", "playful") or praises a reference. It also holds the list of tells that make UI look generated or over-designed. Not for ordinary app screens, settings, forms or sections, which stay clean (antheo-build); a component built from an expressive reference, or one the person asks to be bold or playful, may take a direction (its play is antheo-creative's). Use when something looks AI-made or over-decorated, or before designing a brand page.
+description: Plans any landing, company or product page (its kind, the material the brief really has, the sections and one of five hero compositions, each a finished page), and gives a landing, campaign or brand page its own identity, only when the person asks for an expressive page ("make it distinctive", "bold", "playful", a campaign or a launch) or praises a reference; a landing page alone is planned here and stays Clean. It also holds the list of tells that make UI look generated or over-designed. Not for ordinary app screens, settings, forms or sections, which stay clean (antheo-build); a component built from an expressive reference, or one the person asks to be bold or playful, may take a direction (its play is antheo-creative's). Use when something looks AI-made or over-decorated, or before designing a brand page.
 ---
 
 # Antheo Direction
@@ -20,9 +20,20 @@ colours.
 | | For | Identity comes from |
 |---|---|---|
 | **Clean** (the default) | components, app screens, dashboards, settings, forms, dialogs, pricing and other ordinary sections | real content, exact spacing, good words |
-| **Brand** (only when asked) | a landing or campaign page, a launch, one illustration | one typeface, one colour field, one image, on the same clean structure |
+| **Brand** (only when asked) | a campaign or launch page, a landing page the person asked to be expressive, one illustration | one typeface, one colour field, one image, on the same clean structure |
 
 Unsure which: Clean, and offer Brand as a variant.
+
+## Any landing page: plan it first
+
+Clean or Brand, a landing, company or product page is planned before it is styled, with `references/landing.md`:
+name the **kind** (software, product, service, place, event), list the **material** the brief really has, choose
+four to seven **sections** in the usual order for that kind, and choose one of five **hero compositions** (Split,
+Stage, Object, Visit, Statement), each a finished page in `references/pages/`. Every choice is made from the brief and
+said in one line; nothing is dealt at random. With no real picture, the hero is a Statement, never a text block beside
+an empty half. The h1, one hard fact and the main action fit the first screen at 390px and 1280px. **No photograph
+unless the page needs one** (`references/photos.md`): the client's own first; with none, a stand-in from
+`scripts/stand-ins.mjs` (open licences, no key) for a detail only, credited, never the main picture; else nothing.
 
 A Brand page still loads fast, because its headline and its image are the first thing anyone waits for: one display
 font file, subset and preloaded; the hero image sized, in a modern format, with its dimensions set and
@@ -100,7 +111,7 @@ ground has a reason (the closing section, a quote). Plan the sections with `refe
 
 ## Before you finish, one line each
 
-1. Clean or Brand, and who asked for Brand.
+1. Clean or Brand, and who asked for Brand. On a landing page, the four plan lines (kind, material, sections, hero).
 2. For a Brand page: the three nouns, the direction, the one idea and the devices that carry it.
 3. What you removed: every decoration that had no job.
 
@@ -109,6 +120,7 @@ ground has a reason (the closing section, a quote). Plan the sections with `refe
 - [ ] Clean unless the person asked for Brand; in Clean, no ornament from the subject
 - [ ] Every tell from `references/slop.md` answered: removed, or kept on purpose with the reason said
 - [ ] A Brand page keeps antheo-build's "always" list: one idea, a readable text face, no decoration without a job
+- [ ] A landing page: planned from the brief (kind, material, sections, hero), and the page check run with `--landing`
 - [ ] Looked at on a phone and at 1280px before calling it done
 
 ## Files
@@ -116,6 +128,13 @@ ground has a reason (the closing section, a quote). Plan the sections with `refe
 - `references/examples.md`: what goes wrong and the fix, from the skills page and from real builds; when the default is wrong
 - `references/slop.md`: the tells of generated and over-designed UI, each with what to do instead
 - `references/directions.md`: the directions for Brand pages, and the kinds of image made from the subject
+- `references/photos.md`: when a page needs a photograph, where it comes from, stand-ins and their credits
+- `scripts/stand-ins.mjs`: finds and fetches openly licensed stand-in photographs from Openverse and Wikimedia
+  Commons (no key), records each licence, prints the credits line
+- `references/landing.md`: planning any landing page: the kind, the material, the sections and the five hero
+  compositions
+- `references/pages/hero-split.html`, `hero-stage.html`, `hero-object.html`, `hero-visit.html`,
+  `hero-statement.html`: one finished Clean landing page for each composition, on the style block
 - `references/scenes.md`: planning a Brand page's sections, the hero, and the familiar parts done well
 - `references/pages/poster.html`: one finished Brand page (the Poster direction, an event) that passes the page
   check with the preset off; open it to see the idea, the type size and the craft held together

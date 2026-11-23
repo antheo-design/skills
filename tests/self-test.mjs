@@ -16,7 +16,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 // the public repo keeps skills/ beside tests/; the source repo keeps them three levels up
@@ -189,9 +189,9 @@ if (fs.existsSync(corePath) && fs.existsSync(builder)) {
   const builderHere = [builder, path.resolve(here, '..', 'build-core.mjs')].find((f) => fs.existsSync(f));
   if (builderHere) {
     const { buildCore } = await import(new URL(`file:///${builderHere.replace(/\\/g, '/')}`).href);
-    test('the one-file core carries the policy: what always holds, the Quiet preset, matching the person', () => {
+    test('the one-file core carries the policy: what always holds, the looks (Quiet the default), matching the person, the rules whole', () => {
       const core = buildCore(SKILLS);
-      return ['What always holds', 'The Quiet preset', 'Match the person', '## 2. The usage rules'].filter((s) => !core.includes(s)).map((s) => `the core lacks "${s}"`);
+      return ['What always holds', '**The look**', '**Quiet** is the default', 'Match the person', '## 2. The usage rules', '21. **Arm the gate', 'Four kinds of rule'].filter((s) => !core.includes(s)).map((s) => `the core lacks "${s}"`);
     });
   }
 }
@@ -358,6 +358,130 @@ test('nothing checked is never a pass: a missing page, unread copy, an empty wai
   return out;
 });
 
+const lintWith = (target, ...flags) => {
+  const json = path.join(tmp, `lint-${Math.random().toString(36).slice(2)}.json`);
+  spawnSync(process.execPath, [lint, target, '--json', json, ...flags], { encoding: 'utf8' });
+  return JSON.parse(read(json));
+};
+
+test('copy-lint --marketing counts the devices of generated selling copy, past their budgets, and only with the flag', () => {
+  const dir = path.join(tmp, 'marketing');
+  fs.mkdirSync(dir, { recursive: true });
+  const bad = path.join(dir, 'bad.html');
+  fs.writeFileSync(bad, `<!doctype html><html lang="en"><title>Shifts</title><main>
+<h1>Work, rethought</h1>
+<ul><li><strong>10,000+</strong> teams</li><li><strong>99.9%</strong> uptime</li><li><strong>3×</strong> faster</li></ul>
+<h2>Twelve rooms. Three ways to stay.</h2><h2>Built for teams. Loved by managers.</h2><h2>One app. Every shift.</h2>
+<p>We plan rather than guess. We schedule instead of scramble. Freedom without the paperwork.</p>
+<p>It is not just a tool, it’s a habit. Value rather than noise. Calm instead of chaos.</p>
+<p>In this section, you’ll see why we are honest, genuinely thoughtful, truly passionate and dedicated.</p>
+<footer><p>© 2019 Shifts</p></footer></main></html>`);
+  const good = path.join(dir, 'good.html');
+  fs.writeFileSync(good, `<!doctype html><html lang="en"><title>Rota · shift planning for restaurant groups</title><main>
+<h1>Shift planning for restaurant groups</h1><p>Next week’s rota for every site. £4 per staff member a month.</p>
+<h2>Swaps your staff arrange themselves</h2><p>A cook offers a shift, a colleague takes it, and you approve it.</p>
+<table><tr><td>0.4%</td></tr><tr><td>0.9%</td></tr><tr><td>0.5%</td></tr></table>
+<p>Up to 120&nbsp;kg</p><footer><p>© ${new Date().getFullYear()} Rota Ltd</p></footer></main></html>`);
+  const out = [];
+  const rep = lintWith(bad, '--marketing');
+  const rules = new Set(rep.findings.map((f) => f.rule));
+  for (const want of ['two-fragment', 'contrast-frame', 'stat-strip', 'process-talk', 'virtue-word', 'stale-year', 'hero-heading']) if (!rules.has(want)) out.push(`not caught: ${want}`);
+  if (!rep.findings.some((f) => f.rule === 'contrast-frame' && f.severity === 'high')) out.push('six contrast frames (budget 2) should reach high');
+  const clean = lintWith(good, '--marketing').findings.filter((f) => f.severity !== 'low');
+  if (clean.length) out.push(`plain selling copy got ${clean.map((f) => f.rule).join(', ')} (a column of one unit is a table, not a strip)`);
+  if (lintWith(good, '--marketing').findings.some((f) => f.rule === 'nbsp')) out.push('a number joined to its unit with &nbsp; was still asked for a no-break space');
+  // the same words used literally are not devices: a long explaining sentence, a dedicated server, a committed change
+  const literal = path.join(dir, 'literal.html');
+  fs.writeFileSync(literal, '<!doctype html><html lang="en"><title>Logs</title><main><h1>Logging for small teams</h1><p>Logs are kept for 30 days instead of the usual 7, which means a slow regression found on a Friday can still be traced back to the deploy that caused it.</p><p>We run on a dedicated server in Frankfurt, and every change is committed to the audit log.</p></main></html>');
+  const noisy = lintWith(literal, '--marketing').findings.filter((f) => ['contrast-frame', 'virtue-word', 'dead-metaphor'].includes(f.rule));
+  if (noisy.length) out.push(`literal words were flagged: ${noisy.map((f) => f.rule).join(', ')}`);
+  const plain = new Set(lintWith(bad).findings.map((f) => f.rule));
+  for (const r of ['two-fragment', 'contrast-frame', 'stat-strip', 'virtue-word']) if (plain.has(r)) out.push(`${r} ran without --marketing`);
+  return out;
+});
+
+test('the gate holds the work open when the checks are not honest: a page that tests for the checker, an edited checker, too many waivers', () => {
+  const gate = path.join(SKILLS, 'antheo-review', 'scripts', 'gate.mjs');
+  const dir = path.join(tmp, 'honest');
+  fs.mkdirSync(path.join(dir, 'src'), { recursive: true });
+  fs.mkdirSync(path.join(dir, 'src', 'tests'), { recursive: true });
+  fs.writeFileSync(path.join(dir, 'src', 'App.tsx'), 'export const App = () => { if (navigator.webdriver) return null; return <p>Hello there</p>; };\n');
+  // a test drives the browser on purpose and is not read
+  fs.writeFileSync(path.join(dir, 'src', 'tests', 'e2e.tsx'), 'export const isBot = () => /HeadlessChrome/.test(navigator.userAgent);\n');
+  fs.mkdirSync(path.join(dir, '.antheo'), { recursive: true });
+  fs.writeFileSync(path.join(dir, '.antheo', 'gate.json'), JSON.stringify({ armed: true, targets: [], copy: [path.join(dir, 'src')], widths: '390,1280', max: 3, round: 0, tools: { 'copy-lint.mjs': 'not-the-real-one' } }));
+  fs.writeFileSync(path.join(dir, '.antheo', 'waivers.json'), JSON.stringify(Array.from({ length: 6 }, (_, i) => ({ rule: `horizontal scroll ${i}`, reason: 'the checker is wrong about this one' }))));
+  const r = spawnSync(process.execPath, [gate, 'check'], { cwd: dir, encoding: 'utf8', timeout: 120000 });
+  const out = [];
+  if (/GATE: PASS/.test(r.stdout)) out.push('it passed');
+  if (!/tests for the checker: it reads navigator\.webdriver/.test(r.stdout)) out.push('navigator.webdriver in the page was not caught');
+  if (/e2e\.tsx/.test(r.stdout)) out.push('a test file was read as page source');
+  if (!/a checking tool changed since the gate was armed: copy-lint\.mjs/.test(r.stdout)) out.push('an edited checker was not caught');
+  if (!/6 waivers/.test(r.stdout)) out.push('six waivers were not caught');
+  return out;
+});
+
+test('the three looks only redefine names the style block has, and block.mjs --look writes each with every pair passing', () => {
+  const out = [];
+  const looks = path.join(SKILLS, 'antheo-build', 'references', 'looks');
+  for (const look of ['studio', 'editorial', 'playful']) {
+    const css = read(path.join(looks, `${look}.css`));
+    const extra = [...css.matchAll(/(--[a-z][a-z0-9-]*)\s*:/g)].map((m) => m[1]).filter((n) => !block.has(n));
+    if (extra.length) out.push(`${look}.css defines names the block doesn't have: ${[...new Set(extra)].join(', ')}`);
+    if (!fs.existsSync(path.join(looks, `${look}.html`))) out.push(`no finished page for ${look}`);
+    const file = path.join(tmp, `block-${look}.css`);
+    const r = spawnSync(process.execPath, [path.join(SKILLS, 'antheo-tokens', 'scripts', 'block.mjs'), '--look', look, '--accent', '#c2412d', '--out', file], { encoding: 'utf8' });
+    if (r.status !== 0 || !/all \d+ pairs pass/.test(r.stdout)) out.push(`block.mjs --look ${look}: ${(r.stdout + r.stderr).trim().split('\n').pop()}`);
+    else if (!read(file).includes(`Antheo look: ${look[0].toUpperCase()}${look.slice(1)}`)) out.push(`block.mjs --look ${look} did not append the look`);
+  }
+  return out;
+});
+
+const standIns = await import(pathToFileURL(path.join(SKILLS, 'antheo-direction', 'scripts', 'stand-ins.mjs')).href);
+test('stand-ins.mjs keeps only licences for business use and editing, leaves out people and brands, and writes the credit', () => {
+  const out = [];
+  for (const ok of ['cc0', 'pdm', 'pd', 'Public domain', 'by', 'by-sa', 'cc-by-4.0', 'cc-by-sa-3.0', 'cc-by-sa-3.0-de']) if (!standIns.licenceOk(ok)) out.push(`${ok} was refused`);
+  for (const no of ['by-nc', 'by-nd', 'by-nc-sa', 'cc-by-nc-4.0', 'cc-by-nd-2.0', 'gfdl', 'fair use', '', 'all rights reserved']) if (standIns.licenceOk(no)) out.push(`"${no}" was accepted`);
+  if (standIns.licenceName('by-sa', '2.0') !== 'CC BY-SA 2.0' || standIns.licenceName('cc-by-4.0') !== 'CC BY 4.0' || standIns.licenceName('pdm') !== 'public domain') out.push('licence names are wrong');
+  if (!standIns.unsuitable('Barista pouring latte art') || !standIns.unsuitable('portrait of a woman') || !standIns.unsuitable('Starbucks cup logo')) out.push('a picture of people or a brand got through');
+  if (standIns.unsuitable('Sourdough crumb close up')) out.push('a plain detail was left out');
+  const line = standIns.creditsLine([{ title: 'Crumb', landing: 'https://commons.wikimedia.org/wiki/File:Crumb.jpg', creator: 'A. Baker', license: 'CC BY 2.5', licenseUrl: 'https://creativecommons.org/licenses/by/2.5' }]);
+  if (!/Photos: <a href="https:\/\/commons[^"]+">Crumb<\/a> by A\. Baker, <a href="https:\/\/creativecommons[^"]+">CC BY 2\.5<\/a>\./.test(line)) out.push(`credits line: ${line}`);
+  return out;
+});
+
+test('scan-motion --top lists only the fixes that matter most, worst first', () => {
+  const scan = path.join(SKILLS, 'antheo-motion-audit', 'scripts', 'scan-motion.mjs');
+  const dir = path.join(tmp, 'motion-top');
+  fs.mkdirSync(dir, { recursive: true });
+  fs.writeFileSync(path.join(dir, 'a.css'), '.a { transition: color 150ms ease-out; }\n.b { transition: width 600ms ease; }\n.c { transition: all 200ms ease; }\n@media (prefers-reduced-motion: reduce) { .b { transition: opacity 150ms; } }\n');
+  const r = spawnSync(process.execPath, [scan, dir, '--top', '1'], { encoding: 'utf8' });
+  const listed = (r.stdout.match(/a\.css:\d+/g) ?? []).filter((x) => !/a\.css:4\b/.test(x));
+  const out = [];
+  if (listed.length !== 1) out.push(`--top 1 listed ${listed.length} lines: ${listed.join(', ')}`);
+  if (!/a\.css:2\b/.test(r.stdout)) out.push('the width transition at 600ms (a high finding) was not the one listed first');
+  return out;
+});
+
+test('a landing gate holds the work open on marketing devices past their budget, and catches navigator["webdriver"]', () => {
+  const gate = path.join(SKILLS, 'antheo-review', 'scripts', 'gate.mjs');
+  const dir = path.join(tmp, 'landing-gate');
+  fs.mkdirSync(path.join(dir, 'src'), { recursive: true });
+  fs.writeFileSync(path.join(dir, 'src', 'Home.html'), '<!doctype html><html lang="en"><title>Shifts</title><main><h1>Shift planning for restaurant groups</h1><ul><li><strong>10,000+</strong> teams</li><li><strong>99.9%</strong> uptime</li><li><strong>3×</strong> faster</li></ul><h2>One app. Every shift.</h2><h2>Built for teams. Loved by managers.</h2></main></html>');
+  fs.writeFileSync(path.join(dir, 'src', 'bot.js'), "export const bot = () => navigator['webdriver'] === true;\n");
+  fs.mkdirSync(path.join(dir, '.antheo'), { recursive: true });
+  const state = path.join(dir, '.antheo', 'gate.json');
+  const run = (landing) => { fs.writeFileSync(state, JSON.stringify({ armed: true, targets: [], copy: [path.join(dir, 'src')], widths: '390,1280', max: 3, round: 0, landing })); return spawnSync(process.execPath, [gate, 'check'], { cwd: dir, encoding: 'utf8', timeout: 120000 }).stdout; };
+  const out = [];
+  const landing = run(true);
+  if (/GATE: PASS/.test(landing)) out.push('the landing gate passed');
+  if (!/MEDIUM stat-strip/.test(landing)) out.push('a strip of figures did not hold the landing gate open');
+  if (!/MEDIUM two-fragment/.test(landing)) out.push('two-fragment headings past their budget did not hold the landing gate open');
+  if (!/navigator\.webdriver/.test(landing)) out.push("navigator['webdriver'] was not caught");
+  if (/stat-strip|two-fragment/.test(run(false))) out.push('a gate armed without --landing blocked on marketing devices');
+  return out;
+});
+
 test('the gate keeps the probe from sending writes unless it is armed with --allow-writes', () => {
   const gate = path.join(SKILLS, 'antheo-review', 'scripts', 'gate.mjs');
   const dir = path.join(tmp, 'gate-writes');
@@ -511,7 +635,7 @@ test('harness.mjs writes every state at every width and pushes awkward content t
   fs.writeFileSync(path.join(dir, 'card.harness.json'), JSON.stringify({
     title: 'Invoice card', css: ['quiet.css'], widths: [320, 480],
     template: '<article class="card"><h2 class="t-title">{{name}}</h2><p>{{email}}</p></article>',
-    states: { default: { name: 'Priya Raman', email: 'priya@fieldnotes.co' }, loading: { html: '<article class="card" aria-busy="true"><p>Loading the invoice</p></article>' }, long: { name: 'Alexandria Montgomery-Featherstonehaugh III' } },
+    states: { default: { name: 'Joanna Lindqvist', email: 'joanna@example.com' }, loading: { html: '<article class="card" aria-busy="true"><p>Loading the invoice</p></article>' }, long: { name: 'Alexandria Montgomery-Featherstonehaugh III' } },
   }));
   const r = spawnSync(process.execPath, [harness, 'card.harness.json'], { cwd: dir, encoding: 'utf8' });
   const file = path.join(dir, 'card.harness.html');
@@ -521,7 +645,7 @@ test('harness.mjs writes every state at every width and pushes awkward content t
   const count = (state) => (html.match(new RegExp(`data-state="${state}"`, 'g')) ?? []).length;
   for (const state of ['default', 'loading', 'long']) if (count(state) !== 2) out.push(`"${state}" should be drawn at both widths, found ${count(state)} cell(s)`);
   if (count('fixtures') !== 24) out.push(`two slots should each get the 12 awkward values, found ${count('fixtures')} cell(s)`);
-  if (!html.includes('Alexandria Montgomery-Featherstonehaugh III</h2><p>priya@fieldnotes.co')) out.push('a slot the "long" state left out was not taken from "default"');
+  if (!html.includes('Alexandria Montgomery-Featherstonehaugh III</h2><p>joanna@example.com')) out.push('a slot the "long" state left out was not taken from "default"');
   if (!html.includes('&lt;b&gt;Ana&lt;/b&gt; &amp; Co') || html.includes('<b>Ana</b>')) out.push('text that looks like markup was not escaped');
   if (!html.includes('aria-busy="true"><p>Loading the invoice')) out.push('a state\'s own html was not written as it is');
   if (!html.includes('<link rel="stylesheet" href="quiet.css">') || !html.includes("get('state')")) out.push('the page lacks its stylesheet link or the ?state= switch');
@@ -685,6 +809,120 @@ if (BROWSER && hasPlaywright) {
       }
     }
     return out;
+  });
+
+  test('--landing catches a hero pushed below the fold, no hard fact, details that could be invented, missing share tags, an empty section and a hero fixed to the window', () => {
+    const file = path.join(tmp, 'landing-bad.html');
+    fs.writeFileSync(file, `${PAGE_HEAD('Kestrel')}<style>body{margin:0;font:16px/1.5 system-ui;color:#222;background:#fff}.hero{height:100vh;overflow:hidden;padding:0 16px}.tall{height:900px;background:#f3f3f3}a.go{display:inline-block;padding:12px 20px;background:#1d4ed8;color:#fff;border-radius:6px}section{padding:24px 16px}</style></head><body><main>
+<section class="hero"><div class="tall"></div><h1>Work, rethought</h1><p>Planning that feels like magic.</p><a class="go" href="#visit">Get started</a></section>
+<section aria-label="empty"></section>
+<section id="visit"><h2>Visit us</h2><p>14 Harbour Road, Leith, EH6 6QN. Call 0131 496 0123.</p><p data-source="brief">Write to orders@rota.co.uk</p></section>
+</main></body></html>`);
+    const json = file.replace(/\.html$/, '.json');
+    spawnSync(process.execPath, [checkPage, file, '--widths', '390,1280', '--landing', '--preset', 'none', '--json', json], { encoding: 'utf8', timeout: 300000 });
+    const r = JSON.parse(read(json));
+    const rules = r.findings.map((f) => f.rule);
+    const out = ['no h1 on the first screen', 'the main action is not on the first screen', 'no hard fact on the first screen', 'contact details to confirm', 'share tags missing', 'an empty section', 'the hero is fixed to the window height']
+      .filter((want) => !rules.some((x) => x.startsWith(want))).map((want) => `not caught: ${want}`);
+    const contacts = r.findings.find((f) => f.rule.startsWith('contact details'))?.items ?? [];
+    for (const want of ['0131 496 0123', '14 Harbour Road', 'EH6 6QN']) if (!contacts.some((c) => c.includes(want))) out.push(`contact not listed: ${want}`);
+    if (contacts.some((c) => c.includes('orders@rota'))) out.push('a detail marked data-source="brief" was still listed');
+    return out;
+  });
+
+  // the five hero compositions are golden landing pages: each passes the landing check, the marketing lint and the probe
+  const heroes = fs.readdirSync(path.join(SKILLS, 'antheo-direction', 'references', 'pages')).filter((f) => /^hero-.*\.html$/.test(f));
+  test(`the ${heroes.length} hero pages pass the landing check, the marketing lint and the access probe`, () => {
+    const out = heroes.length === 5 ? [] : [`expected 5 hero pages, found ${heroes.length}`];
+    for (const f of heroes) {
+      const src = path.join(SKILLS, 'antheo-direction', 'references', 'pages', f);
+      const file = path.join(tmp, `landing-${f}`);
+      fs.writeFileSync(file, read(src).replace(/<link rel="stylesheet" href="[^"]*quiet\.css">/, () => `<style>${quiet}</style>`));
+      const json = file.replace(/\.html$/, '.json');
+      spawnSync(process.execPath, [checkPage, file, '--widths', '390,1280', '--landing', '--json', json], { encoding: 'utf8', timeout: 300000 });
+      const r = JSON.parse(read(json));
+      for (const x of r.findings.filter((x) => ['blocker', 'high'].includes(x.severity))) out.push(`${f}: page check ${x.severity}: ${x.rule}`);
+      for (const x of lintWith(src, '--marketing').findings.filter((x) => x.severity !== 'low')) out.push(`${f}: copy ${x.severity}: ${x.rule} "${x.text}"`);
+      const pj = file.replace(/\.html$/, '.probe.json');
+      spawnSync(process.execPath, [probe, file, '--json', pj], { encoding: 'utf8', timeout: 240000 });
+      const p = fs.existsSync(pj) ? JSON.parse(read(pj)) : { verdict: 'DID NOT RUN' };
+      if (p.verdict !== 'CLEAN') out.push(`${f}: access probe ${p.verdict}`);
+    }
+    return out;
+  });
+
+  test('each look page passes the page check in its own preset, the copy lint and the access probe; a big corner is a finding in Quiet and fine in Playful', () => {
+    const out = [];
+    const dir = path.join(SKILLS, 'antheo-build', 'references', 'looks');
+    for (const look of ['studio', 'editorial', 'playful']) {
+      const file = path.join(tmp, `look-${look}.html`);
+      // the page links the block and its look by relative paths; inline both so the check reads them
+      fs.writeFileSync(file, read(path.join(dir, `${look}.html`))
+        .replace(/<link rel="stylesheet" href="\.\.\/quiet\.css">/, () => `<style>${quiet}</style>`)
+        .replace(new RegExp(`<link rel="stylesheet" href="${look}\\.css">`), () => `<style>${read(path.join(dir, `${look}.css`))}</style>`));
+      const json = file.replace(/\.html$/, '.json');
+      spawnSync(process.execPath, [checkPage, file, '--widths', '390,1280', '--preset', look, '--json', json], { encoding: 'utf8', timeout: 300000 });
+      const r = JSON.parse(read(json));
+      for (const x of r.findings.filter((x) => ['blocker', 'high'].includes(x.severity))) out.push(`${look}: page check ${x.severity}: ${x.rule}`);
+      for (const x of lintWith(path.join(dir, `${look}.html`)).findings.filter((x) => x.severity !== 'low')) out.push(`${look}: copy ${x.severity}: ${x.rule}`);
+      const pj = file.replace(/\.html$/, '.probe.json');
+      spawnSync(process.execPath, [probe, file, '--json', pj], { encoding: 'utf8', timeout: 240000 });
+      const p = fs.existsSync(pj) ? JSON.parse(read(pj)) : { verdict: 'DID NOT RUN' };
+      if (p.verdict !== 'CLEAN') out.push(`${look}: access probe ${p.verdict}`);
+    }
+    const round = path.join(tmp, 'round-corners.html');
+    fs.writeFileSync(round, `${PAGE_HEAD('Round')}<style>${quiet}</style><style>.card{border-radius:18px}</style></head><body><main style="max-width:400px;margin:40px auto"><h1 class="t-page">Habits</h1><div class="card"><p>Drink water</p></div></main></body></html>`);
+    const corner = (preset) => { const j = round.replace(/\.html$/, `.${preset}.json`); spawnSync(process.execPath, [checkPage, round, '--widths', '1280', '--preset', preset, '--json', j], { encoding: 'utf8', timeout: 240000 }); return JSON.parse(read(j)).findings.some((f) => /^corners up to 18px/.test(f.rule)); };
+    if (!corner('quiet')) out.push('an 18px card corner was not a finding in Quiet');
+    if (corner('playful')) out.push('an 18px card corner was a finding in Playful, whose cards are 18px');
+    return out;
+  });
+
+  test('stand-in photographs: no credit, or a stand-in as the main picture, is high; a credited detail is only listed to replace', () => {
+    // a 1x1 grey PNG, drawn at the size each case needs
+    fs.writeFileSync(path.join(tmp, 'grey.png'), Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVR4nGO4AwAAyQDHIz7eqwAAAABJRU5ErkJggg==', 'base64'));
+    const run = (name, body) => {
+      const file = path.join(tmp, `stand-in-${name}.html`);
+      fs.writeFileSync(file, `${PAGE_HEAD(name)}<style>body{margin:0;font:16px/1.5 system-ui;color:#222;background:#fff}main{max-width:900px;margin:0 auto;padding:16px}</style></head><body><main><h1>Bakery on Elm Row</h1>${body}</main></body></html>`);
+      return page(file).findings;
+    };
+    const out = [];
+    const detail = '<div style="height:1200px"></div><img src="grey.png" width="300" height="200" style="width:300px;height:200px" alt="The crumb of a sourdough loaf" loading="lazy" data-source="stand-in" data-credit="A. Baker, CC BY 2.5" data-license="CC BY 2.5">';
+    const credited = run('credited', `${detail}<footer><p>Photos: Crumb by A. Baker, CC BY 2.5.</p></footer>`);
+    if (credited.some((f) => f.severity === 'high' && /stand-in/.test(f.rule))) out.push(`a credited detail stand-in got a high finding: ${credited.filter((f) => /stand-in/.test(f.rule)).map((f) => f.rule).join('; ')}`);
+    if (!credited.some((f) => f.rule === 'stand-in photographs to replace before launch')) out.push('a credited stand-in was not listed to replace');
+    if (!run('uncredited', detail).some((f) => f.rule === 'a stand-in photograph with no credit on the page')) out.push('a CC BY stand-in with no credit on the page was not caught');
+    const hero = run('hero', '<img src="grey.png" width="900" height="500" style="width:100%;height:500px" alt="Loaves on a shelf" data-source="stand-in" data-credit="A. Baker, CC BY 2.5" data-license="CC BY 2.5"><p>Photos: A. Baker, CC BY 2.5</p>');
+    if (!hero.some((f) => f.rule === 'a stand-in photograph as the main picture')) out.push('a stand-in as the main picture was not caught');
+    return out;
+  });
+
+  test('a switch named by a <label for> is named; one with no label is still caught', () => {
+    const file = path.join(tmp, 'label-for.html');
+    fs.writeFileSync(file, `${PAGE_HEAD('Label for')}<style>${quiet}</style></head><body><main style="max-width:400px;margin:40px auto"><h1 class="t-page">Notifications</h1><label for="a">Email when someone mentions me</label> <button class="switch" id="a" type="button" role="switch" aria-checked="true"></button> <button class="switch" id="b" type="button" role="switch" aria-checked="false"></button></main></body></html>`);
+    const items = page(file).findings.find((f) => f.rule === 'controls with no accessible name')?.items ?? [];
+    const out = [];
+    if (items.some((i) => i.includes('#a'))) out.push('a switch named by <label for> was reported unnamed');
+    if (!items.some((i) => i.includes('#b'))) out.push('a switch with no name at all was not caught');
+    return out;
+  });
+
+  const { deflateSync } = await import('node:zlib');
+  const { randomBytes } = await import('node:crypto');
+  test('the page weight is measured against the budget: a heavy image, served too large, not lazy, with no room reserved', () => {
+    // a 1600x1200 PNG of random pixels (about 5.8 MB, it cannot compress) shown 300px wide, far below the first screen
+    const w = 1600, h = 1200, row = w * 3 + 1, raw = randomBytes(row * h);
+    for (let y = 0; y < h; y++) raw[y * row] = 0; // filter byte: none
+    const table = Array.from({ length: 256 }, (_, n) => { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1; return c >>> 0; });
+    const crc = (b) => { let c = 0xffffffff; for (const x of b) c = table[(c ^ x) & 255] ^ (c >>> 8); return (c ^ 0xffffffff) >>> 0; };
+    const chunk = (type, d) => { const len = Buffer.alloc(4); len.writeUInt32BE(d.length); const td = Buffer.concat([Buffer.from(type), d]); const c = Buffer.alloc(4); c.writeUInt32BE(crc(td)); return Buffer.concat([len, td, c]); };
+    const ihdr = Buffer.alloc(13); ihdr.writeUInt32BE(w, 0); ihdr.writeUInt32BE(h, 4); ihdr[8] = 8; ihdr[9] = 2;
+    fs.writeFileSync(path.join(tmp, 'heavy.png'), Buffer.concat([Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]), chunk('IHDR', ihdr), chunk('IDAT', deflateSync(raw, { level: 1 })), chunk('IEND', Buffer.alloc(0))]));
+    const file = path.join(tmp, 'heavy.html');
+    fs.writeFileSync(file, `${PAGE_HEAD('Heavy')}<style>body{margin:0;font:16px/1.5 system-ui;color:#222;background:#fff}main{padding:16px}</style></head><body><main><h1>A heavy page</h1><div style="height:2400px"></div><img src="heavy.png" alt="A grey square" style="width:300px"></main></body></html>`);
+    const rules = page(file).findings.map((f) => f.rule);
+    return ['the page is heavy on a first visit', 'an image over 300 KB', 'images far larger than they are shown', 'images below the first screen that are not lazy', 'images with no room reserved']
+      .filter((want) => !rules.some((x) => x.startsWith(want))).map((want) => `not caught: ${want}`);
   });
 
   test('--preset none stops judging the Quiet look but still catches what is wrong in any style', () => {

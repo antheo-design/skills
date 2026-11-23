@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "about": "One brief per Antheo skill. Run each brief twice with any coding agent (no design skill, then reading only the named skill), write the results into two folders, and grade both with run.mjs. Checks are measured on the rendered page or the written answer; nothing is judged by eye. See README.md.",
+  "about": "One brief per Antheo skill, and for six of them a beginner and a senior wording with the same checks (persona, of). Run each brief twice with any coding agent (no design skill, then reading only the named skill), write the results into two folders, and grade both with run.mjs. Checks are measured on the rendered page or the written answer; nothing is judged by eye. See README.md.",
   "rules": [
     "Visual briefs: one self-contained index.html (inline CSS and JS, no frameworks, no external images; one Google Font is allowed). Real-sounding content. It must look right at a 900px wide window, in light mode, unless the brief says otherwise.",
     "Answer briefs: write the reply to answer.md, as you would reply in a chat, and nothing else. Read the files in fixtures/<id>/ first.",
@@ -21,8 +21,54 @@
       ]
     },
     {
+      "id": "build-beginner", "of": "build", "persona": "beginner", "skill": "antheo-build", "type": "visual",
+      "prompt": "can you make a settings page for my app Tally where people turn notifications on or off? like an email when someone mentions them, a push when they get a task, and a weekly digest. make it look good",
+      "expect": [
+        { "check": "page-clean", "why": "no high findings in the page check at 390 and 1280, light and dark" },
+        { "check": "text-sizes", "max": 5, "why": "few sizes: four on an app screen, five at most" },
+        { "check": "weights", "max": 3, "why": "two weights (a third allowed for the browser's bold)" },
+        { "check": "switches-named", "why": "each on/off control is a switch or checkbox with a name" },
+        { "check": "no-text", "pattern": "^(On|Off)$", "why": "no On/Off words beside the switches" },
+        { "check": "primary-buttons", "max": 1, "why": "one primary action" }
+      ]
+    },
+    {
+      "id": "build-senior", "of": "build", "persona": "senior", "skill": "antheo-build", "type": "visual",
+      "prompt": "Notifications section of Tally's settings (project management). Three preferences, each a switch with an accessible name: email on a mention, push on task assignment, the weekly digest. One save action that stays enabled and confirms in place. Fits 1280×800 and 390px, light and dark, complete by keyboard. No chrome beyond the section.",
+      "expect": [
+        { "check": "page-clean", "why": "no high findings in the page check at 390 and 1280, light and dark" },
+        { "check": "text-sizes", "max": 5, "why": "few sizes: four on an app screen, five at most" },
+        { "check": "weights", "max": 3, "why": "two weights (a third allowed for the browser's bold)" },
+        { "check": "switches-named", "why": "each on/off control is a switch or checkbox with a name" },
+        { "check": "no-text", "pattern": "^(On|Off)$", "why": "no On/Off words beside the switches" },
+        { "check": "primary-buttons", "max": 1, "why": "one primary action" }
+      ]
+    },
+    {
       "id": "direction", "skill": "antheo-direction", "type": "visual",
       "prompt": "Build the hero section of the landing page for \"Ledger\", an invoicing app for small studios.",
+      "expect": [
+        { "check": "page-clean" },
+        { "check": "no-gradient-text", "why": "no gradient-filled words" },
+        { "check": "headline-words", "max": 10, "why": "a headline of nine words or so" },
+        { "check": "no-pill-above-h1", "why": "no badge or pill above the headline" },
+        { "check": "copy-clean", "why": "no hype, forced contrast or stock names (copy-lint)" }
+      ]
+    },
+    {
+      "id": "direction-beginner", "of": "direction", "persona": "beginner", "skill": "antheo-direction", "type": "visual",
+      "prompt": "i need the top part of a landing page for Ledger, an app that does invoices for small design studios. make it look pro",
+      "expect": [
+        { "check": "page-clean" },
+        { "check": "no-gradient-text", "why": "no gradient-filled words" },
+        { "check": "headline-words", "max": 10, "why": "a headline of nine words or so" },
+        { "check": "no-pill-above-h1", "why": "no badge or pill above the headline" },
+        { "check": "copy-clean", "why": "no hype, forced contrast or stock names (copy-lint)" }
+      ]
+    },
+    {
+      "id": "direction-senior", "of": "direction", "persona": "senior", "skill": "antheo-direction", "type": "visual",
+      "prompt": "Hero for Ledger, invoicing for studios of 2 to 15 people. The h1 names the category in nine words at most, one hard fact on the first screen, one primary action, no gradient text, no pill or eyebrow above the h1, no unsourced proof figures. First screen holds at 390 and 1280px.",
       "expect": [
         { "check": "page-clean" },
         { "check": "no-gradient-text", "why": "no gradient-filled words" },
@@ -89,6 +135,24 @@
       ]
     },
     {
+      "id": "components-beginner", "of": "components", "persona": "beginner", "skill": "antheo-components", "type": "visual",
+      "prompt": "make me a send invite button and show all its different states",
+      "expect": [
+        { "check": "page-clean" },
+        { "check": "state-labels", "min": 7, "why": "rest, hover, focus, pressed, disabled, loading, and done or error are all shown" },
+        { "check": "states-distinct", "why": "no two states look the same" }
+      ]
+    },
+    {
+      "id": "components-senior", "of": "components", "persona": "senior", "skill": "antheo-components", "type": "visual",
+      "prompt": "States sheet for the \"Send invite\" button: default, hover, focus-visible, pressed, loading (focusable, label kept), sent (past tense), error with a way to retry, and disabled with its reason; each labelled, side by side and visibly distinct, all sizes from one token set.",
+      "expect": [
+        { "check": "page-clean" },
+        { "check": "state-labels", "min": 7, "why": "rest, hover, focus, pressed, disabled, loading, and done or error are all shown" },
+        { "check": "states-distinct", "why": "no two states look the same" }
+      ]
+    },
+    {
       "id": "data", "skill": "antheo-data", "type": "visual",
       "prompt": "Build a table of four clients (Fieldnotes Co. $4,800 +12.4%, Halden & Sons $1,250 −3.1%, Orbit Labs $23,900.50 +8%, Mori Studio $640 0%) with their amount and change since last month, sorted by amount.",
       "expect": [
@@ -100,8 +164,50 @@
       ]
     },
     {
+      "id": "data-beginner", "of": "data", "persona": "beginner", "skill": "antheo-data", "type": "visual",
+      "prompt": "show my four clients in a table with how much each paid and how it changed since last month, biggest first: Fieldnotes Co. $4,800 +12.4%, Halden & Sons $1,250 −3.1%, Orbit Labs $23,900.50 +8%, Mori Studio $640 0%",
+      "expect": [
+        { "check": "page-clean" },
+        { "check": "sorted-desc", "values": ["Orbit Labs", "Fieldnotes Co.", "Halden & Sons", "Mori Studio"], "why": "sorted as numbers, largest first" },
+        { "check": "numbers-end-aligned", "why": "numbers line up on the right" },
+        { "check": "tabular-numbers" },
+        { "check": "has-text", "pattern": "[+−-]\\s?\\d", "why": "change has a sign, not only a colour" }
+      ]
+    },
+    {
+      "id": "data-senior", "of": "data", "persona": "senior", "skill": "antheo-data", "type": "visual",
+      "prompt": "Table of four clients (Fieldnotes Co. $4,800 +12.4%, Halden & Sons $1,250 −3.1%, Orbit Labs $23,900.50 +8%, Mori Studio $640 0%): amount and change since last month, sorted by amount descending; figures end-aligned in tabular numerals; change shown with its sign, never by colour alone; a caption and header cells with scope.",
+      "expect": [
+        { "check": "page-clean" },
+        { "check": "sorted-desc", "values": ["Orbit Labs", "Fieldnotes Co.", "Halden & Sons", "Mori Studio"], "why": "sorted as numbers, largest first" },
+        { "check": "numbers-end-aligned", "why": "numbers line up on the right" },
+        { "check": "tabular-numbers" },
+        { "check": "has-text", "pattern": "[+−-]\\s?\\d", "why": "change has a sign, not only a colour" }
+      ]
+    },
+    {
       "id": "writing", "skill": "antheo-writing", "type": "visual",
       "prompt": "Build three messages for an invoicing app as cards: confirming that someone wants to delete the plan \"Q4 plan\" (it has 12 tasks), an error when saving failed, and the empty state when there are no invoices yet.",
+      "expect": [
+        { "check": "page-clean" },
+        { "check": "no-text", "pattern": "are you sure|oops|something went wrong|^no data$|^ok$|^yes$|^no$", "flags": "i", "why": "no vague titles or Yes/No/OK buttons" },
+        { "check": "has-text", "pattern": "12 tasks", "why": "the consequence is named with its count" },
+        { "check": "copy-clean" }
+      ]
+    },
+    {
+      "id": "writing-beginner", "of": "writing", "persona": "beginner", "skill": "antheo-writing", "type": "visual",
+      "prompt": "write the messages for my invoicing app and show them as cards: one asking if they really want to delete the plan \"Q4 plan\" (it has 12 tasks), one for when saving doesn't work, and one for when there are no invoices yet",
+      "expect": [
+        { "check": "page-clean" },
+        { "check": "no-text", "pattern": "are you sure|oops|something went wrong|^no data$|^ok$|^yes$|^no$", "flags": "i", "why": "no vague titles or Yes/No/OK buttons" },
+        { "check": "has-text", "pattern": "12 tasks", "why": "the consequence is named with its count" },
+        { "check": "copy-clean" }
+      ]
+    },
+    {
+      "id": "writing-senior", "of": "writing", "persona": "senior", "skill": "antheo-writing", "type": "visual",
+      "prompt": "Three message cards for an invoicing app: a destructive confirmation for deleting the plan \"Q4 plan\" (12 tasks) that names the loss and has verb-and-object buttons; a save failure that says what happened and how to recover; the empty state for no invoices, with one action. No \"Are you sure\", no \"Oops\", no em dashes.",
       "expect": [
         { "check": "page-clean" },
         { "check": "no-text", "pattern": "are you sure|oops|something went wrong|^no data$|^ok$|^yes$|^no$", "flags": "i", "why": "no vague titles or Yes/No/OK buttons" },
@@ -152,6 +258,26 @@
     {
       "id": "mobile", "skill": "antheo-mobile", "type": "phone",
       "prompt": "Build the \"New contact\" screen of a phone app: a title, an Email field and a Save contact button. It must work on an iPhone.",
+      "expect": [
+        { "check": "viewport-fit-cover", "why": "uses the whole screen and its safe areas" },
+        { "check": "field-16px", "why": "16px field text, so iOS doesn't zoom" },
+        { "check": "clear-of-island", "why": "no text under the status bar or the Dynamic Island" },
+        { "check": "action-above-keyboard", "why": "with the keyboard up on an iPhone, the primary button is still visible" }
+      ]
+    },
+    {
+      "id": "mobile-beginner", "of": "mobile", "persona": "beginner", "skill": "antheo-mobile", "type": "phone",
+      "prompt": "make a new contact screen for my phone app with a title, an email box and a save contact button. it has to work on iphone",
+      "expect": [
+        { "check": "viewport-fit-cover", "why": "uses the whole screen and its safe areas" },
+        { "check": "field-16px", "why": "16px field text, so iOS doesn't zoom" },
+        { "check": "clear-of-island", "why": "no text under the status bar or the Dynamic Island" },
+        { "check": "action-above-keyboard", "why": "with the keyboard up on an iPhone, the primary button is still visible" }
+      ]
+    },
+    {
+      "id": "mobile-senior", "of": "mobile", "persona": "senior", "skill": "antheo-mobile", "type": "phone",
+      "prompt": "\"New contact\" screen for iOS Safari: viewport-fit=cover with safe-area insets, a title, an Email field at 16px so focus never zooms, the Save contact action visible above the keyboard, nothing under the Dynamic Island.",
       "expect": [
         { "check": "viewport-fit-cover", "why": "uses the whole screen and its safe areas" },
         { "check": "field-16px", "why": "16px field text, so iOS doesn't zoom" },

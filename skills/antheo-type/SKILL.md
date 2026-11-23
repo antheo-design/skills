@@ -5,7 +5,7 @@ description: Sets how text looks and reads, from the faces to a scale with few s
 
 # Antheo Type
 
-> **How to read this skill.** Its numbers are house defaults (antheo-build, "Four kinds of rule"): they give way to the
+> **How to read this skill.** Its numbers are house defaults (antheo-build `references/rules.md`, "Four kinds of rule"): they give way to the
 > person, a reference, a brand or the project's own system. What protects people (contrast, focus, targets, reduced
 > motion, nothing broken) is a requirement and never bends.
 
@@ -59,7 +59,8 @@ On a phone, and on any screen whose main pointer is a finger, the block raises t
 them. That is the fix; never `maximum-scale=1` or `user-scalable=no`, which
 take zoom away from the people who need it (1.4.4). An app screen uses at most four of these (a data screen adds
 `--t-num`, five), a marketing section at most five. Long reading (an article, docs) is the one exception: 16px
-body, 1.6 line height, at most `65ch` a line.
+body, 1.6 line height, at most `--measure` a line (32em, about 68 characters; `65ch` is 93 in Geist, because a
+"0" is wider than the average letter).
 
 ## Two weights
 

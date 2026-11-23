@@ -15,14 +15,14 @@ States to cover, in this order: **loading, empty, error, partial, long, success,
 <!-- harness.html: ?state=loading|empty|error|partial|long|success|disabled|all -->
 <script type="module">
   const fixtures = {
-    default: { name: 'Priya Raman', email: 'priya@fieldnotes.co', plan: 'Team', amount: 4800 },
+    default: { name: 'Joanna Lindqvist', email: 'joanna@example.com', plan: 'Team', amount: 4800 },
     loading: { loading: true },
     empty:   { items: [] },
     error:   { error: "We couldn't load your invoices. Check your connection and try again." },
-    partial: { name: 'Priya Raman', email: '', plan: null, amount: null, avatar: 'https://x.invalid/a.png' },
+    partial: { name: 'Joanna Lindqvist', email: '', plan: null, amount: null, avatar: 'https://x.invalid/a.png' },
     long:    { name: 'Alexandria Montgomery-Featherstonehaugh III', email: 'alexandria.montgomery.featherstonehaugh@a-very-long-company-name.example.com', plan: 'Enterprise (annual, invoiced)', amount: 1234567 },
-    success: { name: 'Priya Raman', email: 'priya@fieldnotes.co', plan: 'Team', amount: 4800, saved: true },
-    disabled:{ name: 'Priya Raman', email: 'priya@fieldnotes.co', plan: 'Team', amount: 4800, disabled: true },
+    success: { name: 'Joanna Lindqvist', email: 'joanna@example.com', plan: 'Team', amount: 4800, saved: true },
+    disabled:{ name: 'Joanna Lindqvist', email: 'joanna@example.com', plan: 'Team', amount: 4800, disabled: true },
   };
   const want = new URLSearchParams(location.search).get('state') ?? 'all';
   const list = want === 'all' ? Object.keys(fixtures) : [want];
