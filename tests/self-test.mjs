@@ -463,6 +463,16 @@ test('scan-motion --top lists only the fixes that matter most, worst first', () 
   return out;
 });
 
+test('scan-motion takes a single file as well as a folder (the gate passes --copy paths through, and one can be a file)', () => {
+  const scan = path.join(SKILLS, 'antheo-motion-audit', 'scripts', 'scan-motion.mjs');
+  const file = path.join(tmp, 'motion-top', 'a.css');
+  const r = spawnSync(process.execPath, [scan, file], { encoding: 'utf8' });
+  const out = [];
+  if (r.status !== 0) out.push(`exit ${r.status}: ${(r.stderr || '').split('\n')[0]}`);
+  if (!/a\.css:2\b/.test(r.stdout)) out.push('the file was not scanned (its 600ms width transition is missing)');
+  return out;
+});
+
 test('a landing gate holds the work open on marketing devices past their budget, and catches navigator["webdriver"]', () => {
   const gate = path.join(SKILLS, 'antheo-review', 'scripts', 'gate.mjs');
   const dir = path.join(tmp, 'landing-gate');

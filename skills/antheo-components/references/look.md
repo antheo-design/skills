@@ -71,7 +71,12 @@ Fill, edge, drop, corners, wells, hairlines and dark elevation: **antheo-surface
   the title's first line. A section's actions sit at the end of its title row, above what they act on.
 - **Detail card:** a well holding the value that matters with its label above (`--t-meta`, `--text-2`), then rows of label
   (text-2, start) and value (end), 8px apart, no lines.
-- **Footer:** quiet then primary, sharing the width. One primary per surface.
+- **Footer:** quiet then primary. In a narrow decision dialog they share the width; in a card or a wide dialog they
+  sit at the end edge at natural width, primary last. One primary per surface, and cards of one kind put it on the
+  same side.
+- **Message** (an error, a notice, a card among others): start-aligned; a 16px status icon, if any, **beside** the
+  title on its first line, the text under the title, the action under the text. Never an icon in a tile above a
+  start-aligned title.
 - **List row:** a 24 to 32px neutral tile or avatar, the name (`--t-body`, `--w-strong`) over one fact (`--t-meta`, `--text-2`), the trailing value at the end.
   Hover fills the row in place.
 - **Row actions:** the trailing value swaps for 2 to 3 icon buttons on hover or focus within the row, in the same place;
@@ -80,7 +85,9 @@ Fill, edge, drop, corners, wells, hairlines and dark elevation: **antheo-surface
   one filled with `--accent`; an unavailable one says why on focus.
 - **Copy a value:** the icon turns to a tick the moment it is pressed, says "Copied" to screen readers, and reverts or
   says "Copy failed". No toast.
-- **Empty state:** one 20px glyph, one line saying what will be here, one hint or action. No box around it.
+- **Empty state:** one 20px glyph, one line saying what will be here, one hint or action. No box around it. Alone on
+  its surface, all of it is centred, the glyph above the line; inside a list or card it keeps the start edge, the
+  glyph beside the line.
 - **Status:** a word or a dot in the status ink. Never a coloured row or a coloured left border.
 
 ## The side-by-side test

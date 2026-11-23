@@ -57,10 +57,22 @@ A "section" or a "component" gets no site header, footer or navigation. An app p
 plain text. A sidebar only when the request lists destinations; never an avatar, "Log in" or links nobody named. The
 bar's contents sit on the window gutter.
 
-Under it, one centred column holds everything, and everything in it shares its left edge: every heading, card and
-text block starts on it, and things at the end (a row's control, a card's button) finish on its right edge. A pill
-or nav item lines up by its **text**. At most three left edges, and no two within 8px of each other: almost aligned
-is worse than clearly different.
+Under it, one centred column holds everything, and everything in it shares its left edge: every heading, card, field
+and text block starts on it, and things at the end (a row's control, a card's buttons) finish on its right edge. A
+pill or nav item lines up by its **text**. At most three left edges, and no two within 8px of each other: almost
+aligned is worse than clearly different.
+
+The one edge is for what people read. Buttons go where the eye ends, which depends on what they finish:
+
+| The buttons finish | They sit |
+|---|---|
+| A stacked form (fields one under another) | after the last field, on the fields' left edge |
+| A card or a wide dialog (a footer), or rows whose controls sit at the end (switches) | at the end edge, the main one last |
+| A narrow decision dialog (up to 480px) | sharing the footer's width, quiet then main (antheo-components) |
+| A message in the page (an inline error, a notice) | under its text, on the text's edge |
+| Anything on a phone | full width, the main one on top when stacked |
+
+Cards of the same kind on one page put their buttons on the same side.
 
 Not every screen is one column. A dense tool (an editor, an inbox, a data workspace) sets panes side by side, the
 main one widest, the others resizable or collapsible, and keeps the one-edge rule inside each pane. An editorial or
@@ -70,9 +82,14 @@ first screen" is for a task screen; a document, a report or a story scrolls.
 Text starts at the start edge. A centred block centres everything in it (its heading with its content); never a
 left-aligned heading above a centred grid, or the reverse.
 
-When to centre: a card with one purpose and few words (a confirmation, an empty or error state, a sign in) centres
-its picture and its heading. Forms, lists, tables and settings keep the start edge, even inside a centred card:
-people read fields and rows from their start.
+When to centre: a card alone with one purpose and few words (an empty state, a success, a sign in) centres
+everything in it: its picture above the heading, the text, and its button. Forms, lists, tables and settings keep
+the start edge, even inside a centred card: people read fields and rows from their start.
+
+A message among other content (an error, a notice, a card in a row) keeps the start edge instead, and its icon, if
+it has one, sits **beside** its title, centred on the title's first line, with the text below lined up under the
+title. Never an icon above a start-aligned title in a message: it costs a row and adds an edge. (A feature card on
+a landing page may put its picture above its heading; that is a different thing.)
 
 ## Siblings match
 

@@ -111,8 +111,10 @@ Each with its limits; `references/rules.md` has each one whole, with its edge ca
 14. **Widths.** A form `--w-form`, settings `--w-settings`, a pricing row `--w-pricing`, data `--w-data`, centred.
     Fields that belong together share a row. A block narrower than its column takes the column's width, unless it is
     alone on the page.
-15. **One edge, matching siblings.** One left edge in the column; the bar on the window gutter; cards in a row match in
-    size, padding and order; controls in a row share a height; a grid has one gap both ways.
+15. **One edge, matching siblings.** One left edge in the column for what is read; buttons go where the eye ends (a
+    stacked form's on the fields' left edge; a card's, a wide dialog's or a switch list's at the end, main one last);
+    the bar on the window gutter; cards in a row match in size, padding, order and button side; controls in a row
+    share a height; a grid has one gap both ways.
 16. **Two text tones.** `--text` for values, titles and labels; `--text-2` for descriptions, meta and placeholders;
     `--text-3` only for icons and ticks.
 17. **A unit stays with its number:** on its baseline, 6px after it, `--t-body` `--text-2`, one line. A discount keeps

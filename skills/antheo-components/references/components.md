@@ -106,12 +106,12 @@ The style block has it as `.seg`: `<div class="seg" role="radiogroup" aria-label
 ### Dialog (modal)
 - For decisions that need full attention or short focused tasks. Not for things that could be inline.
 - Width 360 to 480px for a decision, up to 640px for a task (a bottom sheet on phones); padding `--s-6` (24px); `--r-card` corners (10px; a phone sheet's top corners are `--r-sheet`, 14px); the dialog edge, drop and backdrop from antheo-surface.
-- **Anatomy:** the panel head (a `.t-title` title, a `--t-body` `--text-2` description, a `--h-small` close button) → body → footer with quiet then primary sharing the width (on phones stacked, primary on top).
+- **Anatomy:** the panel head (a `.t-title` title, a `--t-body` `--text-2` description, a `--h-small` close button) → body → footer with quiet then primary sharing the width in a decision dialog (up to 480px); in a wider task dialog, both at natural width at the end edge, primary last (on phones stacked, primary on top).
 - **Markup:** `<dialog aria-labelledby="t">` opened with `showModal()`. Focus goes to the first field (or the least destructive button); Tab is trapped; Esc closes; focus returns to the trigger.
 - Close button (×) top-right with `aria-label="Close"`.
 
 ### Confirmation of a destructive action
-- Title names the thing: "Delete 'Q3 plan'?" Body says what is lost and whether it can be undone. Buttons: "Cancel" (secondary, focused by default) and "Delete plan" (danger). For very destructive actions, type the name to confirm.
+- Title names the thing: "Delete 'Q3 plan'?" Body says what is lost and whether it can be undone. Buttons: "Cancel" (secondary, focused by default) and "Delete plan" (danger), placed as the dialog's footer above. No icon: the title and the red button already say it, and a bin in a tinted tile is a tell. For very destructive actions, type the name to confirm.
 - **Prefer Undo over confirming** for reversible actions (archive, remove from list): do it, then show a toast with Undo. A toast that carries an action stays until it is dismissed or the next action replaces it, and the same undo is reachable somewhere that does not time out (antheo-access).
 
 ### Drawer / sheet

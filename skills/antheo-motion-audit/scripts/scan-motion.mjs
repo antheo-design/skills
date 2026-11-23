@@ -148,7 +148,8 @@ function reducedBlocks(text) {
   return out;
 }
 
-const files = walk(root);
+// a single file is scanned as it is (the gate passes --copy paths straight through, and one can be a file)
+const files = statSync(root).isFile() ? (EXTS.has(extname(root)) ? [root] : []) : walk(root);
 const items = [];
 const reduced = [];
 const filesWithMotion = new Set();

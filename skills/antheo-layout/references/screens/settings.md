@@ -30,7 +30,9 @@ size below is a variable from the block.
 
 Rows of a label (`--t-body` `--w-strong`) over one line of description (`--t-meta` `--text-2`, naming the channel
 or the timing), the block's `.switch` at the end (on is `--accent`, off is a `--text-3` track). A hairline
-between rows is allowed, since it is a repeating list. Switches apply at once; no "On" or "Off" text.
+between rows is allowed, since it is a repeating list. Switches apply at once; no "On" or "Off" text. When the
+request asks for a Save anyway, it sits under the switches at the card's end edge (the eye ends at the switches),
+never on the left like the profile card's, whose Save finishes a form.
 
 ## The danger zone
 

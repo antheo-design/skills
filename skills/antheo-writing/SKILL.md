@@ -46,7 +46,9 @@ is unfinished.
 | Empty state | heading, one line, one action | what will be here, why it is empty, what to do |
 | Page title | 65 characters | "Billing history · Acme" |
 
-Every type with before-and-after pairs: `references/strings.md`.
+Every type with before-and-after pairs: `references/strings.md`. When you also build the message (a
+confirmation, an error, an empty state), how it looks (its icon beside the title, which side its buttons sit) is
+antheo-components `references/look.md`.
 
 ## Undo before confirm
 

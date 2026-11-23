@@ -45,7 +45,7 @@ Each with its limits; `references/rules.md` has each one whole, with its edge ca
 12. **Only what was asked.** No invented data, features, panels or copy; a sub-line only if it adds something, 12 words at most; the same feature count in every plan.
 13. **Compact, with rhythm.** `--h-control`, `--h-row`, `--pad-card`, `--gap-section`; more space above a title than below.
 14. **Widths.** A form `--w-form`, settings `--w-settings`, a pricing row `--w-pricing`, data `--w-data`, centred.
-15. **One edge, matching siblings.** One left edge in the column; the bar on the window gutter; cards in a row match in size, padding and order; controls in a row share a height; a grid has one gap both ways.
+15. **One edge, matching siblings.** One left edge in the column for what is read; buttons go where the eye ends (a stacked form's on the fields' left edge; a card's, a wide dialog's or a switch list's at the end, main one last); the bar on the window gutter; cards in a row match in size, padding, order and button side; controls in a row share a height; a grid has one gap both ways.
 16. **Two text tones.** `--text` for values, titles and labels; `--text-2` for descriptions, meta and placeholders; `--text-3` only for icons and ticks.
 17. **A unit stays with its number:** on its baseline, 6px after it, `--t-body` `--text-2`, one line.
 18. **Every state on the same layout,** one made-up person throughout, no placeholder text.

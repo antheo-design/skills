@@ -61,9 +61,12 @@ number with no kind given is a house default.
     centred in the window. Fields that belong together share a row (name and email). A block narrower than its
     column (a form, a card, one settings group) takes the column's width, so it keeps the one edge; only a block
     alone on the page (a sign-in card) stays narrow and centred. Never a narrow block with bare space beside it.
-15. **One edge, matching siblings.** Everything in the column shares its left edge; the bar's contents sit on the
-    window gutter. Cards in a row match in width, height, padding and the order inside; controls in a row share a
-    height; a grid has one gap in both directions.
+15. **One edge, matching siblings.** Everything read in the column (headings, cards, fields, text) shares its left
+    edge; the bar's contents sit on the window gutter. Buttons go where the eye ends: after a stacked form's last
+    field, on the fields' left edge; at the end edge of a card, a wide dialog or a list of switches, the main one
+    last; sharing the width in a narrow decision dialog; full width on a phone (antheo-layout, "Chrome only as
+    named, then one edge"). Cards in a row match in width, height, padding, the order inside and the side their
+    buttons sit on; controls in a row share a height; a grid has one gap in both directions.
 16. **Two text tones in a card.** `--text` for values, titles and labels; `--text-2` for descriptions and meta.
     `--text-3` only for icons and ticks; a placeholder is text someone reads, so it takes `--text-2` (the block does
     this).
